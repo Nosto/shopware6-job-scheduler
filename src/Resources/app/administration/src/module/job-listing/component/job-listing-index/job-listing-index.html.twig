@@ -9,17 +9,7 @@
                     :allowColumnEdit="false"
                     :allowDelete="false"
                     :allowEdit="false"
-                    :columns="columns"><h2>Hello</h2>
-{#                <template #actions="{ item }">#}
-{#                    <sw-context-menu-item @click="refreshPageDetails(item)">#}
-{#                        {{ $tc('styla-cms-integration-plugin.actions.refresh-page-details.button.label') }}#}
-{#                    </sw-context-menu-item>#}
-{#                </template>#}
-
-{#                <template v-slot:column-path="{item, column, url}">#}
-{#                    <a v-bind:href="computePathLink(item)" v-if="computePathLink(item)" target="_blank"> {{ computePathLink(item) }} </a>#}
-{#                    <span v-else>{{ item.path }}</span>#}
-{#                </template>#}
+                    :columns="columns">
             </sw-entity-listing>
         </template>
     </sw-page>

@@ -22,7 +22,6 @@ Component.register('job-listing-index', {
     },
 
     data: function () {
-        console.log(result);
         return {
             repository: null,
             result: null
@@ -34,9 +33,9 @@ Component.register('job-listing-index', {
             this.repository = this.repositoryFactory.create('od_scheduler_job');
 
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equalsAny('type','test'));
+            criteria.addFilter(Criteria.equals('type','test'));
 
-            this.repository.search(criteria,Shopware.Context.api).then(result => {
+            return this.repository.search(criteria,Shopware.Context.api).then(result => {
                 this.result = result;
             });
 
