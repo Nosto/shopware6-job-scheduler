@@ -1,0 +1,28 @@
+{
+  "job-listing": {
+    "general": {
+      "title": "Job Listing Pages",
+      "description": "job-listing"
+    },
+    "menu": {
+      "title": "Job Listing"
+    },
+    "page": {
+      "listing": {
+        "title": "Job Listing",
+        "description": "List of Jobs",
+        "grid": {
+          "column": {
+            "id": "Id",
+            "status": "Status",
+            "type": "Type",
+            "name": "Name",
+            "message": "Message",
+            "started-at": "Started at",
+            "finished-at": "Finished at"
+          }
+        }
+      }
+    }
+  }
+}
