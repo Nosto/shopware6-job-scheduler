@@ -19,11 +19,7 @@ class HandlerPool
     {
         $this->initHandlers();
 
-        if (!isset($this->handlers[$code])) {
-            throw new \Exception(\sprintf('Handler[code: %s] is not defined.', $code));
-        }
-
-        return $this->handlers[$code];
+        return $this->handlers[$code] ?? new Handler\Dummy();
     }
 
     public function all(): array

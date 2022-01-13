@@ -14,7 +14,6 @@ class Migration1641974495 extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        // TODO: add indices
         $sql = <<<SQL
         CREATE TABLE IF NOT EXISTS `od_scheduler_job` (
             `id`            BINARY(16)      NOT NULL,
@@ -33,10 +32,21 @@ SQL;
         $connection->executeStatement($sql);
 
         $sql = <<<SQL
+            ALTER TABLE `od_scheduler_job`
+                ADD INDEX `osj_parent_id_idx` (`parent_id`),
+                ADD INDEX `osj_parent_status_idx` (`status`),
+                ADD INDEX `osj_parent_type_idx` (`type`);
+SQL;
+        $connection->executeStatement($sql);
+
+        $sql = <<<SQL
         CREATE TABLE IF NOT EXISTS `od_scheduler_job_message` (
             `id`            BINARY(16)      NOT NULL,
             `job_id`        BINARY(16)      NOT NULL,
-            `message`       LONGTEXT        NULL,
+            `type`          VARCHAR(255)    NOT NULL,
+            `message`       LONGTEXT        NOT NULL,
+            `created_at`    DATETIME(3)     NOT NULL,
+            `updated_at`    DATETIME(3)     NULL,
             PRIMARY KEY (`id`),
             CONSTRAINT `fk.od_scheduler_job_message.job_id`
                 FOREIGN KEY (`job_id`)
@@ -45,10 +55,15 @@ SQL;
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 SQL;
         $connection->executeStatement($sql);
+
+        $sql = <<<SQL
+            ALTER TABLE `od_scheduler_job_message`
+                ADD INDEX `osjm_job_id_type_idx` (`job_id`, `type`);
+SQL;
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }
