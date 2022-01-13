@@ -11,9 +11,21 @@ Component.register('job-listing-index', {
         'repositoryFactory'
     ],
 
+    props: {
+        type: {
+            type: String,
+            required: true,
+            default: 'test'
+        }
+    },
+
     computed: {
         columns() {
             return this.getColumns();
+        },
+
+        jobRepository() {
+            return this.repositoryFactory.create('od_scheduler_job');
         }
     },
 
@@ -23,20 +35,18 @@ Component.register('job-listing-index', {
 
     data: function () {
         return {
-            repository: null,
-            result: null
+            jobItems: null
         }
     },
 
     methods: {
         createdComponent() {
-            this.repository = this.repositoryFactory.create('od_scheduler_job');
 
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('type','test'));
+            criteria.addFilter(Criteria.equalsAny('type', [this.type]));
 
-            return this.repository.search(criteria,Shopware.Context.api).then(result => {
-                this.result = result;
+            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
+                this.jobItems = jobItems;
             });
 
         },
@@ -44,29 +54,13 @@ Component.register('job-listing-index', {
         getColumns() {
             return [
                 {
-                    property: 'id',
-                    label: this.$tc('job-listing.page.listing.grid.column.id'),
-                    allowResize: true,
-                    primary: true
-                },
-                {
                     property: 'status',
                     label: this.$tc('job-listing.page.listing.grid.column.status'),
                     allowResize: true
                 },
                 {
-                    property: 'type',
-                    label: this.$tc('job-listing.page.listing.grid.column.type'),
-                    allowResize: true
-                },
-                {
                     property: 'name',
                     label: this.$tc('job-listing.page.listing.grid.column.name'),
-                    allowResize: true
-                },
-                {
-                    property: 'message',
-                    label: this.$tc('job-listing.page.listing.grid.column.message'),
                     allowResize: true
                 },
                 {
@@ -79,7 +73,24 @@ Component.register('job-listing-index', {
                     label: this.$tc('job-listing.page.listing.grid.column.finished-at'),
                     allowResize: true
                 },
+                {
+                    property: 'createdAt',
+                    label: this.$tc('job-listing.page.listing.grid.column.created-at'),
+                    allowResize: true
+                },
             ];
         },
+
+        disableRescheduling(item) {
+            if (item.status !== 'failed') {
+                return true;
+            }
+
+            return false;
+        },
+
+        rescheduleJob() {
+            return true;
+        }
     }
 });

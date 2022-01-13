@@ -2,14 +2,19 @@
     <sw-page class="swag-example-list">
         <template slot="content">
             <sw-entity-listing
-                    v-if="result"
-                    :items="result"
-                    :repository="repository"
+                    v-if="jobItems"
+                    :items="jobItems"
+                    :repository="jobRepository"
                     :showSelection="false"
                     :allowColumnEdit="false"
                     :allowDelete="false"
                     :allowEdit="false"
                     :columns="columns">
+                <template #actions="{ item }">
+                    <sw-context-menu-item :disabled="disableRescheduling(item)" @click="rescheduleJob">
+                        {{ $tc('job-listing.actions.reschedule-job.button.label') }}
+                    </sw-context-menu-item>
+                </template>
             </sw-entity-listing>
         </template>
     </sw-page>

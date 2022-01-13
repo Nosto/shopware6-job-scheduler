@@ -1,4 +1,5 @@
 import './component/job-listing-index';
+import './component/job-detail-index';
 
 const {Module} = Shopware;
 
@@ -13,6 +14,11 @@ Module.register('job-listing', {
         index: {
             component: 'job-listing-index',
             path: 'index'
+        },
+
+        detail: {
+            component: 'job-detail-index',
+            path: 'detail/:id'
         }
     },
 

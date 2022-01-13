@@ -13,14 +13,22 @@
         "description": "List of Jobs",
         "grid": {
           "column": {
-            "id": "Id",
             "status": "Status",
-            "type": "Type",
             "name": "Name",
-            "message": "Message",
             "started-at": "Started at",
-            "finished-at": "Finished at"
+            "finished-at": "Finished at",
+            "created-at": "Created at"
           }
+        }
+      },
+      "detail": {
+        "textHeadline": "Job"
+      }
+    },
+    "actions": {
+      "reschedule-job": {
+        "button": {
+          "label": "Reschedule job"
         }
       }
     }
