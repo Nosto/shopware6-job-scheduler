@@ -7,7 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class JobEntity extends Entity
 {
+    const TYPE_PENDING = 'pending';
     const TYPE_RUNNING = 'running';
+    const TYPE_SUCCEED = 'succeed';
+    const TYPE_FAILED = 'failed';
 
     use EntityIdTrait;
 
