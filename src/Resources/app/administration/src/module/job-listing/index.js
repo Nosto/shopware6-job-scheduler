@@ -16,15 +16,6 @@ Module.register('job-listing', {
         }
     },
 
-    // navigation: [{
-    //     id: 'job-listing',
-    //     label: 'job-listing.general.title',
-    //     color: '#F88962',
-    //     icon: 'default-avatar-multiple',
-    //     parent: 'sw-customer',
-    //     position: 40
-    // }],
-
     navigation: [
         {
             id: 'job-listing',
