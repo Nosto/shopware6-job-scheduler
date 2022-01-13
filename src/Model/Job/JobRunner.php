@@ -5,6 +5,8 @@ namespace Od\Scheduler\Model\Job;
 use Od\Scheduler\Async\JobMessageInterface;
 use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
+use Od\Scheduler\Model\Exception\JobException;
+use Od\Scheduler\Model\MessageManager;
 
 class JobRunner
 {
@@ -13,48 +15,87 @@ class JobRunner
         JobEntity::TYPE_RUNNING
     ];
 
+    private MessageManager $messageManager;
     private HandlerPool $handlerPool;
     private JobHelper $jobHelper;
 
     public function __construct(
+        MessageManager $messageManager,
         HandlerPool $handlerPool,
         JobHelper $jobHelper
     ) {
+        $this->messageManager = $messageManager;
         $this->handlerPool = $handlerPool;
         $this->jobHelper = $jobHelper;
     }
 
     public function execute(JobMessageInterface $message): JobResult
     {
+        $result = null;
         $handler = $this->handlerPool->get($message->getHandlerCode());
-        $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
-        $result = $handler->execute($message);
 
-        if ($handler instanceof GeneratingHandlerInterface) {
-            $childJobCollection = $this->jobHelper->getChildJobs($message->getJobId());
+        try {
+            $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
+            $result = $handler->execute($message);
+        } catch (\Throwable $e) {
+            $result = $result !== null ? $result : new JobResult();
+            $result->addError(new JobException($message->getJobId(), $e->getMessage()));
+        }
 
+        return $this->postProcessResult($result, $handler, $message);
+    }
+
+    /**
+     * This method is used as built-in job execution behavior like "SkipErrors".
+     * TODO: Its really nice to have option to take control over the job execution behavior like StopOnError, SkipErrors
+     * TODO: I believe in can be easily implemented by wrapping handler into the specific behavior, witch will take
+     * TODO: control over the whole job-chain processing.
+     *
+     * Current behavior example with all finished child jobs:
+     * [parent generation job (succeed)]
+     *      |-> [child 1 (status: succeed)]
+     *      |-> [child 2 (status: succeed)]
+     *      |-> [child 3 (status: error)]
+     *
+     * Current behavior example with not all finished child jobs:
+     * [parent generation job (running)]
+     *      |-> [child 1 (status: succeed)]
+     *      |-> [child 2 (status: running)]
+     *      |-> [child 3 (status: pending)]
+     */
+    private function postProcessResult(
+        JobResult $result,
+        JobHandlerInterface $handler,
+        JobMessageInterface $message
+    ): JobResult {
+        $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
+
+        if ($handler instanceof GeneratingHandlerInterface
+            && $this->jobHelper->getChildJobs($message->getJobId())->count() === 0
+        ) {
             /**
-             * Nothing was scheduled by operation - mark it with proper status.
+             * Nothing was scheduled by job handler - mark job with proper status.
+             * If job handler scheduled new jobs, we need to await all child jobs execution
+             * to mark current "parent" job.
              */
-            if ($childJobCollection->count() === 0) {
-                $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
-                $this->jobHelper->markJob($message->getJobId(), $status);
-            }
+            $this->jobHelper->markJob($message->getJobId(), $status);
 
             return $result;
         }
 
-        $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
         $this->jobHelper->markJob($message->getJobId(), $status);
+        // TODO: make it possible to add different message types to JobResult to handle all of them here.
+        /** @var \Throwable $error */
+        foreach ($result->getErrors() as $error) {
+            $this->messageManager->addErrorMessage($message->getJobId(), $error->getMessage());
+        }
 
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
-            $childJobCollection = $this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES);
-
-            /**
-             * No pending jobs found - mark parent job as succeed.
-             */
-            if ($childJobCollection->count() === 0) {
+            if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
+                /**
+                 * All current job's siblings was executed - mark parent job as succeed.
+                 */
                 $this->jobHelper->markJob($parentJobId, JobEntity::TYPE_SUCCEED);
             }
         }

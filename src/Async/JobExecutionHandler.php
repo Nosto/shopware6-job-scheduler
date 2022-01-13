@@ -26,15 +26,10 @@ class JobExecutionHandler extends AbstractMessageHandler
     {
         try {
             $this->jobRunner->execute($message);
-        } catch (\Exception $e) {
-            //TODO: specific job exception
         } catch (\Throwable $e) {
             // Should not trigger any exceptions to avoid message requeue
             $this->logger->error(
-                \sprintf('Failed to run job[message: %s]', \get_class($message)),
-                [
-                    'exception' => $e
-                ]
+                \sprintf('Failed to run job[id: %s] message: %s', $message->getJobId(), $e->getMessage()),
             );
         }
     }
