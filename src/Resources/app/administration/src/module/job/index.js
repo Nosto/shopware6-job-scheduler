@@ -1,5 +1,5 @@
-import './component/job-listing-index';
-import './component/job-detail-index';
+import './page/job-listing-index';
+import './page/job-detail-index';
 
 const {Module} = Shopware;
 
@@ -18,7 +18,12 @@ Module.register('job-listing', {
 
         detail: {
             component: 'job-detail-index',
-            path: 'detail/:id'
+            path: 'detail/:id',
+            props: {
+                default: ($route) => {
+                    return { jobId: $route.params.id };
+                },
+            },
         }
     },
 
