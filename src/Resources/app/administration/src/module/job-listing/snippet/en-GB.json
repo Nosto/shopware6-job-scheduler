@@ -1,0 +1,36 @@
+{
+  "job-listing": {
+    "general": {
+      "title": "Job Listing Pages",
+      "description": "job-listing"
+    },
+    "menu": {
+      "title": "Job Listing"
+    },
+    "page": {
+      "listing": {
+        "title": "Job Listing",
+        "description": "List of Jobs",
+        "grid": {
+          "column": {
+            "status": "Status",
+            "name": "Name",
+            "started-at": "Started at",
+            "finished-at": "Finished at",
+            "created-at": "Created at"
+          }
+        }
+      },
+      "detail": {
+        "textHeadline": "Job"
+      }
+    },
+    "actions": {
+      "reschedule-job": {
+        "button": {
+          "label": "Reschedule job"
+        }
+      }
+    }
+  }
+}

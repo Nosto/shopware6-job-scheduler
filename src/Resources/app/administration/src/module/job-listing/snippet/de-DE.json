@@ -1,0 +1,25 @@
+{
+    "job-listing"
+:
+    {
+        "general"
+    :
+        {
+            "title"
+        :
+            "job-listing",
+                "description"
+        :
+            "job-listing"
+        },
+      "page": {
+        "listing": {
+          "grid": {
+            "column": {
+              "id": "job-listing.page.listing.grid.column.id"
+            }
+          }
+        }
+      }
+    }
+}
