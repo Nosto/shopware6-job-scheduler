@@ -1,6 +1,8 @@
 import './page/job-listing-index';
 import './page/job-detail-index';
 
+import enGB from './snippet/en-GB.json';
+
 const {Module} = Shopware;
 
 Module.register('job-listing', {
@@ -9,6 +11,10 @@ Module.register('job-listing', {
     description: 'job-listing.general.description',
     color: '#F88962',
     icon: 'default-avatar-multiple',
+
+    snippets: {
+        'en-GB': enGB,
+    },
 
     routes: {
         index: {
