@@ -21,6 +21,7 @@ Component.register('job-detail-index', {
 
     data: function () {
         return {
+            parentRoute: null,
             jobItem: null,
             jobChildren: null
         }
@@ -38,6 +39,10 @@ Component.register('job-detail-index', {
     created() {
         this.createdComponent();
         this.getJobChildren();
+    },
+
+    mounted() {
+        this.mountedComponent();
     },
 
     methods: {
@@ -107,6 +112,10 @@ Component.register('job-detail-index', {
             ];
         },
 
+        mountedComponent() {
+            this.initPage();
+        },
+
         disableRescheduling(item) {
             if (item.status !== 'failed') {
                 return true;
@@ -117,6 +126,12 @@ Component.register('job-detail-index', {
 
         rescheduleJob() {
             return true;
-        }
+        },
+
+        initPage() {
+            if (this.$route.meta.parentPath) {
+                this.parentRoute = this.$route.meta.parentPath;
+            }
+        },
     }
 });

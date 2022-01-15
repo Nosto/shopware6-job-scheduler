@@ -9,6 +9,18 @@
                 {% endblock %}
             </template>
         {% endblock %}
+        {% block job_detail_actions_reschedule %}
+            <template #smart-bar-actions>
+                <sw-button
+                        :disabled="disableRescheduling(jobItem)"
+                        @click="rescheduleJob"
+                        class="sw-order-detail__smart-bar-edit-button"
+                        variant="primary"
+                >
+                    {{ $tc('job-listing.actions.reschedule-job.button.label') }}
+                </sw-button>
+            </template>
+        {% endblock %}
         {% block job_detail_content %}
             <template #content>
                 <sw-card :title="$tc('job-listing.page.detail.textHeadline')">
@@ -83,34 +95,34 @@
                         </sw-card-section>
                     {% endblock %}
                 </sw-card>
-                    <sw-card :title="$tc('job-listing.page.detail.jobChildrenTitle')">
-                        {% block job_children_listing %}
-                            <sw-data-grid
-                                    v-if="jobChildren"
-                                    :items="jobChildren"
-                                    :data-source="jobChildren"
-                                    :repository="jobRepository"
-                                    :showSelection="false"
-                                    :allowColumnEdit="false"
-                                    :allowDelete="false"
-                                    :allowEdit="false"
-                                    :columns="jobChildrenColumns">
-                                <template #column-name="{ item }">
-                                    {% block job_list_grid_job_name_link %}
-                                        <router-link :to="{ name: 'job.listing.detail', params: { id: item.id } }">
-                                            {{ item.name }}
-                                        </router-link>
-                                    {% endblock %}
-                                </template>
-                                <template #actions="{ item }">
-                                    <sw-context-menu-item :disabled="disableRescheduling(item)"
-                                                          @click="rescheduleJob">
-                                        {{ $tc('job-listing.actions.reschedule-job.button.label') }}
-                                    </sw-context-menu-item>
-                                </template>
-                            </sw-data-grid>
-                        {% endblock %}
-                    </sw-card>
+                <sw-card :title="$tc('job-listing.page.detail.jobChildrenTitle')">
+                    {% block job_children_listing %}
+                        <sw-data-grid
+                                v-if="jobChildren"
+                                :items="jobChildren"
+                                :data-source="jobChildren"
+                                :repository="jobRepository"
+                                :showSelection="false"
+                                :allowColumnEdit="false"
+                                :allowDelete="false"
+                                :allowEdit="false"
+                                :columns="jobChildrenColumns">
+                            <template #column-name="{ item }">
+                                {% block job_list_grid_job_name_link %}
+                                    <router-link :to="{ name: 'job.listing.detail', params: { id: item.id } }">
+                                        {{ item.name }}
+                                    </router-link>
+                                {% endblock %}
+                            </template>
+                            <template #actions="{ item }">
+                                <sw-context-menu-item :disabled="disableRescheduling(item)"
+                                                      @click="rescheduleJob">
+                                    {{ $tc('job-listing.actions.reschedule-job.button.label') }}
+                                </sw-context-menu-item>
+                            </template>
+                        </sw-data-grid>
+                    {% endblock %}
+                </sw-card>
             </template>
         {% endblock %}
     </sw-page>
