@@ -95,7 +95,8 @@
                         </sw-card-section>
                     {% endblock %}
                 </sw-card>
-                <sw-card :title="$tc('job-listing.page.detail.jobChildrenTitle')">
+                <sw-card v-if="(jobChildren && jobChildren.total > 0)"
+                         :title="$tc('job-listing.page.detail.jobChildrenTitle')">
                     {% block job_children_listing %}
                         <sw-data-grid
                                 v-if="jobChildren"
