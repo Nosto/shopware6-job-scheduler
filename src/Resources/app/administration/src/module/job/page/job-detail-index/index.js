@@ -20,10 +20,13 @@ Component.register('job-detail-index', {
     },
 
     data: function () {
+
         return {
             parentRoute: null,
             jobItem: null,
-            jobChildren: null
+            jobChildren: null,
+            jobMessages: null,
+            displayedLog: null
         }
     },
 
@@ -31,14 +34,21 @@ Component.register('job-detail-index', {
         jobRepository() {
             return this.repositoryFactory.create('od_scheduler_job');
         },
+        jobMessagesRepository() {
+            return this.repositoryFactory.create('od_scheduler_job_message');
+        },
         jobChildrenColumns() {
             return this.getJobChildrenColumns();
         },
+        jobMessagesColumns() {
+            return this.getJobMessagesColumns();
+        }
     },
 
     created() {
         this.createdComponent();
         this.getJobChildren();
+        this.getJobMessages();
     },
 
     mounted() {
@@ -112,16 +122,40 @@ Component.register('job-detail-index', {
             ];
         },
 
+        getJobMessages() {
+
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equalsAny('jobId', [this.jobId]));
+
+            return this.jobMessagesRepository.search(criteria, Shopware.Context.api).then(jobMessages => {
+                this.jobMessages = jobMessages;
+            });
+        },
+
+        getJobMessagesColumns() {
+            return [
+                {
+                    property: 'message',
+                    dataIndex: 'message',
+                    label: this.$tc('job-listing.page.listing.grid.column.message'),
+                    allowResize: false,
+                    align: 'left',
+                    width: '90px'
+                }
+            ]
+        },
+
         mountedComponent() {
             this.initPage();
         },
 
         disableRescheduling(item) {
-            if (item.status !== 'failed') {
-                return true;
-            }
+            return item.status !== 'failed';
+        },
 
-            return false;
+        disableShowJobMessages() {
+            return !(this.jobMessages && this.jobMessages.total > 0);
+
         },
 
         rescheduleJob() {
@@ -132,6 +166,15 @@ Component.register('job-detail-index', {
             if (this.$route.meta.parentPath) {
                 this.parentRoute = this.$route.meta.parentPath;
             }
+        },
+
+        showModal() {
+            return this.displayedLog = true;
+        },
+
+        closeModal() {
+            this.displayedLog = null;
+            console.log(this.displayedLog + '2');
         },
     }
 });
