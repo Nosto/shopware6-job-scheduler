@@ -132,8 +132,9 @@
                         </sw-data-grid>
                     {% endblock %}
                 </sw-card>
-                <sw-modal :title="$tc('job-listing.page.listing.grid.column.message')" v-if="displayedLog"
-                          @modal-close="closeModal">
+                <sw-modal :title="$tc('job-listing.page.listing.grid.column.message')"          v-if="displayedLog"
+                          @modal-close="closeModal"
+                            class="job_list_grid_job_messages-modal">
                     {% block job_messages_listing %}
                         <sw-data-grid
                                 v-if="jobMessages && jobMessages.total > 0"
@@ -146,13 +147,36 @@
                                 :showActions="false"
                                 :showHeader="false"
                                 :columns="jobMessagesColumns">
-{#                            <template #column-message="{ item }">#}
-{#                                {% block job_list_grid_job_message %}#}
-{#                                    <router-link :to="{ name: 'job.listing.detail', params: { id: item.id } }">#}
-{#                                        {{ message.type }}#}
-{#                                    </router-link>#}
-{#                                {% endblock %}#}
-{#                            </template>#}
+                            <template #column-message="{ item }">
+                                {% block job_list_grid_job_messages %}
+                                    <div class="job_list_grid_job_messages-information" style="width:100%;">
+                                        <sw-alert
+                                                v-if="item.type == 'info'"
+                                                variant="info"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                        <sw-alert
+                                                v-if="item.type == 'error'"
+                                                variant="error"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                        <sw-alert
+                                                v-if="item.type == 'warning'"
+                                                variant="warning"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                    </div>
+                                {% endblock %}
+                            </template>
                         </sw-data-grid>
                     {% endblock %}
                 </sw-modal>
