@@ -1,2 +1,2 @@
-import './module/job-listing';
+import './module/job';
 
