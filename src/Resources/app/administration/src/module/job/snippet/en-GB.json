@@ -33,6 +33,11 @@
         "button": {
           "label": "Reschedule job"
         }
+      },
+      "show-messages": {
+        "button": {
+          "label": "Show messages"
+        }
       }
     }
   }

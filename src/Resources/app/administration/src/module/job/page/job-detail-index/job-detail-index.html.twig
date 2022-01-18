@@ -9,7 +9,7 @@
                 {% endblock %}
             </template>
         {% endblock %}
-        {% block job_detail_actions_reschedule %}
+        {% block job_detail_actions %}
             <template #smart-bar-actions>
                 <sw-button
                         :disabled="disableRescheduling(jobItem)"
@@ -18,6 +18,14 @@
                         variant="primary"
                 >
                     {{ $tc('job-listing.actions.reschedule-job.button.label') }}
+                </sw-button>
+                <sw-button
+                        :disabled="disableShowJobMessages()"
+                        @click="showModal"
+                        class="sw-order-detail__smart-bar-edit-button"
+                        variant="primary"
+                >
+                    {{ $tc('job-listing.actions.show-messages.button.label') }}
                 </sw-button>
             </template>
         {% endblock %}
@@ -124,6 +132,54 @@
                         </sw-data-grid>
                     {% endblock %}
                 </sw-card>
+                <sw-modal :title="$tc('job-listing.page.listing.grid.column.message')"          v-if="displayedLog"
+                          @modal-close="closeModal"
+                            class="job_list_grid_job_messages-modal">
+                    {% block job_messages_listing %}
+                        <sw-data-grid
+                                v-if="jobMessages && jobMessages.total > 0"
+                                :items="jobMessages"
+                                :data-source="jobMessages"
+                                :showSelection="false"
+                                :allowColumnEdit="false"
+                                :allowDelete="false"
+                                :allowEdit="false"
+                                :showActions="false"
+                                :showHeader="false"
+                                :columns="jobMessagesColumns">
+                            <template #column-message="{ item }">
+                                {% block job_list_grid_job_messages %}
+                                    <div class="job_list_grid_job_messages-information" style="width:100%;">
+                                        <sw-alert
+                                                v-if="item.type == 'info'"
+                                                variant="info"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                        <sw-alert
+                                                v-if="item.type == 'error'"
+                                                variant="error"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                        <sw-alert
+                                                v-if="item.type == 'warning'"
+                                                variant="warning"
+                                                appearance="default"
+                                                :showIcon="true"
+                                                :closable="false">
+                                            {{ item.message }}
+                                        </sw-alert>
+                                    </div>
+                                {% endblock %}
+                            </template>
+                        </sw-data-grid>
+                    {% endblock %}
+                </sw-modal>
             </template>
         {% endblock %}
     </sw-page>
