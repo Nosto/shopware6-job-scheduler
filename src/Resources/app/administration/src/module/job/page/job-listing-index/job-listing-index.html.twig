@@ -10,6 +10,13 @@
                     :allowDelete="false"
                     :allowEdit="false"
                     :columns="columns">
+                <template #column-name="{ item }">
+                    {% block job_list_grid_job_name_link %}
+                        <router-link :to="{ name: 'job.listing.detail', params: { id: item.id } }">
+                            {{ item.name }}
+                        </router-link>
+                    {% endblock %}
+                </template>
                 <template #actions="{ item }">
                     <sw-context-menu-item :disabled="disableRescheduling(item)" @click="rescheduleJob">
                         {{ $tc('job-listing.actions.reschedule-job.button.label') }}

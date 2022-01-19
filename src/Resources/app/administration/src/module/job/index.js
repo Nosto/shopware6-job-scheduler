@@ -1,5 +1,7 @@
-import './component/job-listing-index';
-import './component/job-detail-index';
+import './page/job-listing-index';
+import './page/job-detail-index';
+
+import enGB from './snippet/en-GB.json';
 
 const {Module} = Shopware;
 
@@ -10,6 +12,10 @@ Module.register('job-listing', {
     color: '#F88962',
     icon: 'default-avatar-multiple',
 
+    snippets: {
+        'en-GB': enGB,
+    },
+
     routes: {
         index: {
             component: 'job-listing-index',
@@ -18,7 +24,12 @@ Module.register('job-listing', {
 
         detail: {
             component: 'job-detail-index',
-            path: 'detail/:id'
+            path: 'detail/:id',
+            props: {
+                default: ($route) => {
+                    return { jobId: $route.params.id };
+                },
+            },
         }
     },
 

@@ -13,6 +13,8 @@
         "description": "List of Jobs",
         "grid": {
           "column": {
+            "type": "Type",
+            "message": "Message",
             "status": "Status",
             "name": "Name",
             "started-at": "Started at",
@@ -22,13 +24,19 @@
         }
       },
       "detail": {
-        "textHeadline": "Job"
+        "textHeadline": "Job",
+        "jobChildrenTitle": "Job Children"
       }
     },
     "actions": {
       "reschedule-job": {
         "button": {
           "label": "Reschedule job"
+        }
+      },
+      "show-messages": {
+        "button": {
+          "label": "Show messages"
         }
       }
     }
