@@ -2,6 +2,7 @@
   "name": "od/sw6-job-scheduler",
   "description": "System plugin for async job scheduling",
   "type": "shopware-platform-plugin",
+  "version": "1.0.0",
   "license": "MIT",
   "autoload": {
     "psr-4": {

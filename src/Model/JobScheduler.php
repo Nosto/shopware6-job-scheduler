@@ -55,7 +55,7 @@ class JobScheduler
         $serializedEnvelope = $this->messageSerializer->encode(Envelope::wrap($jobMessage));
         $jobData = [
             'id' => $jobMessage->getJobId(),
-            'name' => $jobMessage->getHandlerCode(),
+            'name' => $jobMessage->getJobName(),
             'status' => JobEntity::TYPE_PENDING,
             'type' => $jobMessage->getHandlerCode(),
             'message' => $serializedEnvelope['body'] ?? null

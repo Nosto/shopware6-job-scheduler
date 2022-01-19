@@ -7,4 +7,6 @@ interface JobMessageInterface
     public function getJobId(): string;
 
     public function getHandlerCode(): string;
+
+    public function getJobName(): string;
 }
