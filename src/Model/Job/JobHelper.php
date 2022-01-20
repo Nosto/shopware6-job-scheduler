@@ -19,6 +19,14 @@ class JobHelper
         $this->jobRepository = $jobRepository;
     }
 
+    public function deleteJob(string $jobId)
+    {
+        $this->jobRepository->delete(
+            [['id' => $jobId]],
+            Context::createDefaultContext()
+        );
+    }
+
     public function markJob(string $jobId, string $status)
     {
         $jobData = [
