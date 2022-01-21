@@ -1,15 +1,22 @@
 {% block job_listing_page %}
-    <sw-page class="swag-example-list">
+    <sw-page class="swag-example-list" :isLoading="isLoading">
         <template slot="content">
-            <sw-entity-listing
+            <od-entity-listing
                     v-if="jobItems"
                     :items="jobItems"
                     :repository="jobRepository"
+                    :is-loading="isLoading"
                     :showSelection="false"
                     :allowColumnEdit="false"
                     :allowDelete="false"
                     :allowEdit="false"
                     :columns="columns">
+                <template #column-status="{ item }">
+                    {% block job_list_grid_job_status_link %}
+                        <sw-color-badge rounded variant="success" style="margin-right: 10px; margin-top: 3px;"></sw-color-badge>
+                        {{ item.status }}
+                    {% endblock %}
+                </template>
                 <template #column-name="{ item }">
                     {% block job_list_grid_job_name_link %}
                         <router-link :to="{ name: 'job.listing.detail', params: { id: item.id } }">
@@ -17,12 +24,23 @@
                         </router-link>
                     {% endblock %}
                 </template>
-                <template #actions="{ item }">
-                    <sw-context-menu-item :disabled="disableRescheduling(item)" @click="rescheduleJob">
-                        {{ $tc('job-listing.actions.reschedule-job.button.label') }}
-                    </sw-context-menu-item>
-                </template>
-            </sw-entity-listing>
+{#                <template #actions="{ item }">#}
+{#                    <sw-context-menu-item :disabled="disableRescheduling(item)" @click="rescheduleJob">#}
+{#                        {{ $tc('job-listing.actions.reschedule-job.button.label') }}#}
+{#                    </sw-context-menu-item>#}
+{#                </template>#}
+            </od-entity-listing>
+        </template>
+            <template #sidebar>
+                <sw-sidebar>
+                    {% block sw_jobs_list_sidebar_refresh %}
+                        <sw-sidebar-item
+                                icon="default-arrow-360-left"
+                                :title="$tc('sw-product.list.titleSidebarItemRefresh')"
+                                @click="onRefresh"
+                        />
+                    {% endblock %}
+                </sw-sidebar>
         </template>
     </sw-page>
 {% endblock %}

@@ -11,47 +11,20 @@ Component.register('job-listing-index', {
         'repositoryFactory'
     ],
 
-    props: {
-        type: {
-            type: String,
-            required: true,
-            default: 'test'
-        }
-    },
+    // props: {
+    //     type: {
+    //         type: String,
+    //         required: true,
+    //         default: 'test'
+    //     }
+    // },
 
     computed: {
-        columns() {
-            return this.getColumns();
-        },
-
         jobRepository() {
             return this.repositoryFactory.create('od_scheduler_job');
-        }
-    },
-
-    created() {
-        this.createdComponent();
-    },
-
-    data: function () {
-        return {
-            jobItems: null
-        }
-    },
-
-    methods: {
-        createdComponent() {
-
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equalsAny('type', [this.type]));
-
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = jobItems;
-            });
-
         },
 
-        getColumns() {
+        columns() {
             return [
                 {
                     property: 'status',
@@ -79,6 +52,38 @@ Component.register('job-listing-index', {
                     allowResize: true
                 },
             ];
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    data: function () {
+        return {
+            jobItems: null,
+            isLoading: false
+        }
+    },
+
+    methods: {
+        createdComponent() {
+            this.getList();
+        },
+
+        getList() {
+            this.isLoading = true;
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('parentId', null));
+
+            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
+                this.jobItems = jobItems;
+                this.isLoading = false;
+            });
+        },
+
+        onRefresh() {
+            this.getList();
         },
 
         disableRescheduling(item) {

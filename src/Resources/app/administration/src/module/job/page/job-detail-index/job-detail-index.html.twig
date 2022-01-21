@@ -9,6 +9,15 @@
                 {% endblock %}
             </template>
         {% endblock %}
+
+        <template slot="smart-bar-back">
+            <router-link class="smart-bar__back-btn"
+                         :to="backPath"
+                         :style="{ 'color': moduleData.color }">
+                <sw-icon name="default-arrow-head-left" small></sw-icon>
+            </router-link>
+        </template>
+
         {% block job_detail_actions %}
             <template #smart-bar-actions>
                 <sw-button
@@ -103,8 +112,7 @@
                         </sw-card-section>
                     {% endblock %}
                 </sw-card>
-                <sw-card v-if="(jobChildren && jobChildren.total > 0)"
-                         :title="$tc('job-listing.page.detail.jobChildrenTitle')">
+                <div v-if="(jobChildren && jobChildren.total > 0)">
                     {% block job_children_listing %}
                         <sw-data-grid
                                 v-if="jobChildren"
@@ -131,7 +139,7 @@
                             </template>
                         </sw-data-grid>
                     {% endblock %}
-                </sw-card>
+                </div>
                 <sw-modal :title="$tc('job-listing.page.listing.grid.column.message')"          v-if="displayedLog"
                           @modal-close="closeModal"
                             class="job_list_grid_job_messages-modal">

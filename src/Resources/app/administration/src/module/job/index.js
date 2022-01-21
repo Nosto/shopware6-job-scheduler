@@ -40,16 +40,9 @@ Module.register('job-listing', {
             color: '#F88962',
             icon: 'default-avatar-multiple',
             parent: 'sw-marketing',
-            position: 100
-        },
-        {
-            label: 'job-listing.general.title',
-            color: '#77ff3d',
-            icon: 'small-default-stack-line2',
             path: 'job.listing.index',
-            parent: 'job-listing',
             position: 100
-        },
+        }
     ],
 
 })

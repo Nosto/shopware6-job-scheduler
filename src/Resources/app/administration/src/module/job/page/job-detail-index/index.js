@@ -19,6 +19,12 @@ Component.register('job-detail-index', {
         }
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     data: function () {
 
         return {
@@ -26,7 +32,8 @@ Component.register('job-detail-index', {
             jobItem: null,
             jobChildren: null,
             jobMessages: null,
-            displayedLog: null
+            displayedLog: null,
+            moduleData: this.$route.meta.$module,
         }
     },
 
@@ -42,7 +49,11 @@ Component.register('job-detail-index', {
         },
         jobMessagesColumns() {
             return this.getJobMessagesColumns();
-        }
+        },
+
+        backPath() {
+            return {name: 'job.listing.index'};
+        },
     },
 
     created() {
