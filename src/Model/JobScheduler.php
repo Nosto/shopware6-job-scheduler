@@ -89,7 +89,7 @@ class JobScheduler
          * we need to resend childs' messages to message bus.
          */
         if ($jobHandler instanceof GeneratingHandlerInterface) {
-            $childJobCollection = $this->jobHelper->getChildJobs($job->getId());
+            $childJobCollection = $this->jobHelper->getChildJobs($job->getId(), [JobEntity::TYPE_FAILED]);
 
             /** @var JobEntity $childJob */
             foreach ($childJobCollection as $childJob) {

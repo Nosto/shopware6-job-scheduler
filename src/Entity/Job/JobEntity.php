@@ -10,7 +10,7 @@ class JobEntity extends Entity
     const TYPE_PENDING = 'pending';
     const TYPE_RUNNING = 'running';
     const TYPE_SUCCEED = 'succeed';
-    const TYPE_FAILED = 'failed';
+    const TYPE_FAILED = 'error';
 
     use EntityIdTrait;
 

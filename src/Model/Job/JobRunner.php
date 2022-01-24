@@ -52,7 +52,7 @@ class JobRunner
      * TODO: control over the whole job-chain processing.
      *
      * Current behavior example with all finished child jobs:
-     * [parent generation job (succeed)]
+     * [parent generation job (error)]
      *      |-> [child 1 (status: succeed)]
      *      |-> [child 2 (status: succeed)]
      *      |-> [child 3 (status: error)]
@@ -91,10 +91,19 @@ class JobRunner
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
             if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
+                $hasFailedChild = $this->jobHelper->getChildJobs($parentJobId, [JobEntity::TYPE_FAILED])->count() !== 0;
                 /**
-                 * All current job's siblings was executed - mark parent job as succeed.
+                 * All current job's siblings was executed - mark parent job with proper status
+                 * according to existence of failed child jobs.
                  */
-                $this->jobHelper->markJob($parentJobId, JobEntity::TYPE_SUCCEED);
+                $this->jobHelper->markJob(
+                    $parentJobId,
+                    $hasFailedChild ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED
+                );
+
+                if ($hasFailedChild) {
+                    $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs has been failed.');
+                }
             }
         }
 
