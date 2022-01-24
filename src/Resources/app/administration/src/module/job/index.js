@@ -17,14 +17,9 @@ Module.register('job-listing', {
     },
 
     routes: {
-        index: {
-            component: 'job-listing-index',
-            path: 'index'
-        },
-
         detail: {
             component: 'job-detail-index',
-            path: 'detail/:id',
+            path: 'detail/:id/back/:backPath',
             props: {
                 default: ($route) => {
                     return { jobId: $route.params.id };
@@ -32,17 +27,4 @@ Module.register('job-listing', {
             },
         }
     },
-
-    navigation: [
-        {
-            id: 'job-listing',
-            label: 'job-listing.menu.title',
-            color: '#F88962',
-            icon: 'default-avatar-multiple',
-            parent: 'sw-marketing',
-            path: 'job.listing.index',
-            position: 100
-        }
-    ],
-
 })

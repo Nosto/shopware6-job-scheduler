@@ -58,7 +58,8 @@ SQL;
 
         $sql = <<<SQL
             ALTER TABLE `od_scheduler_job_message`
-                ADD INDEX `osjm_job_id_type_idx` (`job_id`, `type`);
+                ADD INDEX `osjm_job_id_type_idx` (`job_id`, `type`),
+                ADD INDEX `osjm_created_at_idx` (`created_at`);
 SQL;
         $connection->executeStatement($sql);
     }

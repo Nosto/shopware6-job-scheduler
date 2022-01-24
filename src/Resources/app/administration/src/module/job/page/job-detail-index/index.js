@@ -8,7 +8,12 @@ Component.register('job-detail-index', {
     template,
 
     inject: [
+        'OdRescheduleService',
         'repositoryFactory'
+    ],
+
+    mixins: [
+        'notification',
     ],
 
     props: {
@@ -26,12 +31,12 @@ Component.register('job-detail-index', {
     },
 
     data: function () {
-
         return {
             parentRoute: null,
             jobItem: null,
             jobChildren: null,
             jobMessages: null,
+            currentJobMessages: null,
             displayedLog: null,
             moduleData: this.$route.meta.$module,
         }
@@ -52,31 +57,39 @@ Component.register('job-detail-index', {
         },
 
         backPath() {
-            return {name: 'job.listing.index'};
+            if (this.$route.params.backPath === undefined) {
+                return null;
+            }
+
+            return { name: this.$route.params.backPath };
         },
     },
 
     created() {
-        this.createdComponent();
-        this.getJobChildren();
-        this.getJobMessages();
+        this.initPageData();
     },
 
     mounted() {
-        this.mountedComponent();
+        if (this.$route.params.parentPath) {
+            this.parentRoute = this.$route.params.parentPath;
+        }
     },
 
     methods: {
-        createdComponent() {
-            return this.jobRepository.get(this.jobId, Shopware.Context.api, new Criteria()).then(jobItem => {
+        initPageData() {
+            this.jobRepository.get(this.jobId, Shopware.Context.api, new Criteria()).then(jobItem => {
                 this.jobItem = jobItem;
-            });
+            }).then(() => {
+                this.getJobChildren().then(() => {
+                    this.getJobMessages();
+                });
+            })
         },
 
         getJobChildren() {
-
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equalsAny('parentId', [this.jobId]));
+            criteria.addSorting(Criteria.sort('createdAt', 'ASC', false));
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(jobChildren => {
                 this.jobChildren = jobChildren;
@@ -86,18 +99,18 @@ Component.register('job-detail-index', {
         getJobChildrenColumns() {
             return [
                 {
-                    property: 'status',
-                    dataIndex: 'status',
-                    label: this.$tc('job-listing.page.listing.grid.column.status'),
+                    property: 'name',
+                    dataIndex: 'name',
+                    label: this.$tc('job-listing.page.listing.grid.column.name'),
                     allowResize: false,
                     align: 'right',
                     inlineEdit: true,
                     width: '90px'
                 },
                 {
-                    property: 'name',
-                    dataIndex: 'name',
-                    label: this.$tc('job-listing.page.listing.grid.column.name'),
+                    property: 'status',
+                    dataIndex: 'status',
+                    label: this.$tc('job-listing.page.listing.grid.column.status'),
                     allowResize: false,
                     align: 'right',
                     inlineEdit: true,
@@ -134,9 +147,10 @@ Component.register('job-detail-index', {
         },
 
         getJobMessages() {
-
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equalsAny('jobId', [this.jobId]));
+            var jobIds = this.jobChildren ? this.jobChildren.map((job) => job.id) : [];
+            criteria.addFilter(Criteria.equalsAny('jobId', jobIds.concat([this.jobId])));
+            criteria.addSorting(Criteria.sort('createdAt', 'ASC', false));
 
             return this.jobMessagesRepository.search(criteria, Shopware.Context.api).then(jobMessages => {
                 this.jobMessages = jobMessages;
@@ -156,36 +170,34 @@ Component.register('job-detail-index', {
             ]
         },
 
-        mountedComponent() {
-            this.initPage();
+        canReschedule(item) {
+            return item.status === 'error';
         },
 
-        disableRescheduling(item) {
-            return item.status !== 'failed';
+        canShowJobMessages(jobId) {
+            return Object.values(this.jobMessages).filter((message) => message.jobId === jobId).length > 0;
         },
 
-        disableShowJobMessages() {
-            return !(this.jobMessages && this.jobMessages.total > 0);
-
+        rescheduleJob(jobId) {
+            this.OdRescheduleService.rescheduleJob(jobId).then(() => {
+                this.createNotificationSuccess({
+                    message: "Job has been rescheduled successfully.",
+                });
+                this.initPageData();
+            }).catch(() => {
+                this.createNotificationError({
+                    message: "Unable reschedule job.",
+                });
+            })
         },
 
-        rescheduleJob() {
-            return true;
-        },
-
-        initPage() {
-            if (this.$route.meta.parentPath) {
-                this.parentRoute = this.$route.meta.parentPath;
-            }
-        },
-
-        showModal() {
-            return this.displayedLog = true;
+        showMessageModal(jobId) {
+            this.currentJobMessages = Object.values(this.jobMessages).filter((message) => message.jobId === jobId);
+            this.displayedLog = true;
         },
 
         closeModal() {
-            this.displayedLog = null;
-            console.log(this.displayedLog + '2');
+            this.displayedLog = false;
         },
     }
 });

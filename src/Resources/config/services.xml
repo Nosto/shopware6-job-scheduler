@@ -46,6 +46,13 @@
             <argument type="service" id="Od\Scheduler\Model\Job\HandlerPool"/>
             <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
         </service>
+
+        <service id="Od\Scheduler\Controller\Administration\RescheduleController" public="true">
+            <argument type="service" id="Od\Scheduler\Model\JobScheduler"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
         <!-- Job Management Services -->
     </services>
 </container>
