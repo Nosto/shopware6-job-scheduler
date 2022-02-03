@@ -1,4 +1,4 @@
 import './component/od-entity-listing';
 import './component/od-job-status-badge';
-import './module/job';
+import './module/od-job';
 import './init/api-service.init';

@@ -1,11 +1,11 @@
-import './page/job-listing-index';
-import './page/job-detail-index';
+import './page/od-job-listing-index';
+import './page/od-job-detail-index';
 
 import enGB from './snippet/en-GB.json';
 
 const {Module} = Shopware;
 
-Module.register('job-listing', {
+Module.register('od-job-listing', {
     type: 'plugin',
     title: 'job-listing.general.title',
     description: 'job-listing.general.description',
@@ -18,7 +18,7 @@ Module.register('job-listing', {
 
     routes: {
         detail: {
-            component: 'job-detail-index',
+            component: 'od-job-detail-index',
             path: 'detail/:id/back/:backPath',
             props: {
                 default: ($route) => {

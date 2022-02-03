@@ -1,10 +1,10 @@
-import template from './job-listing-index.html.twig';
-import './job-listing-index.scss';
+import template from './od-job-listing-index.html.twig';
+import './od-job-listing-index.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('job-listing-index', {
+Component.register('od-job-listing-index', {
     template,
 
     inject: [
