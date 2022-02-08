@@ -1,26 +1,15 @@
 {
     "name": "od/sw6-job-scheduler",
-    "description": "System plugin for async job scheduling",
-    "type": "shopware-platform-plugin",
+    "description": "System library for async job scheduling for Shopware 6",
+    "type": "library",
     "version": "1.0.0",
-    "license": "Commercial",
+    "license": "proprietary",
     "autoload": {
         "psr-4": {
             "Od\\Scheduler\\": "src/"
         }
     },
     "require": {
-        "php": "^7.4 || ^8.0",
-        "shopware/administration": "v6.4.*",
-        "shopware/core": "v6.4.*",
-        "od/sw6-base-plugin": "^1.0.0"
-    },
-    "extra": {
-        "shopware-plugin-class": "Od\\Scheduler\\OdScheduler",
-        "plugin-icon": "src/Resources/config/plugin.png",
-        "label": {
-            "de-DE": "Overdose Job Scheduler",
-            "en-GB": "Overdose Job Scheduler"
-        }
+        "php": "^7.4 || ^8.0"
     }
 }

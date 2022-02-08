@@ -2,21 +2,18 @@
 
 namespace Od\Scheduler;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Plugin;
-use Shopware\Core\Framework\Plugin\Context\UninstallContext;
+use Shopware\Core\Framework\Bundle;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\{XmlFileLoader};
 
-class OdScheduler extends Plugin
+class OdScheduler extends Bundle
 {
-    public function uninstall(UninstallContext $uninstallContext): void
+    public function build(ContainerBuilder $container): void
     {
-        if ($uninstallContext->keepUserData()) {
-            return;
-        }
+        parent::build($container);
 
-        /** @var Connection $connection */
-        $connection = $this->container->get(Connection::class);
-        $connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job_message`');
-        $connection->executeStatement('DROP TABLE IF EXISTS `od_scheduler_job`');
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
+        $loader->load('services.xml');
     }
 }
