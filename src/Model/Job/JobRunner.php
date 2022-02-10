@@ -71,14 +71,15 @@ class JobRunner
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
         if ($handler instanceof GeneratingHandlerInterface) {
-            if ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
+            if ($status !== JobEntity::TYPE_FAILED
+                && $this->jobHelper->getChildJobs($message->getJobId())->count() === 0
+            ) {
                 /**
                  * Nothing was scheduled by job handler - delete job
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
+                return $result;
             }
-
-            return $result;
         }
 
         $this->jobHelper->markJob($message->getJobId(), $status);
