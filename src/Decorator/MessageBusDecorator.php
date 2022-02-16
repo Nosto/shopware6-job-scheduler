@@ -58,6 +58,6 @@ class MessageBusDecorator implements MessageBusInterface
 
     public function setJobRepository(EntityRepositoryInterface $jobRepository)
     {
-        $this->jobRepository = $jobRepository;
+        $this->jobRepository =  $jobRepository;
     }
 }
