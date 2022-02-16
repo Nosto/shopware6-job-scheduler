@@ -2,18 +2,17 @@
 
 namespace Od\Scheduler\Model;
 
+use Exception;
 use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
+use Od\Scheduler\Model\Job\{HandlerPool, JobHelper};
 use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
-use Od\Scheduler\Model\Job\HandlerPool;
-use Od\Scheduler\Model\Job\JobHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
+use function sprintf;
 
 class JobScheduler
 {
@@ -44,29 +43,10 @@ class JobScheduler
         $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($job === null) {
-            throw new \Exception(\sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
+            throw new Exception(sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
         }
 
         $this->rescheduleJob($job);
-    }
-
-    public function schedule(JobMessageInterface $jobMessage)
-    {
-        $serializedEnvelope = $this->messageSerializer->encode(Envelope::wrap($jobMessage));
-        $jobData = [
-            'id' => $jobMessage->getJobId(),
-            'name' => $jobMessage->getJobName(),
-            'status' => JobEntity::TYPE_PENDING,
-            'type' => $jobMessage->getHandlerCode(),
-            'message' => $serializedEnvelope['body'] ?? null
-        ];
-
-        if ($jobMessage instanceof ParentAwareMessageInterface) {
-            $jobData['parentId'] = $jobMessage->getParentJobId();
-        }
-
-        $this->jobRepository->create([$jobData], Context::createDefaultContext());
-        $this->messageBus->dispatch($jobMessage);
     }
 
     private function rescheduleJob(JobEntity $job)
@@ -74,7 +54,7 @@ class JobScheduler
         $jobMessage = $this->messageSerializer->decode(['body' => $job->getMessage()])->getMessage();
 
         if (!$jobMessage instanceof JobMessageInterface) {
-            throw new \Exception(\sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
+            throw new Exception(sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
         }
 
         $this->jobHelper->markJob($job->getId(), JobEntity::TYPE_PENDING);
@@ -98,5 +78,10 @@ class JobScheduler
         } else {
             $this->messageBus->dispatch($jobMessage);
         }
+    }
+
+    public function schedule(JobMessageInterface $jobMessage)
+    {
+        $this->messageBus->dispatch($jobMessage);
     }
 }
