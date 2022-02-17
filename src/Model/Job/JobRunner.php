@@ -68,7 +68,11 @@ class JobRunner
         JobMessageInterface $message
     ): JobResult {
         foreach ($result->getMessages() as $resultMessage) {
-            $this->messageManager->addMessage($resultMessage->getJobId(),$resultMessage->getMessage(),$resultMessage->getType());
+            $this->messageManager->addMessage(
+                $resultMessage->getJobId(),
+                $resultMessage->getMessage(),
+                $resultMessage->getType()
+            );
         }
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
@@ -80,6 +84,7 @@ class JobRunner
                  * Nothing was scheduled by job handler - delete job
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
+
                 return $result;
             }
         }
