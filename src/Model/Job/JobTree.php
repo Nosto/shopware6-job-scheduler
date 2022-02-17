@@ -2,28 +2,26 @@
 
 namespace Od\Scheduler\Model\Job;
 
-use ArrayIterator;
-use IteratorAggregate;
-use Traversable;
+use Od\Scheduler\Entity\Job\JobEntity;
 
-class JobTree implements IteratorAggregate
+class JobTree implements \IteratorAggregate
 {
-    private object $rootJob;
+    private JobEntity $rootJob;
     private array $childJobs;
 
-    public function __construct(object $rootJob, array $childJobs)
+    public function __construct(JobEntity $rootJob, array $childJobs)
     {
         $this->rootJob = $rootJob;
         $this->childJobs = $childJobs;
     }
 
-    public function getRootJob(): object
+    public function getRootJob(): JobEntity
     {
         return $this->rootJob;
     }
 
-    public function getIterator(): Traversable
+    public function getIterator(): \Traversable
     {
-        return new ArrayIterator($this->childJobs);
+        return new \ArrayIterator($this->childJobs);
     }
 }

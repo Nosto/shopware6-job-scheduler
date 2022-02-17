@@ -54,5 +54,8 @@
             </call>
         </service>
         <!-- Job Management Services -->
+        <service id="Od\Scheduler\Model\Job\JobTreeProvider">
+            <argument type="service" id="od_scheduler_job.repository"/>
+        </service>
     </services>
 </container>
