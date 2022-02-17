@@ -28,7 +28,6 @@ class MessageBusDecorator implements MessageBusInterface
     {
         $jobMessage = $message instanceof Envelope ? $message->getMessage() : $message;
         if ($jobMessage instanceof JobMessageInterface) {
-
             try {
                 $this->scheduleMessage($jobMessage);
             } catch (WriteTypeIntendException $e) {
@@ -43,10 +42,10 @@ class MessageBusDecorator implements MessageBusInterface
     {
         $serializedEnvelope = $this->messageSerializer->encode(Envelope::wrap($jobMessage));
         $jobData = [
-            'id'      => $jobMessage->getJobId(),
-            'name'    => $jobMessage->getJobName(),
-            'status'  => JobEntity::TYPE_PENDING,
-            'type'    => $jobMessage->getHandlerCode(),
+            'id' => $jobMessage->getJobId(),
+            'name' => $jobMessage->getJobName(),
+            'status' => JobEntity::TYPE_PENDING,
+            'type' => $jobMessage->getHandlerCode(),
             'message' => $serializedEnvelope['body'] ?? null
         ];
 
@@ -58,6 +57,6 @@ class MessageBusDecorator implements MessageBusInterface
 
     public function setJobRepository(EntityRepositoryInterface $jobRepository)
     {
-        $this->jobRepository =  $jobRepository;
+        $this->jobRepository = $jobRepository;
     }
 }

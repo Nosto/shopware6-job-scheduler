@@ -2,7 +2,6 @@
 
 namespace Od\Scheduler\Model;
 
-use Exception;
 use Od\Scheduler\Async\JobMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\Job\{HandlerPool, JobHelper};
@@ -43,7 +42,7 @@ class JobScheduler
         $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($job === null) {
-            throw new Exception(sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
+            throw new \Exception(sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
         }
 
         $this->rescheduleJob($job);
@@ -54,7 +53,7 @@ class JobScheduler
         $jobMessage = $this->messageSerializer->decode(['body' => $job->getMessage()])->getMessage();
 
         if (!$jobMessage instanceof JobMessageInterface) {
-            throw new Exception(sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
+            throw new \Exception(sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
         }
 
         $this->jobHelper->markJob($job->getId(), JobEntity::TYPE_PENDING);
