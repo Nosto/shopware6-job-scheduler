@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Od\Scheduler\Model\Job;
 
@@ -16,7 +16,7 @@ class JobTreeProvider
         $this->jobRepository = $jobRepository;
     }
 
-    public function get($rootJobId, array $childStatuses = []): JobTree
+    public function get(string $rootJobId, array $childStatuses = []): JobTree
     {
         $criteria = new Criteria();
         $criteria->addFilter(
@@ -35,15 +35,21 @@ class JobTreeProvider
             );
         }
 
-
         return $this->loadTree($rootJobId, $criteria);
     }
 
-    public function loadTree($rootJobId, $criteria): JobTree
+    /**
+     * @throws \Exception
+     */
+    public function loadTree(string $rootJobId, Criteria $criteria): JobTree
     {
         $context = Context::createDefaultContext();
         $searchResult = $this->jobRepository->search($criteria, $context);
-        $rootJob = $searchResult->getEntities()->get($rootJobId);
+
+        if (!$rootJob = $searchResult->getEntities()->get($rootJobId)) {
+            throw new \Exception('No root job found!');
+        }
+
         $childJobs = $searchResult->getEntities()->filterByProperty('parentId', $rootJobId)->getElements();
 
         return new JobTree($rootJob, $childJobs);
