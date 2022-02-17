@@ -2,8 +2,7 @@
 
 namespace Od\Scheduler\Model\Job;
 
-use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Od\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\Exception\JobException;
 use Od\Scheduler\Model\MessageManager;
@@ -68,6 +67,9 @@ class JobRunner
         JobHandlerInterface $handler,
         JobMessageInterface $message
     ): JobResult {
+        foreach ($result->getMessages() as $resultMessage) {
+            $this->messageManager->addMessage($resultMessage->getJobId(),$resultMessage->getMessage(),$resultMessage->getType());
+        }
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
         if ($handler instanceof GeneratingHandlerInterface) {
