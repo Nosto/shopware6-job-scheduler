@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
-use function sprintf;
 
 class JobScheduler
 {
@@ -42,7 +41,7 @@ class JobScheduler
         $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($job === null) {
-            throw new \Exception(sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
+            throw new \Exception(\sprintf('Unable to reschedule job[id: %s]: not found.', $jobId));
         }
 
         $this->rescheduleJob($job);
@@ -53,7 +52,7 @@ class JobScheduler
         $jobMessage = $this->messageSerializer->decode(['body' => $job->getMessage()])->getMessage();
 
         if (!$jobMessage instanceof JobMessageInterface) {
-            throw new \Exception(sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
+            throw new \Exception(\sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));
         }
 
         $this->jobHelper->markJob($job->getId(), JobEntity::TYPE_PENDING);

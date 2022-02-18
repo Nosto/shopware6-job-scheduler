@@ -52,6 +52,7 @@ class MessageBusDecorator implements MessageBusInterface
         if ($jobMessage instanceof ParentAwareMessageInterface) {
             $jobData['parentId'] = $jobMessage->getParentJobId();
         }
+
         $this->jobRepository->create([$jobData], Context::createDefaultContext());
     }
 
