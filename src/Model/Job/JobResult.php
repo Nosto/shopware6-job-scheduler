@@ -2,14 +2,15 @@
 
 namespace Od\Scheduler\Model\Job;
 
+use Od\Scheduler\Model\Job\Message\ErrorMessage;
+use Od\Scheduler\Model\MessageManager;
+
 class JobResult
 {
-    private array $errors;
     private array $messages;
 
-    public function __construct(array $errors = [], array $messages = [])
+    public function __construct(array $messages = [])
     {
-        $this->errors = $errors;
         $this->messages = $messages;
     }
 
@@ -25,16 +26,18 @@ class JobResult
 
     public function addError(\Throwable $e): void
     {
-        $this->errors[] = $e;
-    }
-
-    public function getErrors()
-    {
-        return $this->errors;
+        $this->messages[] = new ErrorMessage($e->getMessage());
     }
 
     public function hasErrors(): bool
     {
-        return !empty($this->errors);
+        return !empty($this->getErrors());
+    }
+
+    public function getErrors(): array
+    {
+        return array_filter($this->messages, function ($k) {
+            return $k->getType() === MessageManager::TYPE_ERROR;
+        });
     }
 }

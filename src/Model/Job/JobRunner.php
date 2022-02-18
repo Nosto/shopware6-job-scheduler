@@ -69,7 +69,7 @@ class JobRunner
     ): JobResult {
         foreach ($result->getMessages() as $resultMessage) {
             $this->messageManager->addMessage(
-                $resultMessage->getJobId(),
+                $message->getJobId(),
                 $resultMessage->getMessage(),
                 $resultMessage->getType()
             );
@@ -91,11 +91,6 @@ class JobRunner
 
         $this->jobHelper->markJob($message->getJobId(), $status);
         // TODO: make it possible to add different message types to JobResult to handle all of them here.
-        /** @var \Throwable $error */
-        foreach ($result->getErrors() as $error) {
-            $this->messageManager->addErrorMessage($message->getJobId(), $error->getMessage());
-        }
-
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
             if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
