@@ -2,8 +2,7 @@
 
 namespace Od\Scheduler\Model\Job;
 
-use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Od\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\Exception\JobException;
 use Od\Scheduler\Model\MessageManager;
@@ -68,6 +67,13 @@ class JobRunner
         JobHandlerInterface $handler,
         JobMessageInterface $message
     ): JobResult {
+        foreach ($result->getMessages() as $resultMessage) {
+            $this->messageManager->addMessage(
+                $message->getJobId(),
+                $resultMessage->getMessage(),
+                $resultMessage->getType()
+            );
+        }
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
         if ($handler instanceof GeneratingHandlerInterface) {
@@ -78,17 +84,13 @@ class JobRunner
                  * Nothing was scheduled by job handler - delete job
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
+
                 return $result;
             }
         }
 
         $this->jobHelper->markJob($message->getJobId(), $status);
         // TODO: make it possible to add different message types to JobResult to handle all of them here.
-        /** @var \Throwable $error */
-        foreach ($result->getErrors() as $error) {
-            $this->messageManager->addErrorMessage($message->getJobId(), $error->getMessage());
-        }
-
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
             if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
