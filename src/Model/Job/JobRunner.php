@@ -77,20 +77,20 @@ class JobRunner
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
         if ($handler instanceof GeneratingHandlerInterface) {
-            if ($status !== JobEntity::TYPE_FAILED
-                && $this->jobHelper->getChildJobs($message->getJobId())->count() === 0
-            ) {
+            if ($status === JobEntity::TYPE_FAILED) {
+                $this->jobHelper->markJob($message->getJobId(), $status);
+            } else if ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
                 /**
-                 * Nothing was scheduled by job handler - delete job
+                 * Nothing was scheduled by generating job handler - delete job.
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
-
-                return $result;
             }
+
+            return $result;
         }
 
         $this->jobHelper->markJob($message->getJobId(), $status);
-        // TODO: make it possible to add different message types to JobResult to handle all of them here.
+
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
             if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
