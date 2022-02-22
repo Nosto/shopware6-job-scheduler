@@ -22,6 +22,7 @@
         </service>
 
         <service id="Od\Scheduler\Model\Job\JobRunner">
+            <argument type="service" id="Od\Scheduler\Model\Job\Strategy\StrategyResolver"/>
             <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
             <argument type="service" id="Od\Scheduler\Model\Job\HandlerPool"/>
             <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
@@ -53,6 +54,8 @@
                 <argument type="service" id="service_container"/>
             </call>
         </service>
+
+        <service id="Od\Scheduler\Model\Job\Strategy\StrategyResolver"/>
         <!-- Job Management Services -->
         <!-- Decorators -->
         <service id="Od\Scheduler\Decorator\MessageBusDecorator" decorates="messenger.bus.shopware">
