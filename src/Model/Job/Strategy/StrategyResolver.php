@@ -2,62 +2,35 @@
 
 namespace Od\Scheduler\Model\Job\Strategy;
 
-use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Exception\JobException;
-use Od\Scheduler\Model\Job\JobHandlerInterface;
-use Od\Scheduler\Model\Job\JobHelper;
-use Od\Scheduler\Model\Job\JobResult;
-use Od\Scheduler\Model\MessageManager;
-
-abstract class StrategyResolver implements StrategyInterface
+class StrategyResolver
 {
-    private $innerHandler = null;
-    private JobHelper $jobHelper;
-    private MessageManager $messageManager;
+     /**
+     * @var StrategyInterface[]
+     */
+    private array $strategies = [];
+    private iterable $rawStrategies;
 
-    public function __construct(JobHelper $jobHelper, MessageManager $messageManager)
+    public function __construct(iterable $strategies)
     {
-        $this->jobHelper = $jobHelper;
-        $this->messageManager = $messageManager;
+        $this->rawStrategies = $strategies;
+    }
+    public function getStrategy(): StrategyInterface
+    {
+        return $this->get(IgnoreErrorStrategy::STRATEGY_CODE);
     }
 
-    public function get(object $message)
+    //TODO remove these two methods - strategy code will be taken from the message
+    public function get(string $code): StrategyInterface
     {
+        $this->initStrategies();
 
+        return $this->strategies[$code];
     }
 
-    public function execute(object $message): JobResult
+    private function initStrategies()
     {
-        $result = null;
-
-        if ($this->innerHandler === null) {
-            throw new \RuntimeException('Inner Handler not set!');
+        if (empty($this->strategies) && $this->rawStrategies instanceof \Traversable) {
+            $this->strategies = iterator_to_array($this->rawStrategies);
         }
-
-        try {
-            $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
-            $result = $this->innerHandler->execute($message);
-        } catch (\Throwable $e) {
-            $result = $result !== null ? $result : new JobResult();
-            $result->addError(new JobException($message->getJobId(), $e->getMessage()));
-        }
-
-        foreach ($result->getMessages() as $resultMessage) {
-            $this->messageManager->addMessage(
-                $message->getJobId(),
-                $resultMessage->getMessage(),
-                $resultMessage->getType()
-            );
-        }
-
-        return $result;
-    }
-
-    public function withHandler(JobHandlerInterface $handler): StrategyInterface
-    {
-        $new = clone $this;
-        $new->innerHandler = $handler;
-
-        return $new;
     }
 }

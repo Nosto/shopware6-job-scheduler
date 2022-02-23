@@ -21,7 +21,7 @@ class JobRunner
     public function execute(JobMessageInterface $message): JobResult
     {
         $handler = $this->handlerPool->get($message->getHandlerCode());
-        $strategy = $this->strategyResolver->get($message);
+        $strategy = $this->strategyResolver->getStrategy();
         $strategy = $strategy->withHandler($handler);
 
         return $strategy->execute($message);
