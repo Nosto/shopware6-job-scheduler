@@ -4,7 +4,7 @@ namespace Od\Scheduler\Model\Job\Strategy;
 
 use Od\Scheduler\Async\ParentAwareMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Job\{GeneratingHandlerInterface, JobHelper, JobResult};
+use Od\Scheduler\Model\Job\{JobHelper, JobTreeProvider};
 use Od\Scheduler\Model\MessageManager;
 
 class IgnoreErrorStrategy extends AbstractStrategy
@@ -15,51 +15,49 @@ class IgnoreErrorStrategy extends AbstractStrategy
         JobEntity::TYPE_RUNNING
     ];
 
-    private $innerHandler = null;
     private MessageManager $messageManager;
     private JobHelper $jobHelper;
+    private JobTreeProvider $jobTreeProvider;
 
-    public function __construct(MessageManager $messageManager, JobHelper $jobHelper)
-    {
+    public function __construct(
+        MessageManager $messageManager,
+        JobHelper $jobHelper,
+        JobTreeProvider $jobTreeProvider
+    ) {
         parent::__construct($jobHelper, $messageManager);
         $this->messageManager = $messageManager;
         $this->jobHelper = $jobHelper;
+        $this->jobTreeProvider = $jobTreeProvider;
     }
 
     public function applyStrategy(object $message)
     {
-//        $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
-
-//        if ($this->innerHandler instanceof GeneratingHandlerInterface) {
-//            if ($status === JobEntity::TYPE_FAILED) {
-//                $this->jobHelper->markJob($message->getJobId(), $status);
-//            } elseif ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
-//                /**
-//                 * Nothing was scheduled by generating job handler - delete job.
-//                 */
-//                $this->jobHelper->deleteJob($message->getJobId());
-//            }
-//
-//            return $result;
-//        }
-
-//        $this->jobHelper->markJob($message->getJobId(), $status);
-
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
-            if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
-                $hasFailedChild = $this->jobHelper->getChildJobs($parentJobId, [JobEntity::TYPE_FAILED])->count() !== 0;
-                /**
-                 * All current job's siblings was executed - mark parent job with proper status
-                 * according to existence of failed child jobs.
-                 */
-                $this->jobHelper->markJob(
-                    $parentJobId,
-                    $hasFailedChild ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED
-                );
+            $jobTree = $this->jobTreeProvider->get($parentJobId);
+            $childJobs = $jobTree->getChildJobs();
 
-                if ($hasFailedChild) {
-                    $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs has been failed.');
+            if (!array_search(self::NOT_FINISHED_STATUSES, $childJobs)
+            ) {
+                $hasFailedChild = false;
+                foreach ($childJobs as $childJob) {
+                    if ($hasFailedChild = $childJob->getStatus() === JobEntity::TYPE_FAILED) {
+                        $this->jobHelper->markJob(
+                            $parentJobId,
+                            JobEntity::TYPE_FAILED
+                        );
+                        $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs has been failed.');
+                    }
+                    if ($hasFailedChild) {
+                        break;
+                    }
+                }
+
+                if (!$hasFailedChild) {
+                    $this->jobHelper->markJob(
+                        $parentJobId,
+                        JobEntity::TYPE_SUCCEED
+                    );
                 }
             }
         }
