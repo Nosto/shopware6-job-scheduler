@@ -58,7 +58,7 @@ abstract class AbstractStrategy implements StrategyInterface
 
         $this->jobHelper->markJob($message->getJobId(), $status);
 
-        return $this->applyStrategy($message);
+        return $this->applyStrategy($message) ?? new JobResult();
     }
 
     abstract public function applyStrategy(object $message);

@@ -37,8 +37,18 @@ class IgnoreErrorStrategy extends AbstractStrategy
             $jobTree = $this->jobTreeProvider->get($parentJobId);
             $childJobs = $jobTree->getChildJobs();
 
-            if (!array_search(self::NOT_FINISHED_STATUSES, $childJobs)
-            ) {
+            $notFinishedStatuses = self::NOT_FINISHED_STATUSES;
+            $runningJobs = array_filter(
+                $childJobs,
+                function ($e) use (&$notFinishedStatuses) {
+                    if (in_array($e->getStatus(),$notFinishedStatuses))
+                    {
+                        return $e;
+                    }
+                });
+
+            if (!$runningJobs)
+             {
                 $hasFailedChild = false;
                 foreach ($childJobs as $childJob) {
                     if ($hasFailedChild = $childJob->getStatus() === JobEntity::TYPE_FAILED) {
