@@ -2,9 +2,9 @@
 
 namespace Od\Scheduler\Model\Job\Strategy;
 
-use Od\Scheduler\Async\ParentAwareMessageInterface;
+use Od\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Job\{JobHelper, JobTreeProvider};
+use Od\Scheduler\Model\Job\{JobHelper, JobResult, JobTreeProvider, Message\ErrorMessage};
 use Od\Scheduler\Model\MessageManager;
 
 class IgnoreErrorStrategy extends AbstractStrategy
@@ -15,8 +15,8 @@ class IgnoreErrorStrategy extends AbstractStrategy
         JobEntity::TYPE_RUNNING
     ];
 
-    private MessageManager $messageManager;
-    private JobHelper $jobHelper;
+    protected MessageManager $messageManager;
+    protected JobHelper $jobHelper;
     private JobTreeProvider $jobTreeProvider;
 
     public function __construct(
@@ -24,51 +24,47 @@ class IgnoreErrorStrategy extends AbstractStrategy
         JobHelper $jobHelper,
         JobTreeProvider $jobTreeProvider
     ) {
-        parent::__construct($jobHelper, $messageManager);
-        $this->messageManager = $messageManager;
-        $this->jobHelper = $jobHelper;
+        parent::__construct($jobHelper);
         $this->jobTreeProvider = $jobTreeProvider;
+        $this->messageManager = $messageManager;
     }
 
-    public function applyStrategy(object $message)
+    /**
+     * @param JobMessageInterface $message
+     */
+    public function applyStrategy(JobMessageInterface $message): JobResult
+    {
+        try {
+            $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
+            $result = $this->innerHandler->execute($message);
+            $this->onOperationSuccess($message);
+        } catch (\Throwable $e) {
+            $result = new JobResult([new ErrorMessage($e->getMessage())]);
+            $this->onOperationError($message);
+        } finally {
+            $this->onOperationFinish($message);
+        }
+
+        return $result;
+    }
+
+    private function onOperationFinish(JobMessageInterface $message)
     {
         if ($message instanceof ParentAwareMessageInterface) {
-            $parentJobId = $message->getParentJobId();
-            $jobTree = $this->jobTreeProvider->get($parentJobId);
-            $childJobs = $jobTree->getChildJobs();
+            $rootJobId = $message->getParentJobId();
+            $jobTree = $this->jobTreeProvider->get($rootJobId, self::NOT_FINISHED_STATUSES);
 
-            $notFinishedStatuses = self::NOT_FINISHED_STATUSES;
-            $runningJobs = array_filter(
-                $childJobs,
-                function ($e) use (&$notFinishedStatuses) {
-                    if (in_array($e->getStatus(),$notFinishedStatuses))
-                    {
-                        return $e;
-                    }
-                });
+            if ($jobTree->getIterator()->count() === 0) {
+                $jobTreeWithFailedChildren = $this->jobTreeProvider->get($rootJobId, [JobEntity::TYPE_FAILED]);
+                $hasFailedChild = $jobTreeWithFailedChildren->getIterator()->count() === 0;
 
-            if (!$runningJobs)
-             {
-                $hasFailedChild = false;
-                foreach ($childJobs as $childJob) {
-                    if ($hasFailedChild = $childJob->getStatus() === JobEntity::TYPE_FAILED) {
-                        $this->jobHelper->markJob(
-                            $parentJobId,
-                            JobEntity::TYPE_FAILED
-                        );
-                        $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs has been failed.');
-                    }
-                    if ($hasFailedChild) {
-                        break;
-                    }
+                if ($hasFailedChild) {
+                    $this->jobHelper->markJob($rootJobId, JobEntity::TYPE_FAILED);
+                    $this->messageManager->addErrorMessage($rootJobId, 'Some child jobs has been failed.');
+                } else {
+                    $this->jobHelper->markJob($rootJobId, JobEntity::TYPE_SUCCEED);
                 }
 
-                if (!$hasFailedChild) {
-                    $this->jobHelper->markJob(
-                        $parentJobId,
-                        JobEntity::TYPE_SUCCEED
-                    );
-                }
             }
         }
     }

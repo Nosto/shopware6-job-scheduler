@@ -3,7 +3,7 @@
 namespace Od\Scheduler\Model\Job;
 
 use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Model\Job\Strategy\StrategyResolver;
+use Od\Scheduler\Model\Job\Resolver\StrategyResolver;
 
 class JobRunner
 {

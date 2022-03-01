@@ -20,7 +20,7 @@ class JobTree implements \IteratorAggregate
         return $this->rootJob;
     }
 
-    public function getIterator(): \Traversable
+    public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->childJobs);
     }

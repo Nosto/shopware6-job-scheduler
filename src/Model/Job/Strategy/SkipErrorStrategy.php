@@ -2,25 +2,34 @@
 
 namespace Od\Scheduler\Model\Job\Strategy;
 
-use Od\Scheduler\Model\Job\JobHandlerInterface;
+use Od\Scheduler\Async\JobMessageInterface;
+use Od\Scheduler\Entity\Job\JobEntity;
 use Od\Scheduler\Model\Job\JobResult;
+use Od\Scheduler\Model\Job\Message\ErrorMessage;
 
 class SkipErrorStrategy extends AbstractStrategy
 {
     public const STRATEGY_CODE = 'skip_error_strategy';
 
-    public function execute(object $message): JobResult
+    /**
+     * @param JobMessageInterface $message
+     */
+    public function applyStrategy(JobMessageInterface $message): JobResult
     {
-        // TODO: Implement execute() method.
+        try {
+            $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
+            $result = $this->innerHandler->execute($message);
+            $this->onOperationSuccess($message);
+        } catch (\Throwable $e) {
+            $result = new JobResult([new ErrorMessage($e->getMessage())]);
+            $this->onOperationError($message);
+        }
+
+        return $result;
     }
 
-    public function withHandler(JobHandlerInterface $handler): StrategyInterface
+    protected function onOperationError(JobMessageInterface $message)
     {
-        // TODO: Implement withHandler() method.
-    }
-
-    public function applyStrategy(object $message)
-    {
-        // TODO: Implement applyStrategy() method.
+        $this->onOperationSuccess($message);
     }
 }

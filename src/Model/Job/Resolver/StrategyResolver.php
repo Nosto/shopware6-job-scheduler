@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job\Strategy;
+namespace Od\Scheduler\Model\Job\Resolver;
+
+use Od\Scheduler\Model\Job\Strategy\IgnoreErrorStrategy;
+use Od\Scheduler\Model\Job\Strategy\StrategyInterface;
 
 class StrategyResolver
 {
-     /**
+    /**
      * @var StrategyInterface[]
      */
     private array $strategies = [];
@@ -14,6 +17,7 @@ class StrategyResolver
     {
         $this->rawStrategies = $strategies;
     }
+
     public function getStrategy(): StrategyInterface
     {
         return $this->get(IgnoreErrorStrategy::STRATEGY_CODE);
