@@ -10,28 +10,19 @@ use Od\Scheduler\Model\MessageManager;
 class IgnoreErrorStrategy extends AbstractStrategy
 {
     public const STRATEGY_CODE = 'ignore_error_strategy';
-    const NOT_FINISHED_STATUSES = [
-        JobEntity::TYPE_PENDING,
-        JobEntity::TYPE_RUNNING
-    ];
 
     protected MessageManager $messageManager;
     protected JobHelper $jobHelper;
-    private JobTreeProvider $jobTreeProvider;
+    protected JobTreeProvider $jobTreeProvider;
 
     public function __construct(
         MessageManager $messageManager,
         JobHelper $jobHelper,
         JobTreeProvider $jobTreeProvider
     ) {
-        parent::__construct($jobHelper);
-        $this->jobTreeProvider = $jobTreeProvider;
-        $this->messageManager = $messageManager;
+        parent::__construct($jobHelper, $jobTreeProvider, $messageManager);
     }
 
-    /**
-     * @param JobMessageInterface $message
-     */
     public function applyStrategy(JobMessageInterface $message): JobResult
     {
         try {
@@ -57,14 +48,12 @@ class IgnoreErrorStrategy extends AbstractStrategy
             if ($jobTree->getIterator()->count() === 0) {
                 $jobTreeWithFailedChildren = $this->jobTreeProvider->get($rootJobId, [JobEntity::TYPE_FAILED]);
                 $hasFailedChild = $jobTreeWithFailedChildren->getIterator()->count() === 0;
-
                 if ($hasFailedChild) {
                     $this->jobHelper->markJob($rootJobId, JobEntity::TYPE_FAILED);
                     $this->messageManager->addErrorMessage($rootJobId, 'Some child jobs has been failed.');
                 } else {
                     $this->jobHelper->markJob($rootJobId, JobEntity::TYPE_SUCCEED);
                 }
-
             }
         }
     }

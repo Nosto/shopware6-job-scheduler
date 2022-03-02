@@ -2,15 +2,15 @@
 
 namespace Od\Scheduler\Entity\Job;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\{Entity, EntityIdTrait};
 
 class JobEntity extends Entity
 {
-    const TYPE_PENDING = 'pending';
-    const TYPE_RUNNING = 'running';
-    const TYPE_SUCCEED = 'succeed';
-    const TYPE_FAILED = 'error';
+    public const TYPE_PENDING = 'pending';
+    public const TYPE_RUNNING = 'running';
+    public const TYPE_SUCCEED = 'succeed';
+    public const TYPE_FAILED = 'error';
+    public const TYPE_SUSPENDED = 'suspended';
 
     use EntityIdTrait;
 

@@ -43,6 +43,7 @@
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="Od\Scheduler\Model\Job\HandlerPool"/>
             <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
+            <argument type="service" id="Od\Scheduler\Model\Job\JobTreeProvider"/>
         </service>
 
         <service id="Od\Scheduler\Controller\Administration\RescheduleController" public="true">
@@ -58,6 +59,8 @@
 
         <service id="Od\Scheduler\Model\Job\Strategy\AbstractStrategy">
             <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
+            <argument type="service" id="Od\Scheduler\Model\Job\JobTreeProvider"/>
+            <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
         </service>
 
         <service id="Od\Scheduler\Model\Job\Strategy\IgnoreErrorStrategy">
@@ -69,11 +72,13 @@
         <service id="Od\Scheduler\Model\Job\Strategy\StopOnErrorStrategy">
             <tag name="od.job_strategy" code="stop_on_error_strategy"/>
             <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
+            <argument type="service" id="Od\Scheduler\Model\Job\JobTreeProvider"/>
             <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
         </service>
          <service id="Od\Scheduler\Model\Job\Strategy\SkipErrorStrategy">
             <tag name="od.job_strategy" code="skip_error_strategy"/>
              <argument type="service" id="Od\Scheduler\Model\Job\JobHelper"/>
+             <argument type="service" id="Od\Scheduler\Model\Job\JobTreeProvider"/>
              <argument type="service" id="Od\Scheduler\Model\MessageManager"/>
          </service>
         <!-- Job Management Services -->

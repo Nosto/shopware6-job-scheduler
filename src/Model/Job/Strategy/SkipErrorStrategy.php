@@ -11,9 +11,6 @@ class SkipErrorStrategy extends AbstractStrategy
 {
     public const STRATEGY_CODE = 'skip_error_strategy';
 
-    /**
-     * @param JobMessageInterface $message
-     */
     public function applyStrategy(JobMessageInterface $message): JobResult
     {
         try {

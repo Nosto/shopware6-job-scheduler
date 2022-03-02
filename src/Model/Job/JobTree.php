@@ -24,9 +24,4 @@ class JobTree implements \IteratorAggregate
     {
         return new \ArrayIterator($this->childJobs);
     }
-
-    public function getChildJobs(): array
-    {
-        return $this->childJobs;
-    }
 }

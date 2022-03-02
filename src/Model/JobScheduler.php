@@ -4,8 +4,7 @@ namespace Od\Scheduler\Model;
 
 use Od\Scheduler\Async\JobMessageInterface;
 use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Job\{HandlerPool, JobHelper};
-use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
+use Od\Scheduler\Model\Job\{HandlerPool, JobHelper, JobTreeProvider, GeneratingHandlerInterface};
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,19 +18,22 @@ class JobScheduler
     private MessageBusInterface $messageBus;
     private HandlerPool $handlerPool;
     private JobHelper $jobHelper;
+    private JobTreeProvider $jobTreeProvider;
 
     public function __construct(
         EntityRepositoryInterface $jobRepository,
         SerializerInterface $messageSerializer,
         MessageBusInterface $messageBus,
         HandlerPool $handlerPool,
-        JobHelper $jobHelper
+        JobHelper $jobHelper,
+        JobTreeProvider $jobTreeProvider
     ) {
         $this->jobRepository = $jobRepository;
         $this->messageSerializer = $messageSerializer;
         $this->messageBus = $messageBus;
         $this->handlerPool = $handlerPool;
         $this->jobHelper = $jobHelper;
+        $this->jobTreeProvider = $jobTreeProvider;
     }
 
     public function reschedule(string $jobId)
@@ -67,7 +69,7 @@ class JobScheduler
          * we need to resend childs' messages to message bus.
          */
         if ($jobHandler instanceof GeneratingHandlerInterface) {
-            $childJobCollection = $this->jobHelper->getChildJobs($job->getId(), [JobEntity::TYPE_FAILED]);
+            $childJobCollection = $this->jobTreeProvider->get($job->getId(), [JobEntity::TYPE_FAILED]);
 
             /** @var JobEntity $childJob */
             foreach ($childJobCollection as $childJob) {
