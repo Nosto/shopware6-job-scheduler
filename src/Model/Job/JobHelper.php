@@ -23,13 +23,18 @@ class JobHelper
         );
     }
 
-    public function markJob(array $jobIds, string $status)
+    public function markJob($jobIds, string $status)
     {
+        if (is_string($jobIds)) {
+            $jobIds = explode(' ', $jobIds);
+        };
+
         $this->markJobs($jobIds, $status);
     }
 
     public function markJobs(array $jobIds, string $status)
     {
+        $jobDataResult = [];
         foreach ($jobIds as $jobId) {
             $jobData = [
                 'id' => $jobId,
@@ -43,11 +48,11 @@ class JobHelper
                 $timeKey = $status === JobEntity::TYPE_RUNNING ? 'startedAt' : 'finishedAt';
                 $jobData[$timeKey] = new \DateTime('now', new \DateTimeZone('UTC'));
             }
-
-            $this->jobRepository->update(
-                [$jobData],
-                Context::createDefaultContext()
-            );
+            $jobDataResult[] = $jobData;
         }
+        $this->jobRepository->update(
+            $jobDataResult,
+            Context::createDefaultContext()
+        );
     }
 }
