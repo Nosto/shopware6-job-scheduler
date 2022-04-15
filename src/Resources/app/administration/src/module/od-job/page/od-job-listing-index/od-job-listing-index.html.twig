@@ -1,13 +1,18 @@
 <od-entity-listing
-    v-if="jobItems"
-    :items="jobItems"
-    :repository="jobRepository"
-    :is-loading="isLoading"
-    :showSelection="false"
-    :allowColumnEdit="false"
-    :allowDelete="false"
-    :allowEdit="false"
-    :columns="columns">
+        v-if="jobItems"
+        :items="jobItems"
+        :repository="jobRepository"
+        :is-loading="isLoading"
+        :showSelection="true"
+        :allowColumnEdit="false"
+        :allowDelete="true"
+        :allowEdit="false"
+        :autoLoadIsActive="autoLoadIsActive"
+        :autoReloadInterval="autoReloadInterval"
+        :jobTypes="jobTypes"
+        :isGroupedView="isGroupedView"
+        @page-change="pageChange"
+        :columns="columns">
     <template #column-status="{ item }">
         {% block od_job_list_grid_job_status_link %}
             <template>
@@ -21,6 +26,73 @@
             <router-link :to="{ name: 'od.job.listing.detail', params: getLinkParams(item) }">
                 {{ item.name }}
             </router-link>
+        {% endblock %}
+    </template>
+    <template #column-startedAt="{ item }">
+        {% block od_job_list_grid_job_started_date %}
+            {{ item.startedAt|date() }}
+        {% endblock %}
+    </template>
+    <template #column-finishedAt="{ item }">
+        {% block od_job_list_grid_job_finished_date %}
+            {{ item.finishedAt|date() }}
+        {% endblock %}
+    </template>
+    <template #column-createdAt="{ item }">
+        {% block od_job_list_grid_job_created_date %}
+            {{ item.createdAt|date() }}
+        {% endblock %}
+    </template>
+    <template #column-subJobs="{ item }">
+        {% block od_job_list_grid_job_sub_jobs %}
+            <div class="sub-jobs-counters-container jobs-info-counter">
+                <div class="count-container" v-if="item.subJobs">
+                <span class="info-container">
+                    <span class="count" v-html="getChildrenCount(item, 'succeed')"></span>
+                </span>
+                    <od-job-status-badge status="succeed"></od-job-status-badge>
+                </div>
+
+                <div class="count-container" v-if="item.subJobs">
+                    <span class="warning-container">
+                        <span class="count" v-html="getChildrenCount(item, 'pending')"></span>
+                    </span>
+                    <od-job-status-badge status="pending"></od-job-status-badge>
+                </div>
+
+                <div class="count-container" v-if="item.subJobs">
+                <span class="error-counter">
+                    <span class="count" v-html="getChildrenCount(item, 'error')"></span>
+                </span>
+                    <od-job-status-badge status="error"></od-job-status-badge>
+                </div>
+            </div>
+        {% endblock %}
+    </template>
+    <template #column-messages="{ item }">
+        {% block od_job_list_grid_job_messages %}
+            <div class="message-counters-container jobs-info-counter">
+                <div class="count-container" v-if="item.messages">
+                <span class="info-counter">
+                    <span class="count" v-html="getMessagesCount(item, 'info')"></span>
+                </span>
+                    <sw-icon :small="true" name="default-badge-info" color="#3498db"></sw-icon>
+                </div>
+
+                <div class="count-container" v-if="item.messages">
+                    <span class="warning-counter">
+                        <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
+                    </span>
+                    <sw-icon :small="true" name="default-badge-warning" color="#f39c12"></sw-icon>
+                </div>
+
+                <div class="count-container" v-if="item.messages">
+                <span class="error-counter">
+                    <span class="count" v-html="getMessagesCount(item, 'error')"></span>
+                </span>
+                    <sw-icon :small="true" name="default-badge-error" color="#c0392b"></sw-icon>
+                </div>
+            </div>
         {% endblock %}
     </template>
     <template #actions="{ item }">

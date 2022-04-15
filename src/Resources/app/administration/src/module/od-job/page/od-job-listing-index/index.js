@@ -22,10 +22,26 @@ Component.register('od-job-listing-index', {
             required: false,
             default: () => 0
         },
+        autoLoadIsActive: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        isGroupedView: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         jobTypes: {
             type: Array,
             required: false,
             default: () => []
+        }
+    },
+
+    watch: {
+        autoLoadIsActive() {
+            this._handleAutoReload(this.autoLoadIsActive);
         }
     },
 
@@ -34,33 +50,58 @@ Component.register('od-job-listing-index', {
             return this.repositoryFactory.create('od_scheduler_job');
         },
 
+        messageRepository() {
+            return this.repositoryFactory.create('od_scheduler_job_message');
+        },
+
         columns() {
             return [
                 {
                     property: 'name',
                     label: this.$tc('job-listing.page.listing.grid.column.name'),
-                    allowResize: true
+                    allowResize: true,
+                    width: '500px',
                 },
                 {
                     property: 'status',
                     label: this.$tc('job-listing.page.listing.grid.column.status'),
-                    allowResize: true
+                    allowResize: true,
+                    width: '150px',
                 },
                 {
                     property: 'startedAt',
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
-                    allowResize: true
+                    allowResize: true,
+                    width: '170px',
                 },
                 {
                     property: 'finishedAt',
                     label: this.$tc('job-listing.page.listing.grid.column.finished-at'),
-                    allowResize: true
+                    allowResize: true,
+                    width: '170px',
                 },
                 {
                     property: 'createdAt',
                     label: this.$tc('job-listing.page.listing.grid.column.created-at'),
-                    allowResize: true
+                    allowResize: true,
+                    width: '170px',
                 },
+                {
+                    property: 'subJobs',
+                    label: 'Sub jobs',
+                    allowResize: true,
+                    width: '250px',
+                    visible: true,
+                    sortable: false,
+                },
+                {
+                    property: 'messages',
+                    label: 'Messages',
+                    allowResize: true,
+                    width: '350px',
+                    visible: true,
+                    sortable: false,
+                }
             ];
         },
     },
@@ -72,17 +113,29 @@ Component.register('od-job-listing-index', {
     data: function () {
         return {
             jobItems: null,
-            isLoading: false
+            isLoading: false,
+            reloadInterval: null
         }
     },
 
     methods: {
         createdComponent() {
             this.getList();
+        },
 
-            if (this.autoReloadInterval > 0) {
-                setInterval(() => {this.updateList()}, this.autoReloadInterval)
+        _handleAutoReload(active) {
+            if (active && this.autoReloadInterval > 0) {
+                this.reloadInterval = setInterval(() => {
+                    this.updateList()
+                }, this.autoReloadInterval);
+            } else {
+                clearInterval(this.reloadInterval);
             }
+        },
+
+        pageChange() {
+            this.$emit('stop-auto-loading');
+            clearInterval(this.reloadInterval);
         },
 
         getLinkParams(item) {
@@ -95,7 +148,9 @@ Component.register('od-job-listing-index', {
         updateList() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.addSorting(Criteria.sort('createdAt', 'ASC', false));
+            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+            criteria.addAssociation('messages');
+            criteria.addAssociation('subJobs');
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
@@ -106,9 +161,75 @@ Component.register('od-job-listing-index', {
             });
         },
 
+        getMessagesCount(job, type) {
+            if (type === 'info') {
+                let infoCounter = 0;
+                for (const message of job.messages) {
+                    if (message.type === 'info-message') {
+                        infoCounter++
+                    }
+                }
+                return infoCounter;
+            }
+
+            if (type === 'warning') {
+                let warningCounter = 0;
+                for (const message of job.messages) {
+                    if (message.type === 'warning-message') {
+                        warningCounter++
+                    }
+                }
+                return warningCounter;
+            }
+
+            if (type === 'error') {
+                let errorCounter = 0;
+                for (const message of job.messages) {
+                    if (message.type === 'error-message') {
+                        errorCounter++
+                    }
+                }
+                return errorCounter;
+            }
+        },
+
+        getChildrenCount(job, type) {
+            if (type === 'succeed') {
+                let succeedCounter = 0;
+                for (const sub of job.subJobs) {
+                    if (sub.status === 'succeed') {
+                        succeedCounter++
+                    }
+                }
+                return succeedCounter;
+            }
+
+            if (type === 'pending') {
+                let pendingCounter = 0;
+                for (const sub of job.subJobs) {
+                    if (sub.status === 'pending') {
+                        pendingCounter++
+                    }
+                }
+                return pendingCounter;
+            }
+
+            if (type === 'error') {
+                let errorCounter = 0;
+                for (const sub of job.subJobs) {
+                    if (sub.status === 'error') {
+                        errorCounter++
+                    }
+                }
+                return errorCounter;
+            }
+        },
+
         getList() {
             this.isLoading = true;
-            this.updateList().then(() => {this.isLoading = false})
+            this.updateList().then(() => {
+                this.isLoading = false
+            })
         },
 
         onRefresh() {
@@ -140,6 +261,10 @@ Component.register('od-job-listing-index', {
                     message: "Unable reschedule job.",
                 });
             })
-        }
-    }
+        },
+    },
+
+    beforeDestroy() {
+        clearInterval(this.reloadInterval)
+    },
 });

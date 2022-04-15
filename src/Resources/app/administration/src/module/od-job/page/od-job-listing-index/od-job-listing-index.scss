@@ -8,3 +8,20 @@
     50% {opacity: 1.0;}
     100% {-webkit-transform: scale(1.4, 1.4); opacity: 0.0;}
 }
+
+/* Info counter in grid list */
+.jobs-info-counter {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+
+    .count-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .count {
+        margin-right: 10px;
+        font-weight: bold;
+    }
+}
