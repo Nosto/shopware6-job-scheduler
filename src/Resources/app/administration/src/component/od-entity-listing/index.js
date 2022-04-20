@@ -35,18 +35,7 @@ Component.extend('od-entity-listing', 'sw-entity-listing', {
             type: Array,
             required: false,
             default: () => []
-        },
-
-        autoReloadInterval: {
-            type: Number,
-            required: false,
-            default: () => 0
-        },
-        autoLoadIsActive: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
+        }
     },
 
     computed: {
@@ -67,89 +56,7 @@ Component.extend('od-entity-listing', 'sw-entity-listing', {
         };
     },
 
-    watch: {
-        autoLoadIsActive() {
-            this._handleAutoReload(this.autoLoadIsActive);
-        },
-
-        isGroupedView() {
-            this._createGroupedView(this.isGroupedView);
-        }
-    },
-
     methods: {
-
-        _handleAutoReload(active) {
-            if (active &&  this.autoLoadIsActive && this.autoReloadInterval > 0) {
-                this.reloadInterval = setInterval(() => {
-                    this.updateList()
-                }, this.autoReloadInterval);
-            } else {
-                clearInterval(this.reloadInterval);
-            }
-        },
-
-        _createGroupedView(active) {
-            if (active) {
-                this._getSuccessItems();
-                this._getErrorItems();
-                this._getPendingItems();
-            }
-        },
-
-        _getSuccessItems() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.addFilter(Criteria.equals('status', 'succeed'));
-            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.setLimit(9999999);
-            criteria.addAssociation('messages');
-            criteria.addAssociation('subJobs');
-
-
-            if (this.jobTypes !== []) {
-                criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
-            }
-
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.successItems = jobItems;
-            });
-        },
-
-        _getErrorItems() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.addFilter(Criteria.equals('status', 'error'));
-            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.setLimit(9999999);
-            criteria.addAssociation('messages');
-
-            if (this.jobTypes !== []) {
-                criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
-            }
-
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.errorItems = jobItems;
-            });
-        },
-
-        _getPendingItems() {
-            const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.addFilter(Criteria.equals('status', 'pending'));
-            criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.setLimit(9999999);
-            criteria.addAssociation('messages');
-
-            if (this.jobTypes !== []) {
-                criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
-            }
-
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.pendingItems = jobItems;
-            });
-        },
-
         canDelete(item) {
             return ['error', 'succeed'].indexOf(item.status) !== -1;
         },
@@ -180,9 +87,5 @@ Component.extend('od-entity-listing', 'sw-entity-listing', {
 
             this.$emit('select-item', this.selection, item, selected);
         },
-    },
-
-    beforeDestroy() {
-        clearInterval(this.reloadInterval)
     },
 });

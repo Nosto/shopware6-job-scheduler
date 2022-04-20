@@ -9,6 +9,48 @@
     100% {-webkit-transform: scale(1.4, 1.4); opacity: 0.0;}
 }
 
+/* Listing wrapper */
+.od-entity-listing-wrapper {
+
+    /* Job name */
+    .job-name {
+        cursor: pointer;
+        &:hover {
+            text-decoration: underline;
+            color: #169eff;
+        }
+    }
+
+    /* Sub jobs columns */
+    .sw-data-grid__cell--messages,
+    .sw-data-grid__cell--subJobs {
+        .sw-data-grid__cell-content {
+            position: relative;
+            overflow: hidden;
+
+            &:hover {
+                .has-messages,
+                .has-subjobs {
+                    display: none;
+                }
+                .job-messages-show-modal,
+                .sub-job-show-modal {
+                    display: flex;
+                }
+            }
+
+            .job-messages-show-modal,
+            .sub-job-show-modal {
+                display: none;
+                margin: 0 auto;
+                .sw-icon {
+                    margin-right: 10px;
+                }
+            }
+        }
+    }
+}
+
 /* Info counter in grid list */
 .jobs-info-counter {
     width: 100%;
@@ -23,5 +65,40 @@
     .count {
         margin-right: 10px;
         font-weight: bold;
+    }
+}
+
+/* Job info modal */
+.od-job-sub-jobs-modal,
+.od-job-info-modal {
+    .sw-modal__dialog {
+        max-width: 1460px !important;
+    }
+
+    .reschedule-btn {
+        background: #37d046;
+        &:not([disabled]) {
+            &:hover {
+                background: #198624;
+            }
+        }
+    }
+}
+
+/* Actions bar */
+.od-job-listing-actions-bar {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid #d1d9e0;
+
+    .sw-block-field {
+        max-width: 150px;
+        margin-bottom: 0;
+    }
+
+    .action-item {
+        display: flex;
+        gap: 20px;
+        margin-right: 20px;
     }
 }

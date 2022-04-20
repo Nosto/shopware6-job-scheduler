@@ -1,15 +1,14 @@
-import template from './od-job-listing-index.html.twig';
-import './od-job-listing-index.scss';
+import template from './od-grouped-view.html.twig';
+import './od-grouped-view.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('od-job-listing-index', {
+Component.register('od-grouped-view', {
     template,
 
     inject: [
-        'OdRescheduleService',
-        'repositoryFactory',
+        'repositoryFactory'
     ],
 
     mixins: [
@@ -17,43 +16,28 @@ Component.register('od-job-listing-index', {
     ],
 
     props: {
-        isGroupedView: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
         jobTypes: {
             type: Array,
             required: false,
             default: () => []
+        },
+
+        sortType: {
+            type: String,
+            required: true,
+            default: () => 'status'
         }
     },
 
     data() {
         return {
-            jobItems: null,
+            groupedItems: [],
             isLoading: false,
-            reloadInterval: null,
             showJobInfoModal: false,
             showJobSubsModal: false,
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
-            sortType: 'status',
-            jobDisplayType: null,
-            autoLoad: false,
-            autoLoadIsActive: false,
-            autoReloadInterval: 60000
-        }
-    },
-
-    watch: {
-        autoLoadIsActive() {
-            this._handleAutoReload(this.autoLoadIsActive);
-        },
-
-        jobDisplayType() {
-            this.stopAutoLoading();
         }
     },
 
@@ -129,81 +113,84 @@ Component.register('od-job-listing-index', {
                 }
             ];
         },
-
-        jobDisplayMode() {
-            return [
-                {
-                    name: 'List',
-                    value: 'list'
-                },
-                {
-                    name: 'Grouped',
-                    value: 'grouped'
-                },
-                {
-                    name: 'Chart',
-                    value: 'chart'
-                }
-            ]
-        },
     },
 
     created() {
-        this.createdComponent();
+        this.initGroupedView();
+    },
+
+    watch: {
+        sortType() {
+            this.groupedItems = [];
+            this.initGroupedView();
+        },
     },
 
     methods: {
-        createdComponent() {
-            this.jobDisplayType = 'list';
-            this.getList();
-        },
-
-        _handleAutoReload(active) {
-            if (active && this.autoReloadInterval > 0) {
-                if (this.jobDisplayType === 'list') {
-                    this.reloadInterval = setInterval(() => {
-                        this.updateList()
-                    }, this.autoReloadInterval);
-                } else if (this.jobDisplayType === 'grouped') {
-                    this.reloadInterval = setInterval(() => {
-                        this.$refs.jobGroups.initGroupedView()
-                    }, this.autoReloadInterval);
-                } else if (this.jobDisplayType === 'chart') {
-                    this.reloadInterval = setInterval(() => {
-                        this.$refs.jobCharts.initChartData()
-                    }, this.autoReloadInterval);
-                }
-            } else {
-                clearInterval(this.reloadInterval);
-            }
-        },
-
-        pageChange() {
-            this.autoLoadIsActive = false;
-            clearInterval(this.reloadInterval);
-        },
-
-        getLinkParams(item) {
-            return {
-                id: item.id,
-                backPath: this.$route.name
-            };
-        },
-
-        updateList() {
+        initGroupedView() {
+            this.isLoading = true;
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
             criteria.addAssociation('subJobs');
+            criteria.setLimit(999999)
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
 
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = jobItems;
+            return this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
+                this.sortJobs(items)
             });
+        },
+
+        sortJobs(items) {
+            this.groupedItemsTypes = [];
+            this.groupedItems = [];
+            items.forEach((item) => {
+                let index = this.groupedItemsTypes.findIndex(e => e.title === item[this.sortType])
+                if (index === -1) {
+                    this.groupedItemsTypes.push({
+                        title: item[this.sortType]
+                    })
+                }
+            })
+
+            this.getJobsByType(this.groupedItemsTypes);
+        },
+
+        getJobsByType(types) {
+            types.forEach((type) => {
+                const criteria = new Criteria();
+                criteria.addFilter(Criteria.equals('parentId', null));
+                criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+                criteria.addAssociation('messages');
+                criteria.addAssociation('subJobs');
+
+                if (this.jobTypes !== []) {
+                    criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
+                }
+
+                if (this.sortType === 'status') {
+                    criteria.addFilter(Criteria.equals('status', type.title));
+                }
+
+                if (this.sortType === 'type') {
+                    criteria.addFilter(Criteria.equals('type', type.title));
+                }
+
+                this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
+                    this.groupedItems.push({
+                        title: type.title.replace('od-', '').replace('-', ' ').toUpperCase(),
+                        items: items
+                    });
+                });
+            })
+
+            this.isLoading = false;
+
+            return this.groupedItems;
         },
 
         getMessagesCount(job, type) {
@@ -218,20 +205,8 @@ Component.register('od-job-listing-index', {
             }).length;
         },
 
-        getList() {
-            this.isLoading = true;
-            this.updateList().then(() => {
-                this.isLoading = false
-            })
-        },
-
         onRefresh() {
-            if (this.jobDisplayType === 'grouped') {
-                return this.$refs.jobGroups.onRefresh();
-            } else if (this.jobDisplayType === 'chart') {
-                return this.$refs.jobCharts.onRefresh();
-            }
-            return this.getList();
+            this.initGroupedView();
         },
 
         canDelete(item) {
@@ -270,12 +245,6 @@ Component.register('od-job-listing-index', {
         showJobMessages(job) {
             this.currentJobMessages = job.messages;
             this.showMessagesModal = true
-        },
-
-        stopAutoLoading() {
-            this.autoLoadIsActive = false;
-            clearInterval(this.reloadInterval);
-
         }
     },
 
