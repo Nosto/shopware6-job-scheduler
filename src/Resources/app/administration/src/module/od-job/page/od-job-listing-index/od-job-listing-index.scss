@@ -36,6 +36,8 @@
                 .job-messages-show-modal,
                 .sub-job-show-modal {
                     display: flex;
+                    width: 100%;
+                    justify-content: center;
                 }
             }
 
@@ -100,5 +102,18 @@
         display: flex;
         gap: 20px;
         margin-right: 20px;
+    }
+}
+
+/* Messages */
+.od-alert {
+
+    .sw-icon {
+        top: 13px;
+        left: 13px;
+    }
+
+    .sw-alert__body {
+        padding: 10px 20px 10px 40px;
     }
 }

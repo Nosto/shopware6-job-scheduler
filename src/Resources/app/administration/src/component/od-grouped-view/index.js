@@ -182,7 +182,7 @@ Component.register('od-grouped-view', {
 
                 this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
                     this.groupedItems.push({
-                        title: type.title.replace('od-', '').replace('-', ' ').toUpperCase(),
+                        title: this.sortType === 'status' ? type.title.toUpperCase() : items[0].name,
                         items: items
                     });
                 });

@@ -1,4 +1,5 @@
 import template from './od-job-sub-jobs.html.twig';
+import './od-job-sub-jobs.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
@@ -79,27 +80,14 @@ Component.register('od-job-sub-jobs', {
                     width: '150px'
                 },
                 {
-                    property: 'actions',
-                    dataIndex: 'actions',
-                    label: 'Actions',
+                    property: 'messages',
+                    dataIndex: 'messages',
+                    label: 'Messages',
                     allowResize: true,
                     inlineEdit: false,
-                    width: '300px'
+                    width: '250px'
                 },
             ];
-        },
-
-        jobMessagesColumns() {
-            return [
-                {
-                    property: 'message',
-                    dataIndex: 'message',
-                    label: this.$tc('job-listing.page.listing.grid.column.message'),
-                    allowResize: false,
-                    align: 'left',
-                    width: '90px'
-                }
-            ]
         },
     },
 
@@ -137,6 +125,12 @@ Component.register('od-job-sub-jobs', {
         showMessageModal(messages) {
             this.currentJobMessages = messages;
             this.showMessagesModal = true;
+        },
+
+        getMessagesCount(job, type) {
+            return job.messages.filter(function (item) {
+                return item.type === type + '-message';
+            }).length;
         },
     }
 });

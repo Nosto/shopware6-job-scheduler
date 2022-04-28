@@ -45,13 +45,13 @@ Component.register('od-scheduler-charts', {
             chartSeries: [],
             colors: {
                 0: '#FF8C00',
-                1: '#BC8F8F',
+                1: '#0044ee',
                 2: '#9400D3',
                 3: '#FFD700',
                 4: '#008000',
                 5: '#40E0D0',
                 6: '#00BFFF',
-                7: '#696969',
+                7: '#209d90',
                 8: '#C71585',
                 9: '#000000',
                 10: '#F4A460'
@@ -151,13 +151,13 @@ Component.register('od-scheduler-charts', {
         },
 
         createTypeChartSeries(items) {
-            this.chartSeries = this.typeCharts();
+            this.chartSeries = this.typeCharts(items);
 
             for (const item of items) {
                 let date = this.parseDate(item.createdAt);
 
                 this.chartSeries.forEach((chart) => {
-                    if (chart.name === item.type) {
+                    if (chart.name === item.name) {
                         let existingIndex = chart.data.findIndex(e => e.x === date);
                         if (existingIndex !== -1) {
                             chart.data[existingIndex].y = chart.data[existingIndex].y + 1;
@@ -223,18 +223,24 @@ Component.register('od-scheduler-charts', {
             return '#' + n.slice(0, 6);
         },
 
-        typeCharts() {
+        typeCharts(items) {
             let chartSeries = [];
 
-            if (this.jobTypes !== []) {
-                this.jobTypes.forEach((type, index) => {
+            items.forEach((item, index) => {
+
+                let type = chartSeries.find((chart) => {
+                   return chart.name === item.name
+                })
+
+                if (!type) {
                     chartSeries.push({
-                        name: type,
+                        name: item.name,
                         data: [],
                         color: this.colors[index] ? this.colors[index] : this.getRandomColor(index)
                     })
-                })
-            }
+                }
+            })
+
 
             return chartSeries;
         },
