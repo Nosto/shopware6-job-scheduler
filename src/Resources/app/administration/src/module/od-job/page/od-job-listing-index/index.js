@@ -1,8 +1,8 @@
 import template from './od-job-listing-index.html.twig';
 import './od-job-listing-index.scss';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('od-job-listing-index', {
     template,
