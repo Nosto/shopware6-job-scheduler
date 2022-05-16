@@ -1,4 +1,9 @@
 .sub-jobs-container {
+    
+    .sw-data-grid {
+        position: relative;
+    }
+    
     /* Sub jobs columns */
     .sw-data-grid__cell--messages,
     .sw-data-grid__cell--subJobs {

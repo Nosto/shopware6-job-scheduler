@@ -61,7 +61,8 @@ Component.register('od-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
                     allowResize: false,
                     inlineEdit: true,
-                    width: '150px'
+                    width: '150px',
+                    sortable: true
                 },
                 {
                     property: 'finishedAt',
@@ -85,7 +86,8 @@ Component.register('od-job-sub-jobs', {
                     label: 'Messages',
                     allowResize: true,
                     inlineEdit: false,
-                    width: '250px'
+                    width: '250px',
+                    sortable: false
                 },
             ];
         },
@@ -98,14 +100,11 @@ Component.register('od-job-sub-jobs', {
     methods: {
         initModalData() {
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.equals('parentId', null));
+            criteria.addFilter(Criteria.equals('parentId', this.jobId));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.addAssociation('subJobs');
-            criteria.addAssociation('subJobs.messages');
-            this.jobRepository.get(this.jobId, Shopware.Context.api, criteria).then(jobItem => {
-                if (jobItem.subJobs.length > 0) {
-                    this.subJobs = jobItem.subJobs;
-                }
+            criteria.addAssociation('messages');
+            this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
+                this.subJobs = jobItems;
             });
         },
 

@@ -2,7 +2,7 @@
     <div class="sub-jobs-container">
         <div class="sub-job-container" v-if="subJobs">
             {% block job_children_listing %}
-                <sw-data-grid
+                <od-entity-listing
                         v-if="subJobs"
                         :items="subJobs"
                         :data-source="subJobs"
@@ -88,11 +88,11 @@
                             {{ $tc('job-listing.actions.show-messages.button.label') }}
                         </sw-context-menu-item>
                     </template>
-                </sw-data-grid>
+                </od-entity-listing>
             {% endblock %}
         </div>
         <div v-else>
-            Nothing to show
+           Loading...
         </div>
         <sw-modal class="od-job-messages-modal" v-if="showMessagesModal" title="Job messages"
                   @modal-close="showMessagesModal = false">

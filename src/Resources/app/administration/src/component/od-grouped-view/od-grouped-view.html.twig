@@ -26,9 +26,7 @@
                         </template>
                         <template #column-name="{ item }">
                             {% block od_job_list_grid_job_name_link %}
-                                <div class="job-name" @click="showJobInfo(item.id)">
-                                    {{ item.name }}
-                                </div>
+                                {{ item.name }}
                             {% endblock %}
                         </template>
                         <template #column-startedAt="{ item }">

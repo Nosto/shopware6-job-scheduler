@@ -97,6 +97,7 @@ Component.register('od-job-listing-index', {
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
                     allowResize: true,
                     width: '170px',
+                    sortable: true
                 },
                 {
                     property: 'finishedAt',
@@ -234,13 +235,13 @@ Component.register('od-job-listing-index', {
             })
         },
 
-        onRefresh() {
+        onRefresh(criteria) {
             if (this.jobDisplayType === 'grouped') {
                 return this.$refs.jobGroups.onRefresh();
             } else if (this.jobDisplayType === 'chart') {
                 return this.$refs.jobCharts.onRefresh();
             }
-            return this.getList();
+            return this.getList(criteria);
         },
 
         canDelete(item) {
