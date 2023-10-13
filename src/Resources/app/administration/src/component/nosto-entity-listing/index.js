@@ -1,10 +1,10 @@
-import template from './od-entity-listing.html.twig'
-import './od-entity-listing.scss';
+import template from './nosto-entity-listing.html.twig'
+import './nosto-entity-listing.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.extend('od-entity-listing', 'sw-entity-listing', {
+Component.extend('nosto-entity-listing', 'sw-entity-listing', {
     template,
 
     props: {
@@ -40,7 +40,7 @@ Component.extend('od-entity-listing', 'sw-entity-listing', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         }
     },
 

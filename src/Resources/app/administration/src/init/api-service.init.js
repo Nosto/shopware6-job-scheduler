@@ -1,9 +1,8 @@
-import OdRescheduleService
-    from '../service/api/od-reschedule.service';
+import NostoRescheduleService from '../service/api/nosto-reschedule.service';
 const { Application } = Shopware;
 const initContainer = Application.getContainer('init');
 
 Application.addServiceProvider(
-    'OdRescheduleService',
-    (container) => new OdRescheduleService(initContainer.httpClient, container.loginService),
+    'NostoRescheduleService',
+    (container) => new NostoRescheduleService(initContainer.httpClient, container.loginService),
 );

@@ -1,15 +1,15 @@
-import template from './od-job-sub-jobs.html.twig';
+import template from './nosto-job-sub-jobs.html.twig';
 import JobHelper from "../../util/job.helper";
-import './od-job-sub-jobs.scss';
+import './nosto-job-sub-jobs.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('od-job-sub-jobs', {
+Component.register('nosto-job-sub-jobs', {
     template,
 
     inject: [
-        'OdRescheduleService',
+        'NostoRescheduleService',
         'repositoryFactory'
     ],
 
@@ -35,7 +35,7 @@ Component.register('od-job-sub-jobs', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         },
 
         jobChildrenColumns() {
@@ -110,7 +110,7 @@ Component.register('od-job-sub-jobs', {
         },
 
         rescheduleJob(jobId) {
-            this.OdRescheduleService.rescheduleJob(jobId).then(() => {
+            this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
                     message: "Job has been rescheduled successfully.",
                 });

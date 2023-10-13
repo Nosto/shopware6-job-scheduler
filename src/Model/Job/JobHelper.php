@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job;
+namespace Nosto\Scheduler\Model\Job;
 
-use Od\Scheduler\Entity\Job\JobCollection;
-use Od\Scheduler\Entity\Job\JobEntity;
+use Nosto\Scheduler\Entity\Job\JobCollection;
+use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

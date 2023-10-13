@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler;
+namespace Nosto\Scheduler;
 
 use Shopware\Core\Framework\Bundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\{XmlFileLoader};
 
-class OdScheduler extends Bundle
+class NostoScheduler extends Bundle
 {
     public function build(ContainerBuilder $container): void
     {

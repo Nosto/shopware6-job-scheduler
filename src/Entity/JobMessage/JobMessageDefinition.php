@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Entity\JobMessage;
+namespace Nosto\Scheduler\Entity\JobMessage;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class JobMessageDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'od_scheduler_job_message';
+    public const ENTITY_NAME = 'nosto_scheduler_job_message';
 
     public function getEntityName(): string
     {

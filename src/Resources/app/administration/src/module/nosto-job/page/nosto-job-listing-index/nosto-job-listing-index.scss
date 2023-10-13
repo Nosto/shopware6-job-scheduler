@@ -10,7 +10,7 @@
 }
 
 /* Listing wrapper */
-.od-entity-listing-wrapper {
+.nosto-entity-listing-wrapper {
 
     /* Job name */
     .job-name {
@@ -71,8 +71,8 @@
 }
 
 /* Job info modal */
-.od-job-sub-jobs-modal,
-.od-job-info-modal {
+.nosto-job-sub-jobs-modal,
+.nosto-job-info-modal {
     .sw-modal__dialog {
         max-width: 1460px !important;
     }
@@ -88,7 +88,7 @@
 }
 
 /* Actions bar */
-.od-job-listing-actions-bar {
+.nosto-job-listing-actions-bar {
     display: flex;
     padding: 20px;
     border-bottom: 1px solid #d1d9e0;
@@ -110,7 +110,7 @@
 }
 
 /* Messages */
-.od-alert {
+.nosto-alert {
 
     .sw-icon {
         top: 13px;

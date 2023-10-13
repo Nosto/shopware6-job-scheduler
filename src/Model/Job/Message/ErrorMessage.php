@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job\Message;
+namespace Nosto\Scheduler\Model\Job\Message;
 
-use Od\Scheduler\Model\MessageManager;
+use Nosto\Scheduler\Model\MessageManager;
 
 class ErrorMessage extends JobMessage
 {

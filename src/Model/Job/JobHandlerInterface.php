@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job;
+namespace Nosto\Scheduler\Model\Job;
 
 interface JobHandlerInterface
 {

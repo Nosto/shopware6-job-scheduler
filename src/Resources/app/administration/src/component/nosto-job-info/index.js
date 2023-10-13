@@ -1,13 +1,13 @@
-import template from './od-job-info.html.twig';
+import template from './nosto-job-info.html.twig';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('od-job-info', {
+Component.register('nosto-job-info', {
     template,
 
     inject: [
-        'OdRescheduleService',
+        'NostoRescheduleService',
         'repositoryFactory'
     ],
 
@@ -31,7 +31,7 @@ Component.register('od-job-info', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         }
     },
 

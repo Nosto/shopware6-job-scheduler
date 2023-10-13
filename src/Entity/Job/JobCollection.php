@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Entity\Job;
+namespace Nosto\Scheduler\Entity\Job;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

@@ -1,11 +1,11 @@
-import template from './od-grouped-view.html.twig';
+import template from './nosto-grouped-view.html.twig';
 import JobHelper from "../../util/job.helper";
-import './od-grouped-view.scss';
+import './nosto-grouped-view.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('od-grouped-view', {
+Component.register('nosto-grouped-view', {
     template,
 
     inject: [
@@ -48,11 +48,11 @@ Component.register('od-grouped-view', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         },
 
         messageRepository() {
-            return this.repositoryFactory.create('od_scheduler_job_message');
+            return this.repositoryFactory.create('nosto_scheduler_job_message');
         },
 
         jobMessagesColumns() {
@@ -253,7 +253,7 @@ Component.register('od-grouped-view', {
         },
 
         rescheduleJob(jobId) {
-            this.OdRescheduleService.rescheduleJob(jobId).then(() => {
+            this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
                     message: "Job has been rescheduled successfully.",
                 });

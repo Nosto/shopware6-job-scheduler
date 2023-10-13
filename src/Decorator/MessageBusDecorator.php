@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Decorator;
+namespace Nosto\Scheduler\Decorator;
 
-use Od\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
-use Od\Scheduler\Entity\Job\JobEntity;
+use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
+use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
