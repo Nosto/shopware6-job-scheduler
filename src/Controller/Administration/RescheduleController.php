@@ -20,7 +20,7 @@ class RescheduleController extends AbstractController
         $this->jobScheduler = $jobScheduler;
     }
 
-    #[Route(path:"/api/_action/od-job/reschedule", name:"api.nosto.scheduler.nosto.job.event.reschedule", options:["seo"=>"false"], methods:["POST"])]
+    #[Route(path:"/api/_action/nosto-job/reschedule", name:"api.nosto.scheduler.nosto.job.event.reschedule", options:["seo"=>"false"], methods:["POST"])]
     public function rescheduleAction(Request $request)
     {
         $jobId = $request->request->get('params')['jobId'] ?? null;

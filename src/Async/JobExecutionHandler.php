@@ -4,8 +4,9 @@ namespace Nosto\Scheduler\Async;
 
 use Nosto\Scheduler\Model\Job\JobRunner;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class JobExecutionHandler implements \Symfony\Component\Messenger\Handler\MessageSubscriberInterface
+class JobExecutionHandler implements MessageSubscriberInterface
 {
     private LoggerInterface $logger;
     private JobRunner $jobRunner;
