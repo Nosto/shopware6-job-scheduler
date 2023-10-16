@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Decorator;
 
@@ -7,13 +9,15 @@ use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
+use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
 
 class MessageBusDecorator implements MessageBusInterface
 {
     private MessageBusInterface $innerBus;
+
     private SerializerInterface $messageSerializer;
+
     private EntityRepository $jobRepository;
 
     public function __construct(
@@ -46,7 +50,7 @@ class MessageBusDecorator implements MessageBusInterface
             'name' => $jobMessage->getJobName(),
             'status' => JobEntity::TYPE_PENDING,
             'type' => $jobMessage->getHandlerCode(),
-            'message' => $serializedEnvelope['body'] ?? null
+            'message' => $serializedEnvelope['body'] ?? null,
         ];
 
         if ($jobMessage instanceof ParentAwareMessageInterface) {

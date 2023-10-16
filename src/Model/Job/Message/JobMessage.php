@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job\Message;
 
 use Nosto\Scheduler\Model\Job\JobRuntimeMessageInterface;
 use Nosto\Scheduler\Model\MessageManager;
 
-Class JobMessage implements JobRuntimeMessageInterface
+class JobMessage implements JobRuntimeMessageInterface
 {
     private string $message;
 

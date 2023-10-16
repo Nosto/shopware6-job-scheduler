@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Entity\Job;
 
@@ -8,21 +10,32 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class JobEntity extends Entity
 {
-    const TYPE_PENDING = 'pending';
-    const TYPE_RUNNING = 'running';
-    const TYPE_SUCCEED = 'succeed';
-    const TYPE_FAILED = 'error';
+    public const TYPE_PENDING = 'pending';
+
+    public const TYPE_RUNNING = 'running';
+
+    public const TYPE_SUCCEED = 'succeed';
+
+    public const TYPE_FAILED = 'error';
 
     use EntityIdTrait;
 
     protected ?string $parentId = null;
+
     protected string $status;
+
     protected string $type;
+
     protected string $name;
+
     protected ?string $message = null;
+
     protected ?\DateTimeInterface $startedAt = null;
+
     protected ?\DateTimeInterface $finishedAt = null;
+
     protected ?JobMessageCollection $messages = null;
+
     protected ?JobCollection $subJobs = null;
 
     public function getParentId(): ?string
@@ -95,33 +108,21 @@ class JobEntity extends Entity
         $this->finishedAt = $finishedAt;
     }
 
-    /**
-     * @return JobMessageCollection
-     */
     public function getMessages(): ?JobMessageCollection
     {
         return $this->messages;
     }
 
-    /**
-     * @param JobMessageCollection $messages
-     */
     public function setMessages(JobMessageCollection $messages): void
     {
         $this->messages = $messages;
     }
 
-    /**
-     * @return JobCollection|null
-     */
     public function getSubJobs(): ?JobCollection
     {
         return $this->subJobs;
     }
 
-    /**
-     * @param JobCollection|null $subJobs
-     */
     public function setSubJobs(?JobCollection $subJobs): void
     {
         $this->subJobs = $subJobs;

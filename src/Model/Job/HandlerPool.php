@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
@@ -8,6 +10,7 @@ class HandlerPool
      * @var JobHandlerInterface[]
      */
     private array $handlers = [];
+
     private iterable $rawHandlers;
 
     public function __construct(iterable $handlers)

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model;
 
@@ -9,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 class MessageManager
 {
     public const TYPE_INFO = 'info-message';
+
     public const TYPE_ERROR = 'error-message';
+
     public const TYPE_WARNING = 'warning-message';
 
     private EntityRepository $jobMessageRepository;
@@ -21,17 +25,17 @@ class MessageManager
 
     public function addInfoMessage(string $jobId, string $message)
     {
-        $this->addMessage($jobId, $message,self::TYPE_INFO);
+        $this->addMessage($jobId, $message, self::TYPE_INFO);
     }
 
     public function addWarningMessage(string $jobId, string $message)
     {
-        $this->addMessage($jobId, $message,self::TYPE_WARNING);
+        $this->addMessage($jobId, $message, self::TYPE_WARNING);
     }
 
     public function addErrorMessage(string $jobId, string $message)
     {
-        $this->addMessage($jobId, $message,self::TYPE_ERROR);
+        $this->addMessage($jobId, $message, self::TYPE_ERROR);
     }
 
     public function addExceptionMessage(JobException $jobException)
@@ -45,8 +49,8 @@ class MessageManager
             [
                 'jobId' => $jobId,
                 'type' => $type,
-                'message' => $message
-            ]
+                'message' => $message,
+            ],
         ], Context::createDefaultContext());
     }
 }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
@@ -22,7 +24,9 @@ class JobHelper
     public function deleteJob(string $jobId)
     {
         $this->jobRepository->delete(
-            [['id' => $jobId]],
+            [[
+                'id' => $jobId,
+            ]],
             Context::createDefaultContext()
         );
     }

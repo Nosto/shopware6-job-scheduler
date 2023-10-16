@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
@@ -7,6 +9,7 @@ use Nosto\Scheduler\Entity\Job\JobEntity;
 class JobTree implements \IteratorAggregate
 {
     private JobEntity $rootJob;
+
     private array $childJobs;
 
     public function __construct(JobEntity $rootJob, array $childJobs)
