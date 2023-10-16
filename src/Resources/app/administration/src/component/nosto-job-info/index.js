@@ -1,14 +1,15 @@
 import template from './nosto-job-info.html.twig';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-job-info', {
     template,
 
     inject: [
         'NostoRescheduleService',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
@@ -20,19 +21,19 @@ Component.register('nosto-job-info', {
             type: String,
             required: false,
             default: null,
-        }
+        },
     },
 
     data() {
         return {
-            jobItem: null
-        }
+            jobItem: null,
+        };
     },
 
     computed: {
         jobRepository() {
             return this.repositoryFactory.create('nosto_scheduler_job');
-        }
+        },
     },
 
     created() {
@@ -45,5 +46,5 @@ Component.register('nosto-job-info', {
                 this.jobItem = jobItem;
             });
         },
-    }
+    },
 });

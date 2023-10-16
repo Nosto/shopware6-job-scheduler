@@ -3,8 +3,9 @@ import './page/nosto-job-listing-index';
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';
 
-const {Module} = Shopware;
+const { Module } = Shopware;
 
+/** @private */
 Module.register('nosto-job-listing', {
     type: 'plugin',
     title: 'job-listing.general.title',
@@ -14,7 +15,7 @@ Module.register('nosto-job-listing', {
 
     snippets: {
         'en-GB': enGB,
-        'de-DE': deDE
+        'de-DE': deDE,
     },
 
     routes: {
@@ -25,6 +26,6 @@ Module.register('nosto-job-listing', {
                     return { jobId: $route.params.id };
                 },
             },
-        }
+        },
     },
-})
+});

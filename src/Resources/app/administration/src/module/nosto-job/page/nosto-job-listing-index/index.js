@@ -1,10 +1,11 @@
 import template from './nosto-job-listing-index.html.twig';
-import JobHelper from "../../../../util/job.helper";
+import JobHelper from '../../../../util/job.helper';
 import './nosto-job-listing-index.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-job-listing-index', {
     template,
 
@@ -12,7 +13,7 @@ Component.register('nosto-job-listing-index', {
         'NostoRescheduleService',
         'repositoryFactory',
         'filterFactory',
-        'feature'
+        'feature',
     ],
 
     mixins: [
@@ -23,18 +24,18 @@ Component.register('nosto-job-listing-index', {
         isGroupedView: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         jobTypes: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         filterCriteria: {
             type: Array,
             required: false,
-            default: () => []
-        }
+            default: () => [],
+        },
     },
 
     data() {
@@ -54,22 +55,7 @@ Component.register('nosto-job-listing-index', {
             autoLoad: false,
             autoLoadIsActive: false,
             autoReloadInterval: 60000,
-        }
-    },
-
-    watch: {
-        autoLoadIsActive() {
-            this._handleAutoReload(this.autoLoadIsActive);
-        },
-
-        jobDisplayType() {
-            this.stopAutoLoading();
-            this.$emit('job-display-type-changed', this.jobDisplayType);
-        },
-
-        filterCriteria() {
-            this.filterCriteriaChanged(this.filterCriteria)
-        }
+        };
     },
 
     computed: {
@@ -100,7 +86,7 @@ Component.register('nosto-job-listing-index', {
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
                     allowResize: true,
                     width: '170px',
-                    sortable: true
+                    sortable: true,
                 },
                 {
                     property: 'finishedAt',
@@ -129,7 +115,7 @@ Component.register('nosto-job-listing-index', {
                     width: '250px',
                     visible: true,
                     sortable: false,
-                }
+                },
             ];
         },
 
@@ -137,22 +123,41 @@ Component.register('nosto-job-listing-index', {
             return [
                 {
                     name: this.$tc('job-listing.page.listing.index.list'),
-                    value: 'list'
+                    value: 'list',
                 },
                 {
                     name: this.$tc('job-listing.page.listing.index.grouped'),
-                    value: 'grouped'
+                    value: 'grouped',
                 },
                 {
                     name: this.$tc('job-listing.page.listing.index.chart'),
-                    value: 'chart'
-                }
-            ]
+                    value: 'chart',
+                },
+            ];
+        },
+    },
+
+    watch: {
+        autoLoadIsActive() {
+            this._handleAutoReload(this.autoLoadIsActive);
+        },
+
+        jobDisplayType() {
+            this.stopAutoLoading();
+            this.$emit('job-display-type-changed', this.jobDisplayType);
+        },
+
+        filterCriteria() {
+            this.filterCriteriaChanged(this.filterCriteria);
         },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    beforeDestroy() {
+        clearInterval(this.reloadInterval);
     },
 
     methods: {
@@ -169,15 +174,15 @@ Component.register('nosto-job-listing-index', {
             if (active && this.autoReloadInterval > 0) {
                 if (this.jobDisplayType === 'list') {
                     this.reloadInterval = setInterval(() => {
-                        this.updateList()
+                        this.updateList();
                     }, this.autoReloadInterval);
                 } else if (this.jobDisplayType === 'grouped') {
                     this.reloadInterval = setInterval(() => {
-                        this.$refs.jobGroups.initGroupedView()
+                        this.$refs.jobGroups.initGroupedView();
                     }, this.autoReloadInterval);
                 } else if (this.jobDisplayType === 'chart') {
                     this.reloadInterval = setInterval(() => {
-                        this.$refs.jobCharts.initChartData()
+                        this.$refs.jobCharts.initChartData();
                     }, this.autoReloadInterval);
                 }
             } else {
@@ -193,7 +198,7 @@ Component.register('nosto-job-listing-index', {
         getLinkParams(item) {
             return {
                 id: item.id,
-                backPath: this.$route.name
+                backPath: this.$route.name,
             };
         },
 
@@ -220,13 +225,13 @@ Component.register('nosto-job-listing-index', {
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter(function (item) {
-                return item.type === type + '-message';
+            return job.messages.filter((item) => {
+                return item.type === `${type}-message`;
             }).length;
         },
 
         getChildrenCount(job, type) {
-            return job.subJobs.filter(function (item) {
+            return job.subJobs.filter((item) => {
                 return item.status === type;
             }).length;
         },
@@ -234,14 +239,14 @@ Component.register('nosto-job-listing-index', {
         getList(filterCriteria) {
             this.isLoading = true;
             this.updateList(filterCriteria).then(() => {
-                this.isLoading = false
-            })
+                this.isLoading = false;
+            });
         },
 
         onRefresh(criteria) {
             if (this.jobDisplayType === 'grouped') {
                 return this.$refs.jobGroups.onRefresh();
-            } else if (this.jobDisplayType === 'chart') {
+            } if (this.jobDisplayType === 'chart') {
                 return this.$refs.jobCharts.onRefresh();
             }
             return this.getList(criteria);
@@ -260,34 +265,29 @@ Component.register('nosto-job-listing-index', {
         rescheduleJob(jobId) {
             this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
-                    message: "Job has been rescheduled successfully.",
+                    message: 'Job has been rescheduled successfully.',
                 });
                 this.updateList();
             }).catch(() => {
                 this.createNotificationError({
-                    message: "Unable reschedule job.",
+                    message: 'Unable reschedule job.',
                 });
-            })
+            });
         },
 
         showSubJobs(jobId) {
             this.currentJobID = jobId;
-            this.showJobSubsModal = true
+            this.showJobSubsModal = true;
         },
 
         showJobMessages(job) {
             this.currentJobMessages = job.messages;
-            this.showMessagesModal = true
+            this.showMessagesModal = true;
         },
 
         stopAutoLoading() {
             this.autoLoadIsActive = false;
             clearInterval(this.reloadInterval);
-
-        }
-    },
-
-    beforeDestroy() {
-        clearInterval(this.reloadInterval)
+        },
     },
 });
