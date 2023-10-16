@@ -1,6 +1,6 @@
 <?php
 
-namespace Od\Scheduler\Model\Job;
+namespace Nosto\Scheduler\Model\Job;
 
 interface GeneratingHandlerInterface
 {

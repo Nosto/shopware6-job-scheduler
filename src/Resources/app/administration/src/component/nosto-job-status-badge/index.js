@@ -1,8 +1,8 @@
-import template from './od-job-status-badge.html.twig';
+import template from './nosto-job-status-badge.html.twig';
 
 const {Component} = Shopware;
 
-Component.register('od-job-status-badge', {
+Component.register('nosto-job-status-badge', {
     template,
 
     props: {

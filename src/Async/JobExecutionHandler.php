@@ -1,11 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Async;
+namespace Nosto\Scheduler\Async;
 
-use Od\Scheduler\Model\Job\JobRunner;
+use Nosto\Scheduler\Model\Job\JobRunner;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class JobExecutionHandler implements \Symfony\Component\Messenger\Handler\MessageSubscriberInterface
+class JobExecutionHandler implements MessageSubscriberInterface
 {
     private LoggerInterface $logger;
     private JobRunner $jobRunner;
@@ -26,7 +27,7 @@ class JobExecutionHandler implements \Symfony\Component\Messenger\Handler\Messag
     /**
      * @param JobMessageInterface $message
      */
-    public function handle(\Od\Scheduler\Async\JobMessageInterface $message): void
+    public function handle(JobMessageInterface $message): void
     {
         try {
             $this->jobRunner->execute($message);

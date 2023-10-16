@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Controller\Administration;
+namespace Nosto\Scheduler\Controller\Administration;
 
-use Od\Scheduler\Model\JobScheduler;
+use Nosto\Scheduler\Model\JobScheduler;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +20,7 @@ class RescheduleController extends AbstractController
         $this->jobScheduler = $jobScheduler;
     }
 
-    #[Route(path:"/api/_action/od-job/reschedule", name:"api.od.scheduler.od.job.event.reschedule", options:["seo"=>"false"], methods:["POST"])]
+    #[Route(path:"/api/_action/nosto-job/reschedule", name:"api.nosto.scheduler.nosto.job.event.reschedule", options:["seo"=>"false"], methods:["POST"])]
     public function rescheduleAction(Request $request)
     {
         $jobId = $request->request->get('params')['jobId'] ?? null;

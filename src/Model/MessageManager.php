@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model;
+namespace Nosto\Scheduler\Model;
 
-use Od\Scheduler\Model\Exception\JobException;
+use Nosto\Scheduler\Model\Exception\JobException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 

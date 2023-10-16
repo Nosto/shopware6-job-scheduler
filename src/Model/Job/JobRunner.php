@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job;
+namespace Nosto\Scheduler\Model\Job;
 
-use Od\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
-use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Exception\JobException;
-use Od\Scheduler\Model\MessageManager;
+use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
+use Nosto\Scheduler\Entity\Job\JobEntity;
+use Nosto\Scheduler\Model\Exception\JobException;
+use Nosto\Scheduler\Model\MessageManager;
 
 class JobRunner
 {

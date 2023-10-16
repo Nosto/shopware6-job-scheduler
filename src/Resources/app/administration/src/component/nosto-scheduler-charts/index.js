@@ -1,10 +1,10 @@
-import template from './od-scheduler-charts.html.twig';
-import './od-scheduler-charts.scss';
+import template from './nosto-scheduler-charts.html.twig';
+import './nosto-scheduler-charts.scss';
 
 const {Component} = Shopware;
 const {Criteria} = Shopware.Data;
 
-Component.register('od-scheduler-charts', {
+Component.register('nosto-scheduler-charts', {
     template,
 
     inject: [
@@ -61,7 +61,7 @@ Component.register('od-scheduler-charts', {
 
     computed: {
         jobRepository() {
-            return this.repositoryFactory.create('od_scheduler_job');
+            return this.repositoryFactory.create('nosto_scheduler_job');
         },
 
         getTimeUnitInterval() {

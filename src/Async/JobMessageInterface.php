@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Async;
+namespace Nosto\Scheduler\Async;
 
 interface JobMessageInterface
 {

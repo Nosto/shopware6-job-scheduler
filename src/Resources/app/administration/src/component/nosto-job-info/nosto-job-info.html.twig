@@ -1,4 +1,4 @@
-{% block od_job_info_base %}
+{% block nosto_job_info_base %}
     <sw-card-section v-if="jobItem">
         {% block job_info_overview_columns %}
             <sw-container
@@ -22,8 +22,8 @@
                             <dt>{{ $tc('job-listing.page.listing.grid.column.status') }}</dt>
                             <dd>
                                 <template>
-                                    <od-job-status-badge :status="jobItem.status">
-                                    </od-job-status-badge>
+                                    <nosto-job-status-badge :status="jobItem.status">
+                                    </nosto-job-status-badge>
                                     {{ $tc('job-listing.page.listing.grid.job-status.' + jobItem.status) }}
                                 </template>
                             </dd>
@@ -40,10 +40,10 @@
                         {% endblock %}
                     </sw-description-list>
                 {% endblock %}
-                {% block od_job_info_overview_right_column %}
+                {% block nosto_job_info_overview_right_column %}
                     <sw-description-list
                             columns="1fr"
-                            grid="1fr" class="od-job-user-card__summary-vertical">
+                            grid="1fr" class="nosto-job-user-card__summary-vertical">
                         {% block job_detail_base_overview_type %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.type') }}</dt>
                             <dd>

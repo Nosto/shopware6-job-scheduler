@@ -1,11 +1,11 @@
-{% block od_grouped_view_base %}
-    <div class="od-grouped-view-container" v-if="groupedItems" :isLoading="isLoading">
-        <div class="od-grouped-view-wrapper"
+{% block nosto_grouped_view_base %}
+    <div class="nosto-grouped-view-container" v-if="groupedItems" :isLoading="isLoading">
+        <div class="nosto-grouped-view-wrapper"
              v-for="group in groupedItems">
             <sw-collapse :class="`is-${group.type}`">
                 <template #header>{{ group.title }} <span class="amount">({{ group.items.total }})</span></template>
                 <template #content>
-                    <od-entity-listing
+                    <nosto-entity-listing
                             :items="group.items"
                             :repository="jobRepository"
                             :is-loading="isLoading"
@@ -17,56 +17,56 @@
                             :jobTypes="jobTypes"
                             :columns="columns">
                         <template #column-status="{ item }">
-                            {% block od_job_list_grid_job_status_link %}
+                            {% block nosto_job_list_grid_job_status_link %}
                                 <template>
-                                    <od-job-status-badge :status="item.status"></od-job-status-badge>
+                                    <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
                                     {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
                                 </template>
                             {% endblock %}
                         </template>
                         <template #column-name="{ item }">
-                            {% block od_job_list_grid_job_name_link %}
+                            {% block nosto_job_list_grid_job_name_link %}
                                 {{ item.name }}
                             {% endblock %}
                         </template>
                         <template #column-startedAt="{ item }">
-                            {% block od_job_list_grid_job_started_date %}
+                            {% block nosto_job_list_grid_job_started_date %}
                                 {{ item.startedAt|date() }}
                             {% endblock %}
                         </template>
                         <template #column-finishedAt="{ item }">
-                            {% block od_job_list_grid_job_finished_date %}
+                            {% block nosto_job_list_grid_job_finished_date %}
                                 {{ item.finishedAt|date() }}
                             {% endblock %}
                         </template>
                         <template #column-createdAt="{ item }">
-                            {% block od_job_list_grid_job_created_date %}
+                            {% block nosto_job_list_grid_job_created_date %}
                                 {{ item.createdAt|date() }}
                             {% endblock %}
                         </template>
                         <template class="sub-jobs-column" #column-subJobs="{ item }">
-                            {% block od_job_list_grid_job_sub_jobs %}
+                            {% block nosto_job_list_grid_job_sub_jobs %}
                                 <div :class="item.subJobs.length > 0 ? 'has-subjobs' : ''"
                                      class="sub-jobs-counters-container jobs-info-counter">
                                     <div class="count-container" v-if="item.subJobs">
                             <span class="info-container">
                                 <span class="count" v-html="getChildrenCount(item, 'succeed')"></span>
                             </span>
-                                        <od-job-status-badge status="succeed"></od-job-status-badge>
+                                        <nosto-job-status-badge status="succeed"></nosto-job-status-badge>
                                     </div>
 
                                     <div class="count-container" v-if="item.subJobs">
                             <span class="warning-container">
                                 <span class="count" v-html="getChildrenCount(item, 'pending')"></span>
                             </span>
-                                        <od-job-status-badge status="pending"></od-job-status-badge>
+                                        <nosto-job-status-badge status="pending"></nosto-job-status-badge>
                                     </div>
 
                                     <div class="count-container" v-if="item.subJobs">
                             <span class="error-counter">
                                 <span class="count" v-html="getChildrenCount(item, 'error')"></span>
                             </span>
-                                        <od-job-status-badge status="error"></od-job-status-badge>
+                                        <nosto-job-status-badge status="error"></nosto-job-status-badge>
                                     </div>
                                 </div>
                             {% endblock %}
@@ -77,7 +77,7 @@
                             </sw-button>
                         </template>
                         <template #column-messages="{ item }">
-                            {% block od_job_list_grid_job_messages %}
+                            {% block nosto_job_list_grid_job_messages %}
                                 <div :class="item.messages.length > 0 ? 'has-messages' : ''"
                                      class="message-counters-container jobs-info-counter">
                                     <div class="count-container" v-if="item.messages">
@@ -121,16 +121,16 @@
                                 {{ $tc('job-listing.actions.delete-job.button.label') }}
                             </sw-context-menu-item>
                         </template>
-                    </od-entity-listing>
+                    </nosto-entity-listing>
                 </template>
             </sw-collapse>
         </div>
-        {% block od_entity_listing_job_info_modal %}
-            <sw-modal class="od-job-info-modal" v-if="showJobInfoModal" :title="$tc('job-listing.page.listing.grouped-view.job-info')"
+        {% block nosto_entity_listing_job_info_modal %}
+            <sw-modal class="nosto-job-info-modal" v-if="showJobInfoModal" :title="$tc('job-listing.page.listing.grouped-view.job-info')"
                       @modal-close="showJobInfoModal = false">
-                <od-job-info v-if="currentJobID" :jobId="currentJobID">
+                <nosto-job-info v-if="currentJobID" :jobId="currentJobID">
 
-                </od-job-info>
+                </nosto-job-info>
                 <template #modal-footer>
                     <sw-button variant="primary"
                                @click="showJobInfoModal = false">
@@ -140,12 +140,12 @@
             </sw-modal>
         {% endblock %}
 
-        {% block od_entity_listing_job_subs_modal %}
-            <sw-modal class="od-job-sub-jobs-modal" v-if="showJobSubsModal" :title="$tc('job-listing.page.listing.grouped-view.sub-jobs')"
+        {% block nosto_entity_listing_job_subs_modal %}
+            <sw-modal class="nosto-job-sub-jobs-modal" v-if="showJobSubsModal" :title="$tc('job-listing.page.listing.grouped-view.sub-jobs')"
                       @modal-close="showJobSubsModal = false">
-                <od-job-sub-jobs v-if="currentJobID" :jobId="currentJobID">
+                <nosto-job-sub-jobs v-if="currentJobID" :jobId="currentJobID">
 
-                </od-job-sub-jobs>
+                </nosto-job-sub-jobs>
                 <template #modal-footer>
                     <sw-button variant="primary"
                                @click="showJobSubsModal = false">
@@ -155,8 +155,8 @@
             </sw-modal>
         {% endblock %}
 
-        {% block od_entity_listing_job_messages_modal %}
-            <sw-modal class="od-job-messages-modal" v-if="showMessagesModal" :title="$tc('job-listing.page.listing.grouped-view.job-messages')"
+        {% block nosto_entity_listing_job_messages_modal %}
+            <sw-modal class="nosto-job-messages-modal" v-if="showMessagesModal" :title="$tc('job-listing.page.listing.grouped-view.job-messages')"
                       @modal-close="showMessagesModal = false">
                 {% block job_messages_listing %}
                     <sw-data-grid
@@ -169,7 +169,7 @@
                             :allowEdit="false"
                             :showActions="false"
                             :showHeader="false"
-                            class="od-job-messages-grid"
+                            class="nosto-job-messages-grid"
                             :columns="jobMessagesColumns">
                         <template #column-message="{ item }">
                             {% block job_list_grid_job_messages %}

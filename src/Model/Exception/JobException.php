@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Exception;
+namespace Nosto\Scheduler\Model\Exception;
 
 use Throwable;
 

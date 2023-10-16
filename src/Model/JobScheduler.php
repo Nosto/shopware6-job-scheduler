@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model;
+namespace Nosto\Scheduler\Model;
 
-use Od\Scheduler\Async\JobMessageInterface;
-use Od\Scheduler\Entity\Job\JobEntity;
-use Od\Scheduler\Model\Job\{HandlerPool, JobHelper};
-use Od\Scheduler\Model\Job\GeneratingHandlerInterface;
+use Nosto\Scheduler\Async\JobMessageInterface;
+use Nosto\Scheduler\Entity\Job\JobEntity;
+use Nosto\Scheduler\Model\Job\{HandlerPool, JobHelper};
+use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

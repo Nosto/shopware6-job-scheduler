@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Entity\Job;
+namespace Nosto\Scheduler\Entity\Job;
 
-use Od\Scheduler\Entity\JobMessage\JobMessageCollection;
+use Nosto\Scheduler\Entity\JobMessage\JobMessageCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 

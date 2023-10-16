@@ -1,11 +1,11 @@
-import './page/od-job-listing-index';
+import './page/nosto-job-listing-index';
 
 import enGB from './snippet/en-GB.json';
 import deDE from './snippet/de-DE.json';
 
 const {Module} = Shopware;
 
-Module.register('od-job-listing', {
+Module.register('nosto-job-listing', {
     type: 'plugin',
     title: 'job-listing.general.title',
     description: 'job-listing.general.description',

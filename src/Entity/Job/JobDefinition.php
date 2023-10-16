@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Entity\Job;
+namespace Nosto\Scheduler\Entity\Job;
 
-use Od\Scheduler\Entity\JobMessage\JobMessageDefinition;
+use Nosto\Scheduler\Entity\JobMessage\JobMessageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 class JobDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'od_scheduler_job';
+    public const ENTITY_NAME = 'nosto_scheduler_job';
 
     public function getEntityName(): string
     {

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Od\Scheduler\Model\Job\Handler;
+namespace Nosto\Scheduler\Model\Job\Handler;
 
-use Od\Scheduler\Model\Job\JobHandlerInterface;
-use Od\Scheduler\Model\Job\JobResult;
+use Nosto\Scheduler\Model\Job\JobHandlerInterface;
+use Nosto\Scheduler\Model\Job\JobResult;
 
 class Dummy implements JobHandlerInterface
 {
