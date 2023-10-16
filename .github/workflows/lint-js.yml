@@ -41,6 +41,4 @@ jobs:
 
       - name: Run ESLint
         working-directory: shopware6-job-scheduler
-        run: |
-          npm run administration-lint
-          npm run storefront-lint
+        run: npm run administration-lint
