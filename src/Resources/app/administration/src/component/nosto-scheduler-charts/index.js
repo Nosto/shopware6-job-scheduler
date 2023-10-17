@@ -1,14 +1,15 @@
 import template from './nosto-scheduler-charts.html.twig';
 import './nosto-scheduler-charts.scss';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-scheduler-charts', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
@@ -19,14 +20,14 @@ Component.register('nosto-scheduler-charts', {
         jobTypes: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
 
         sortType: {
             type: String,
             required: true,
-            default: () => 'status'
-        }
+            default: () => 'status',
+        },
     },
 
     data() {
@@ -54,9 +55,9 @@ Component.register('nosto-scheduler-charts', {
                 7: '#209d90',
                 8: '#C71585',
                 9: '#000000',
-                10: '#F4A460'
-            }
-        }
+                10: '#F4A460',
+            },
+        };
     },
 
     computed: {
@@ -123,11 +124,15 @@ Component.register('nosto-scheduler-charts', {
     watch: {
         sortType() {
             this.initChartData();
-        }
+        },
     },
 
     created() {
         this.initChartData();
+    },
+
+    beforeDestroy() {
+        clearInterval(this.reloadInterval);
     },
 
     methods: {
@@ -151,98 +156,78 @@ Component.register('nosto-scheduler-charts', {
         },
 
         createTypeChartSeries(items) {
-            this.chartSeries = this.typeCharts(items);
+            this.chartSeries = items.reduce((currentSeries, item, index) => {
+                const date = this.parseDate(item.createdAt);
+                const type = currentSeries.find((chart) => {
+                    return chart.name === item.name;
+                });
+                const defaultItem = {
+                    x: date,
+                    y: 1,
+                };
 
-            for (const item of items) {
-                let date = this.parseDate(item.createdAt);
+                if (!type) {
+                    currentSeries.push({
+                        name: item.name,
+                        data: [defaultItem],
+                        color: this.colors[index] ? this.colors[index] : this.getRandomColor(index),
+                    });
+                } else {
+                    const dateIndex = type.data.findIndex(e => e.x === date);
 
-                this.chartSeries.forEach((chart) => {
-                    if (chart.name === item.name) {
-                        let existingIndex = chart.data.findIndex(e => e.x === date);
-                        if (existingIndex !== -1) {
-                            chart.data[existingIndex].y = chart.data[existingIndex].y + 1;
-                        } else {
-                            chart.data.push({
-                                x: date,
-                                y: 1
-                            })
-                        }
+                    if (dateIndex === -1) {
+                        type.data.push(defaultItem);
+                    } else {
+                        type.data[dateIndex].y += 1;
                     }
-                })
-            }
+                }
+
+                return currentSeries;
+            }, []);
         },
 
         createStatusChartSeries(items) {
-            this.chartSeries = this.statusCharts()
+            this.chartSeries = [
+                {
+                    name: this.$tc('job-listing.page.listing.grid.job-status.succeed'),
+                    data: this.getDataByItemStatus(items, 'succeed'),
+                    color: '#37d046',
+                },
+                {
+                    name: this.$tc('job-listing.page.listing.grid.job-status.error'),
+                    data: this.getDataByItemStatus(items, 'error'),
+                    color: '#de294c',
+                },
+                {
+                    name: this.$tc('job-listing.page.listing.grid.job-status.pending'),
+                    data: this.getDataByItemStatus(items, 'pending'),
+                    color: '#d1d9e0',
+                },
+            ];
+        },
 
-            for (const item of items) {
-                let date = this.parseDate(item.createdAt)
-
-                if (item.status === 'succeed') {
-                    let successData = this.chartSeries[0].data
-                    let existingIndex = successData.findIndex(e => e.x === date);
-
-                    if (existingIndex !== -1) {
-                        successData[existingIndex].y = successData[existingIndex].y + 1;
-                    } else {
-                        successData.push({
-                            x: date,
-                            y: 1
-                        })
-                    }
-                } else if (item.status === 'pending') {
-                    let pendingData = this.chartSeries[2].data
-                    let existingIndex = pendingData.findIndex(e => e.x === date);
-
-                    if (existingIndex !== -1) {
-                        pendingData[existingIndex].y = pendingData[existingIndex].y + 1;
-                    } else {
-                        pendingData.push({
-                            x: date,
-                            y: 1
-                        })
-                    }
-                } else if (item.status === 'error') {
-                    let errorData = this.chartSeries[1].data
-                    let existingIndex = errorData.findIndex(e => e.x === date);
+        getDataByItemStatus(items, status) {
+            return items.filter(item => item.status === status)
+                .reduce((currentSeries, item) => {
+                    const date = this.parseDate(item.createdAt);
+                    const existingIndex = currentSeries.findIndex(e => e.x === date);
 
                     if (existingIndex !== -1) {
-                        errorData[existingIndex].y = errorData[existingIndex].y + 1;
+                        currentSeries[existingIndex].y += 1;
                     } else {
-                        errorData.push({
+                        currentSeries.push({
                             x: date,
-                            y: 1
-                        })
+                            y: 1,
+                        });
                     }
-                }
-            }
+
+                    return currentSeries;
+                }, []);
         },
 
         getRandomColor() {
-            let n = (Math.random() * 0xfffff * 1000000).toString(16);
-            return '#' + n.slice(0, 6);
-        },
-
-        typeCharts(items) {
-            let chartSeries = [];
-
-            items.forEach((item, index) => {
-
-                let type = chartSeries.find((chart) => {
-                   return chart.name === item.name
-                })
-
-                if (!type) {
-                    chartSeries.push({
-                        name: item.name,
-                        data: [],
-                        color: this.colors[index] ? this.colors[index] : this.getRandomColor(index)
-                    })
-                }
-            })
-
-
-            return chartSeries;
+            const n = (Math.random() * 0xfffff * 1000000).toString(16);
+            return `#${n.slice(0, 6)}`;
         },
 
         statusCharts() {
@@ -250,19 +235,19 @@ Component.register('nosto-scheduler-charts', {
                 {
                     name: this.$tc('job-listing.page.listing.grid.job-status.succeed'),
                     data: [],
-                    color: '#37d046'
+                    color: '#37d046',
                 },
                 {
                     name: this.$tc('job-listing.page.listing.grid.job-status.error'),
                     data: [],
-                    color: '#de294c'
+                    color: '#de294c',
                 },
                 {
                     name: this.$tc('job-listing.page.listing.grid.job-status.pending'),
                     data: [],
-                    color: '#d1d9e0'
-                }
-            ]
+                    color: '#d1d9e0',
+                },
+            ];
         },
 
         parseDate(date) {
@@ -274,9 +259,5 @@ Component.register('nosto-scheduler-charts', {
         onRefresh() {
             this.initChartData();
         },
-    },
-
-    beforeDestroy() {
-        clearInterval(this.reloadInterval)
     },
 });

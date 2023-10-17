@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Entity\JobMessage;
 
@@ -46,7 +48,7 @@ class JobMessageDefinition extends EntityDefinition
             $idField,
             $jobIdField,
             $typeField,
-            $messageField
+            $messageField,
         ]);
     }
 }

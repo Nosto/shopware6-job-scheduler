@@ -1,5 +1,6 @@
 const ApiService = Shopware.Classes.ApiService;
 
+/** @private */
 class NostoRescheduleService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'nosto-job') {
         super(httpClient, loginService, apiEndpoint);
@@ -22,4 +23,5 @@ class NostoRescheduleService extends ApiService {
     }
 }
 
+/** @private */
 export default NostoRescheduleService;

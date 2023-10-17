@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Async;
 
@@ -9,6 +11,7 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 class JobExecutionHandler implements MessageSubscriberInterface
 {
     private LoggerInterface $logger;
+
     private JobRunner $jobRunner;
 
     public function __construct(
@@ -24,9 +27,6 @@ class JobExecutionHandler implements MessageSubscriberInterface
         $this->handle($message);
     }
 
-    /**
-     * @param JobMessageInterface $message
-     */
     public function handle(JobMessageInterface $message): void
     {
         try {

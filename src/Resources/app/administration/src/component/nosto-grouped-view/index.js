@@ -1,15 +1,16 @@
 import template from './nosto-grouped-view.html.twig';
-import JobHelper from "../../util/job.helper";
+import JobHelper from '../../util/job.helper';
 import './nosto-grouped-view.scss';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-grouped-view', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
@@ -20,18 +21,18 @@ Component.register('nosto-grouped-view', {
         jobTypes: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
         groupCreationDate: {
             type: Object,
             required: false,
-            default: () => {}
+            default: () => {},
         },
         sortType: {
             type: String,
             required: true,
-            default: () => 'status'
-        }
+            default: () => 'status',
+        },
     },
 
     data() {
@@ -43,7 +44,7 @@ Component.register('nosto-grouped-view', {
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
-        }
+        };
     },
 
     computed: {
@@ -63,9 +64,9 @@ Component.register('nosto-grouped-view', {
                     label: this.$tc('job-listing.page.listing.grid.column.message'),
                     allowResize: false,
                     align: 'left',
-                    width: '90px'
-                }
-            ]
+                    width: '90px',
+                },
+            ];
         },
 
         columns() {
@@ -115,13 +116,9 @@ Component.register('nosto-grouped-view', {
                     width: '350px',
                     visible: true,
                     sortable: false,
-                }
+                },
             ];
         },
-    },
-
-    created() {
-        this.initGroupedView();
     },
 
     watch: {
@@ -129,13 +126,21 @@ Component.register('nosto-grouped-view', {
             this.groupedItems = [];
             this.initGroupedView();
         },
-        groupCreationDate:{
+        groupCreationDate: {
             handler() {
                 this.groupedItems = [];
                 this.initGroupedView();
             },
-            deep: true
-        }
+            deep: true,
+        },
+    },
+
+    created() {
+        this.initGroupedView();
+    },
+
+    beforeDestroy() {
+        clearInterval(this.reloadInterval);
     },
 
     methods: {
@@ -152,16 +157,16 @@ Component.register('nosto-grouped-view', {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
 
-            if(this.groupCreationDate.fromDate){
+            if (this.groupCreationDate.fromDate) {
                 criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
             }
 
-            if(this.groupCreationDate.toDate){
+            if (this.groupCreationDate.toDate) {
                 criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
             }
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
-                this.sortJobs(items)
+                this.sortJobs(items);
             });
         },
 
@@ -169,13 +174,13 @@ Component.register('nosto-grouped-view', {
             this.groupedItemsTypes = [];
             this.groupedItems = [];
             items.forEach((item) => {
-                let index = this.groupedItemsTypes.findIndex(e => e.title === item[this.sortType])
+                const index = this.groupedItemsTypes.findIndex(e => e.title === item[this.sortType]);
                 if (index === -1) {
                     this.groupedItemsTypes.push({
-                        title: item[this.sortType]
-                    })
+                        title: item[this.sortType],
+                    });
                 }
-            })
+            });
 
             this.getJobsByType(this.groupedItemsTypes);
         },
@@ -188,11 +193,11 @@ Component.register('nosto-grouped-view', {
                 criteria.addAssociation('messages');
                 criteria.addAssociation('subJobs');
 
-                if(this.groupCreationDate.fromDate){
+                if (this.groupCreationDate.fromDate) {
                     criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
                 }
 
-                if(this.groupCreationDate.toDate){
+                if (this.groupCreationDate.toDate) {
                     criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
                 }
 
@@ -211,15 +216,15 @@ Component.register('nosto-grouped-view', {
                 this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
                     const groupType = this.sortType === 'status' ? type.title.toUpperCase() : items[0].name;
                     const groupTitle = this.sortType === 'status'
-                        ? this.$tc('job-listing.page.listing.grid.job-status.' + type.title)
+                        ? this.$tc(`job-listing.page.listing.grid.job-status.${type.title}`)
                         : items[0].name;
                     this.groupedItems.push({
                         title: groupTitle,
                         type: groupType,
-                        items: JobHelper.sortMessages(items)
+                        items: JobHelper.sortMessages(items),
                     });
                 });
-            })
+            });
 
             this.isLoading = false;
 
@@ -227,13 +232,13 @@ Component.register('nosto-grouped-view', {
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter(function (item) {
-                return item.type === type + '-message';
+            return job.messages.filter((item) => {
+                return item.type === `${type}-message`;
             }).length;
         },
 
         getChildrenCount(job, type) {
-            return job.subJobs.filter(function (item) {
+            return job.subJobs.filter((item) => {
                 return item.status === type;
             }).length;
         },
@@ -255,33 +260,29 @@ Component.register('nosto-grouped-view', {
         rescheduleJob(jobId) {
             this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
-                    message: "Job has been rescheduled successfully.",
+                    message: 'Job has been rescheduled successfully.',
                 });
                 this.updateList();
             }).catch(() => {
                 this.createNotificationError({
-                    message: "Unable reschedule job.",
+                    message: 'Unable reschedule job.',
                 });
-            })
+            });
         },
 
         showJobInfo(jobId) {
             this.currentJobID = jobId;
-            this.showJobInfoModal = true
+            this.showJobInfoModal = true;
         },
 
         showSubJobs(jobId) {
             this.currentJobID = jobId;
-            this.showJobSubsModal = true
+            this.showJobSubsModal = true;
         },
 
         showJobMessages(job) {
             this.currentJobMessages = job.messages;
-            this.showMessagesModal = true
-        }
-    },
-
-    beforeDestroy() {
-        clearInterval(this.reloadInterval)
+            this.showMessagesModal = true;
+        },
     },
 });

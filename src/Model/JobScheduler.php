@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model;
 
 use Nosto\Scheduler\Async\JobMessageInterface;
 use Nosto\Scheduler\Entity\Job\JobEntity;
-use Nosto\Scheduler\Model\Job\{HandlerPool, JobHelper};
 use Nosto\Scheduler\Model\Job\GeneratingHandlerInterface;
+use Nosto\Scheduler\Model\Job\{HandlerPool, JobHelper};
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -15,9 +17,13 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 class JobScheduler
 {
     private EntityRepository $jobRepository;
+
     private SerializerInterface $messageSerializer;
+
     private MessageBusInterface $messageBus;
+
     private HandlerPool $handlerPool;
+
     private JobHelper $jobHelper;
 
     public function __construct(
@@ -49,7 +55,9 @@ class JobScheduler
 
     private function rescheduleJob(JobEntity $job)
     {
-        $jobMessage = $this->messageSerializer->decode(['body' => $job->getMessage()])->getMessage();
+        $jobMessage = $this->messageSerializer->decode([
+            'body' => $job->getMessage(),
+        ])->getMessage();
 
         if (!$jobMessage instanceof JobMessageInterface) {
             throw new \Exception(\sprintf('Unable to reschedule job[id: %s]: wrong message.', $job->getId()));

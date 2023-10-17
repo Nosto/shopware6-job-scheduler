@@ -1,16 +1,17 @@
 import template from './nosto-job-sub-jobs.html.twig';
-import JobHelper from "../../util/job.helper";
+import JobHelper from '../../util/job.helper';
 import './nosto-job-sub-jobs.scss';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
+/** @private */
 Component.register('nosto-job-sub-jobs', {
     template,
 
     inject: [
         'NostoRescheduleService',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
@@ -22,15 +23,15 @@ Component.register('nosto-job-sub-jobs', {
             type: String,
             required: false,
             default: null,
-        }
+        },
     },
 
     data() {
         return {
             subJobs: null,
             showMessagesModal: false,
-            currentJobMessages: null
-        }
+            currentJobMessages: null,
+        };
     },
 
     computed: {
@@ -46,7 +47,7 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.name'),
                     allowResize: false,
                     inlineEdit: true,
-                    width: '200px'
+                    width: '200px',
                 },
                 {
                     property: 'status',
@@ -54,7 +55,7 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.status'),
                     allowResize: false,
                     inlineEdit: true,
-                    width: '100px'
+                    width: '100px',
                 },
                 {
                     property: 'startedAt',
@@ -63,7 +64,7 @@ Component.register('nosto-job-sub-jobs', {
                     allowResize: false,
                     inlineEdit: true,
                     width: '150px',
-                    sortable: true
+                    sortable: true,
                 },
                 {
                     property: 'finishedAt',
@@ -71,7 +72,7 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.finished-at'),
                     allowResize: true,
                     inlineEdit: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'createdAt',
@@ -79,7 +80,7 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.created-at'),
                     allowResize: true,
                     inlineEdit: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'messages',
@@ -88,7 +89,7 @@ Component.register('nosto-job-sub-jobs', {
                     allowResize: true,
                     inlineEdit: false,
                     width: '250px',
-                    sortable: false
+                    sortable: false,
                 },
             ];
         },
@@ -112,14 +113,14 @@ Component.register('nosto-job-sub-jobs', {
         rescheduleJob(jobId) {
             this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
-                    message: "Job has been rescheduled successfully.",
+                    message: 'Job has been rescheduled successfully.',
                 });
                 this.initPageData();
             }).catch(() => {
                 this.createNotificationError({
-                    message: "Unable reschedule job.",
+                    message: 'Unable reschedule job.',
                 });
-            })
+            });
         },
 
         showMessageModal(messages) {
@@ -128,9 +129,9 @@ Component.register('nosto-job-sub-jobs', {
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter(function (item) {
-                return item.type === type + '-message';
+            return job.messages.filter((item) => {
+                return item.type === `${type}-message`;
             }).length;
         },
-    }
+    },
 });

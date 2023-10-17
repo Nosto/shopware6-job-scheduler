@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
@@ -9,13 +11,15 @@ use Nosto\Scheduler\Model\MessageManager;
 
 class JobRunner
 {
-    const NOT_FINISHED_STATUSES = [
+    public const NOT_FINISHED_STATUSES = [
         JobEntity::TYPE_PENDING,
-        JobEntity::TYPE_RUNNING
+        JobEntity::TYPE_RUNNING,
     ];
 
     private MessageManager $messageManager;
+
     private HandlerPool $handlerPool;
+
     private JobHelper $jobHelper;
 
     public function __construct(
@@ -79,7 +83,7 @@ class JobRunner
         if ($handler instanceof GeneratingHandlerInterface) {
             if ($status === JobEntity::TYPE_FAILED) {
                 $this->jobHelper->markJob($message->getJobId(), $status);
-            } else if ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
+            } elseif ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
                 /**
                  * Nothing was scheduled by generating job handler - delete job.
                  */

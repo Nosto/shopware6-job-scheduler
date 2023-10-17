@@ -1,7 +1,8 @@
 import template from './nosto-job-status-badge.html.twig';
 
-const {Component} = Shopware;
+const { Component } = Shopware;
 
+/** @private */
 Component.register('nosto-job-status-badge', {
     template,
 
@@ -9,7 +10,7 @@ Component.register('nosto-job-status-badge', {
         status: {
             type: String,
             required: true,
-        }
+        },
     },
 
     computed: {

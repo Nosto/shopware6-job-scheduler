@@ -1,7 +1,8 @@
+/** @private */
 export default class JobHelper {
     static sortMessages(jobs) {
-        jobs.forEach(function (job) {
-            job.messages = job.messages.sort(function (a ,b) {
+        jobs.forEach((job) => {
+            job.messages = job.messages.sort((a, b) => {
                 if (a.createdAt > b.createdAt) {
                     return 1;
                 }
@@ -11,8 +12,8 @@ export default class JobHelper {
                 }
 
                 return 0;
-            })
-        })
+            });
+        });
 
         return jobs;
     }

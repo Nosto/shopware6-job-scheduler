@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
@@ -30,7 +32,7 @@ class JobTreeProvider
             $criteria->addPostFilter(
                 new OrFilter([
                     new EqualsFilter('parentId', null),
-                    new EqualsAnyFilter('status', $childStatuses)
+                    new EqualsAnyFilter('status', $childStatuses),
                 ])
             );
         }

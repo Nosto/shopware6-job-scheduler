@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "eslint": "^8.36.0"
+  },
+  "scripts": {
+    "install-sw-dependencies": "npm install --prefix vendor/shopware/administration/Resources/app/administration",
+    "administration-lint": "eslint --config .eslintrc-administration.js --ext .js,.vue src/Resources/app/administration --resolve-plugins-relative-to ./vendor/shopware/administration/Resources/app/administration",
+    "administration-fix": "eslint --config .eslintrc-administration.js --ext .js,.vue src/Resources/app/administration --resolve-plugins-relative-to ./vendor/shopware/administration/Resources/app/administration --fix"
+    }
+}

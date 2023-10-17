@@ -1,8 +1,7 @@
-import template from './nosto-entity-listing.html.twig'
+import template from './nosto-entity-listing.html.twig';
 import './nosto-entity-listing.scss';
 
-const {Component} = Shopware;
-const {Criteria} = Shopware.Data;
+const { Component } = Shopware;
 
 Component.extend('nosto-entity-listing', 'sw-entity-listing', {
     template,
@@ -34,26 +33,26 @@ Component.extend('nosto-entity-listing', 'sw-entity-listing', {
         jobTypes: {
             type: Array,
             required: false,
-            default: () => []
-        }
-    },
-
-    computed: {
-        jobRepository() {
-            return this.repositoryFactory.create('nosto_scheduler_job');
-        }
+            default: () => [],
+        },
     },
 
     data() {
         return {
             /** @type {Array} */
             records: this.items,
-            selection: Object.assign({}, this.preSelection || {}),
+            selection: { ...this.preSelection || {} },
             successItems: false,
             pendingItems: false,
             errorItems: false,
-            reloadInterval: null
+            reloadInterval: null,
         };
+    },
+
+    computed: {
+        jobRepository() {
+            return this.repositoryFactory.create('nosto_scheduler_job');
+        },
     },
 
     methods: {
