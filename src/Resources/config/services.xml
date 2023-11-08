@@ -16,7 +16,7 @@
 
         <!-- Job Management Services -->
         <service id="Nosto\Scheduler\Async\JobExecutionHandler">
-            <argument type="service" id="logger"/>
+            <argument type="service" id="monolog.logger.nosto_scheduler" />
             <argument type="service" id="Nosto\Scheduler\Model\Job\JobRunner"/>
             <tag name="messenger.message_handler"/>
         </service>

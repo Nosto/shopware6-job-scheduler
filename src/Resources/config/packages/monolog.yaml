@@ -1,0 +1,9 @@
+monolog:
+  channels: ['nosto_scheduler']
+
+  handlers:
+    myPluginLogHandler:
+      type: rotating_file
+      path: "%kernel.logs_dir%/nosto_scheduler_%kernel.environment%.log"
+      level: error
+      channels: [ "nosto_scheduler" ]
