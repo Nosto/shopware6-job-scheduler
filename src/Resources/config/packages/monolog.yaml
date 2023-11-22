@@ -2,7 +2,7 @@ monolog:
   channels: ['nosto_scheduler']
 
   handlers:
-    myPluginLogHandler:
+    nostoSchedulerHandler:
       type: rotating_file
       path: "%kernel.logs_dir%/nosto_scheduler_%kernel.environment%.log"
       level: error
