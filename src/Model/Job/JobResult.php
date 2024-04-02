@@ -9,11 +9,9 @@ use Nosto\Scheduler\Model\MessageManager;
 
 class JobResult
 {
-    private array $messages;
-
-    public function __construct(array $messages = [])
-    {
-        $this->messages = $messages;
+    public function __construct(
+        private array $messages = []
+    ) {
     }
 
     public function addMessage(JobRuntimeMessageInterface $message): void
@@ -38,8 +36,9 @@ class JobResult
 
     public function getErrors(): array
     {
-        return array_filter($this->messages, function ($k) {
-            return $k->getType() === MessageManager::TYPE_ERROR;
-        });
+        return array_filter(
+            $this->messages,
+            fn ($k) => $k->getType() === MessageManager::TYPE_ERROR
+        );
     }
 }

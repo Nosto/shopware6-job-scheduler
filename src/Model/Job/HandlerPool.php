@@ -11,11 +11,9 @@ class HandlerPool
      */
     private array $handlers = [];
 
-    private iterable $rawHandlers;
-
-    public function __construct(iterable $handlers)
-    {
-        $this->rawHandlers = $handlers;
+    public function __construct(
+        private readonly iterable $rawHandlers
+    ) {
     }
 
     public function get(string $code): JobHandlerInterface

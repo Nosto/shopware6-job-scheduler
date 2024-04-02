@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Job;
 
+use Exception;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\{EqualsAnyFilter, EqualsFilter, OrFilter};
 
-class JobTreeProvider
+readonly class JobTreeProvider
 {
-    public EntityRepository $jobRepository;
-
-    public function __construct(EntityRepository $jobRepository)
-    {
-        $this->jobRepository = $jobRepository;
+    public function __construct(
+        public EntityRepository $jobRepository
+    ) {
     }
 
     public function get(string $rootJobId, array $childStatuses = []): JobTree
@@ -41,7 +40,7 @@ class JobTreeProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function loadTree(string $rootJobId, Criteria $criteria): JobTree
     {

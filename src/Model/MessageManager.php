@@ -8,7 +8,7 @@ use Nosto\Scheduler\Model\Exception\JobException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
-class MessageManager
+readonly class MessageManager
 {
     public const TYPE_INFO = 'info-message';
 
@@ -16,11 +16,9 @@ class MessageManager
 
     public const TYPE_WARNING = 'warning-message';
 
-    private EntityRepository $jobMessageRepository;
-
-    public function __construct(EntityRepository $jobMessageRepository)
-    {
-        $this->jobMessageRepository = $jobMessageRepository;
+    public function __construct(
+        private EntityRepository $jobMessageRepository
+    ) {
     }
 
     public function addInfoMessage(string $jobId, string $message)

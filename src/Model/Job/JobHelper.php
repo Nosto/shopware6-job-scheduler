@@ -12,13 +12,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 
-class JobHelper
+readonly class JobHelper
 {
-    private EntityRepository $jobRepository;
-
-    public function __construct(EntityRepository $jobRepository)
-    {
-        $this->jobRepository = $jobRepository;
+    public function __construct(
+        private EntityRepository $jobRepository
+    ) {
     }
 
     public function deleteJob(string $jobId)

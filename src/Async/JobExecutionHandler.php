@@ -9,18 +9,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-class JobExecutionHandler
+readonly class JobExecutionHandler
 {
-    private LoggerInterface $logger;
-
-    private JobRunner $jobRunner;
-
     public function __construct(
-        LoggerInterface $logger,
-        JobRunner $jobRunner
+        private LoggerInterface $logger,
+        private JobRunner $jobRunner
     ) {
-        $this->logger = $logger;
-        $this->jobRunner = $jobRunner;
     }
 
     public function __invoke(JobMessageInterface $message): void
@@ -35,7 +29,7 @@ class JobExecutionHandler
         } catch (\Throwable $e) {
             // Should not trigger any exceptions to avoid message requeue
             $this->logger->error(
-                \sprintf('Failed to run job[id: %s] | ' . get_class($message) . ' |  message: %s', $message->getJobId(), $e->getMessage()),
+                \sprintf('Failed to run job[id: %s] | ' . $message::class . ' |  message: %s', $message->getJobId(), $e->getMessage()),
             );
         }
     }

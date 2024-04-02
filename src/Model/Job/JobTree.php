@@ -6,16 +6,12 @@ namespace Nosto\Scheduler\Model\Job;
 
 use Nosto\Scheduler\Entity\Job\JobEntity;
 
-class JobTree implements \IteratorAggregate
+readonly class JobTree implements \IteratorAggregate
 {
-    private JobEntity $rootJob;
-
-    private array $childJobs;
-
-    public function __construct(JobEntity $rootJob, array $childJobs)
-    {
-        $this->rootJob = $rootJob;
-        $this->childJobs = $childJobs;
+    public function __construct(
+        private JobEntity $rootJob,
+        private array $childJobs
+    ) {
     }
 
     public function getRootJob(): JobEntity

@@ -14,30 +14,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
-class JobScheduler
+readonly class JobScheduler
 {
-    private EntityRepository $jobRepository;
-
-    private SerializerInterface $messageSerializer;
-
-    private MessageBusInterface $messageBus;
-
-    private HandlerPool $handlerPool;
-
-    private JobHelper $jobHelper;
-
     public function __construct(
-        EntityRepository $jobRepository,
-        SerializerInterface $messageSerializer,
-        MessageBusInterface $messageBus,
-        HandlerPool $handlerPool,
-        JobHelper $jobHelper
+        private EntityRepository $jobRepository,
+        private SerializerInterface $messageSerializer,
+        private MessageBusInterface $messageBus,
+        private HandlerPool $handlerPool,
+        private JobHelper $jobHelper
     ) {
-        $this->jobRepository = $jobRepository;
-        $this->messageSerializer = $messageSerializer;
-        $this->messageBus = $messageBus;
-        $this->handlerPool = $handlerPool;
-        $this->jobHelper = $jobHelper;
     }
 
     public function reschedule(string $jobId)
