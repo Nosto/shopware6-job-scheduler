@@ -6,9 +6,10 @@ namespace Nosto\Scheduler\Async;
 
 use Nosto\Scheduler\Model\Job\JobRunner;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class JobExecutionHandler implements MessageSubscriberInterface
+#[AsMessageHandler]
+class JobExecutionHandler
 {
     private LoggerInterface $logger;
 
@@ -22,7 +23,7 @@ class JobExecutionHandler implements MessageSubscriberInterface
         $this->jobRunner = $jobRunner;
     }
 
-    public function __invoke(JobMessageInterface $message)
+    public function __invoke(JobMessageInterface $message): void
     {
         $this->handle($message);
     }
@@ -37,10 +38,5 @@ class JobExecutionHandler implements MessageSubscriberInterface
                 \sprintf('Failed to run job[id: %s] | ' . get_class($message) . ' |  message: %s', $message->getJobId(), $e->getMessage()),
             );
         }
-    }
-
-    final public static function getHandledMessages(): iterable
-    {
-        return [JobMessageInterface::class];
     }
 }
