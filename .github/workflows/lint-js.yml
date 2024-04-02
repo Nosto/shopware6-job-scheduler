@@ -25,6 +25,10 @@ jobs:
           coverage: xdebug
           tools: composer:v2
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler
         run: composer validate
