@@ -21,27 +21,27 @@ readonly class MessageManager
     ) {
     }
 
-    public function addInfoMessage(string $jobId, string $message)
+    public function addInfoMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_INFO);
     }
 
-    public function addWarningMessage(string $jobId, string $message)
+    public function addWarningMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_WARNING);
     }
 
-    public function addErrorMessage(string $jobId, string $message)
+    public function addErrorMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_ERROR);
     }
 
-    public function addExceptionMessage(JobException $jobException)
+    public function addExceptionMessage(JobException $jobException): void
     {
         $this->addErrorMessage($jobException->getJobId(), $jobException->getMessage());
     }
 
-    public function addMessage(string $jobId, string $message, string $type)
+    public function addMessage(string $jobId, string $message, string $type): void
     {
         $this->jobMessageRepository->create([
             [

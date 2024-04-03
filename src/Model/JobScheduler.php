@@ -25,7 +25,7 @@ readonly class JobScheduler
     ) {
     }
 
-    public function reschedule(string $jobId)
+    public function reschedule(string $jobId): void
     {
         $criteria = new Criteria([$jobId]);
         /** @var JobEntity $job */
@@ -38,7 +38,7 @@ readonly class JobScheduler
         $this->rescheduleJob($job);
     }
 
-    private function rescheduleJob(JobEntity $job)
+    private function rescheduleJob(JobEntity $job): void
     {
         $jobMessage = $this->messageSerializer->decode([
             'body' => $job->getMessage(),
@@ -71,7 +71,7 @@ readonly class JobScheduler
         }
     }
 
-    public function schedule(JobMessageInterface $jobMessage)
+    public function schedule(JobMessageInterface $jobMessage): void
     {
         $this->messageBus->dispatch($jobMessage);
     }

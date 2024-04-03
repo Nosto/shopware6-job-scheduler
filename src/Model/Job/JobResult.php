@@ -19,6 +19,9 @@ class JobResult
         $this->messages[] = $message;
     }
 
+    /**
+     * @return JobRuntimeMessageInterface[]
+     */
     public function getMessages(): array
     {
         return $this->messages;
@@ -34,6 +37,9 @@ class JobResult
         return !empty($this->getErrors());
     }
 
+    /**
+     * @return JobRuntimeMessageInterface[]
+     */
     public function getErrors(): array
     {
         return array_filter(

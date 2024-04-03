@@ -19,7 +19,7 @@ readonly class JobHelper
     ) {
     }
 
-    public function deleteJob(string $jobId)
+    public function deleteJob(string $jobId): void
     {
         $this->jobRepository->delete(
             [[
@@ -29,7 +29,7 @@ readonly class JobHelper
         );
     }
 
-    public function markJob(string $jobId, string $status)
+    public function markJob(string $jobId, string $status): void
     {
         $jobData = [
             'id' => $jobId,
