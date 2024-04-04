@@ -31,7 +31,7 @@ class RescheduleController extends AbstractController
         ],
         methods: ["POST"]
     )]
-    public function rescheduleAction(Request $request): void
+    public function rescheduleAction(Request $request): JsonResponse
     {
         $jobId = $request->request->get('params')['jobId'] ?? null;
         if (!\is_string($jobId)) {
