@@ -11,11 +11,9 @@ class HandlerPool
      */
     private array $handlers = [];
 
-    private iterable $rawHandlers;
-
-    public function __construct(iterable $handlers)
-    {
-        $this->rawHandlers = $handlers;
+    public function __construct(
+        private readonly iterable $rawHandlers
+    ) {
     }
 
     public function get(string $code): JobHandlerInterface
@@ -25,6 +23,9 @@ class HandlerPool
         return $this->handlers[$code] ?? new Handler\Dummy();
     }
 
+    /**
+     * @return JobHandlerInterface[]
+     */
     public function all(): array
     {
         $this->initHandlers();
@@ -32,7 +33,7 @@ class HandlerPool
         return $this->handlers;
     }
 
-    private function initHandlers()
+    private function initHandlers(): void
     {
         if (empty($this->handlers) && $this->rawHandlers instanceof \Traversable) {
             $this->handlers = iterator_to_array($this->rawHandlers);

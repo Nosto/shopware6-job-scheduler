@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Nosto\Scheduler\Controller\Administration;
 
 use Nosto\Scheduler\Model\JobScheduler;
-use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 #[Route(
     defaults: [
@@ -18,11 +18,9 @@ use Symfony\Component\Routing\Annotation\Route;
 )]
 class RescheduleController extends AbstractController
 {
-    private JobScheduler $jobScheduler;
-
-    public function __construct(JobScheduler $jobScheduler)
-    {
-        $this->jobScheduler = $jobScheduler;
+    public function __construct(
+        private readonly JobScheduler $jobScheduler
+    ) {
     }
 
     #[Route(
@@ -33,11 +31,11 @@ class RescheduleController extends AbstractController
         ],
         methods: ["POST"]
     )]
-    public function rescheduleAction(Request $request)
+    public function rescheduleAction(Request $request): JsonResponse
     {
         $jobId = $request->request->get('params')['jobId'] ?? null;
         if (!\is_string($jobId)) {
-            throw new InvalidRequestParameterException('jobId');
+            throw new InvalidParameterException('jobId');
         }
 
         $this->jobScheduler->reschedule($jobId);

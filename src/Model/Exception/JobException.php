@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Nosto\Scheduler\Model\Exception;
 
+use Exception;
 use Throwable;
 
-class JobException extends \Exception
+class JobException extends Exception
 {
-    private string $jobId;
-
-    public function __construct(string $jobId, $message = "", $code = 0, Throwable $previous = null)
-    {
+    public function __construct(
+        private readonly string $jobId,
+        $message = "",
+        $code = 0,
+        Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
-        $this->jobId = $jobId;
     }
 
     public function getJobId(): string

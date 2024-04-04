@@ -6,7 +6,7 @@ namespace Nosto\Scheduler\Model\Job\Message;
 
 use Nosto\Scheduler\Model\MessageManager;
 
-class ErrorMessage extends JobMessage
+readonly class ErrorMessage extends JobMessage
 {
     public function getType(): string
     {

@@ -61,7 +61,7 @@ class JobDefinition extends EntityDefinition
         $messages = new OneToManyAssociationField('messages', JobMessageDefinition::class, 'job_id', 'id');
         $messages->addFlags(new Flag\ApiAware());
 
-        $subJobs = new OneToManyAssociationField('subJobs', __CLASS__, 'parent_id', 'id');
+        $subJobs = new OneToManyAssociationField('subJobs', self::class, 'parent_id', 'id');
         $subJobs->addFlags(new Flag\ApiAware());
 
         return new FieldCollection([

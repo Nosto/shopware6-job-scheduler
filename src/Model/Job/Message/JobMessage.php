@@ -7,13 +7,11 @@ namespace Nosto\Scheduler\Model\Job\Message;
 use Nosto\Scheduler\Model\Job\JobRuntimeMessageInterface;
 use Nosto\Scheduler\Model\MessageManager;
 
-class JobMessage implements JobRuntimeMessageInterface
+readonly class JobMessage implements JobRuntimeMessageInterface
 {
-    private string $message;
-
-    public function __construct(string $message)
-    {
-        $this->message = $message;
+    public function __construct(
+        private string $message
+    ) {
     }
 
     public function getType(): string
