@@ -284,5 +284,9 @@ Component.register('nosto-grouped-view', {
             this.currentJobMessages = job.messages;
             this.showMessagesModal = true;
         },
+
+        formatDate(date) {
+            return (new Date(date)).toLocaleString();
+        },
     },
 });

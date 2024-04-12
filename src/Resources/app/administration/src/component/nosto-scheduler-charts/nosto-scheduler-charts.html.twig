@@ -2,8 +2,8 @@
 <div class="nosto-scheduler-charts">
     <div class="sw-dashboard-statistics__card-headline-select">
         <sw-select-field
+                v-model:value="statisticDateRanges.value"
                 class="charts-date-range"
-                v-model="statisticDateRanges.value"
                 size="small">
             <option
                     v-for="(value, option) in statisticDateRanges.options"

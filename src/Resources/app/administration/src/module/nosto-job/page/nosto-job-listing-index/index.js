@@ -289,5 +289,9 @@ Component.register('nosto-job-listing-index', {
             this.autoLoadIsActive = false;
             clearInterval(this.reloadInterval);
         },
+
+        formatDate(date) {
+            return (new Date(date)).toLocaleString();
+        }
     },
 });

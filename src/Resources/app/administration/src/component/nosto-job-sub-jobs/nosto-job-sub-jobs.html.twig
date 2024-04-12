@@ -29,17 +29,17 @@
 
                     <template #column-startedAt="{ item }">
                         {% block job_list_grid_job_started_at %}
-                            {{ item.startedAt|date() }}
+                            {{ formatDate(item.startedAt) }}
                         {% endblock %}
                     </template>
                     <template #column-finishedAt="{ item }">
                         {% block job_list_grid_job_finished_at %}
-                            {{ item.finishedAt|date() }}
+                            {{ formatDate(item.finishedAt) }}
                         {% endblock %}
                     </template>
                     <template #column-createdAt="{ item }">
                         {% block job_list_grid_job_created_at %}
-                            {{ item.createdAt|date() }}
+                            {{ formatDate(item.createdAt) }}
                         {% endblock %}
                     </template>
                     <template #column-messages="{ item }">

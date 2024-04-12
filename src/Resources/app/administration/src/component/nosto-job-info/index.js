@@ -46,5 +46,9 @@ Component.register('nosto-job-info', {
                 this.jobItem = jobItem;
             });
         },
+
+        formatDate(date) {
+            return (new Date(date)).toLocaleString();
+        },
     },
 });

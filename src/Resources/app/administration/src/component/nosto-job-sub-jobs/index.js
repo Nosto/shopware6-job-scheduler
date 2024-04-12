@@ -133,5 +133,9 @@ Component.register('nosto-job-sub-jobs', {
                 return item.type === `${type}-message`;
             }).length;
         },
+
+        formatDate(date) {
+            return (new Date(date)).toLocaleString();
+        },
     },
 });
