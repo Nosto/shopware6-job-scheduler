@@ -291,7 +291,7 @@ Component.register('nosto-job-listing-index', {
         },
 
         formatDate(date) {
-            return (new Date(date)).toLocaleString();
+            return date ? (new Date(date)).toLocaleString() : '';
         },
     },
 });

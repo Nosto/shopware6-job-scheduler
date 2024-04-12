@@ -48,7 +48,7 @@ Component.register('nosto-job-info', {
         },
 
         formatDate(date) {
-            return (new Date(date)).toLocaleString();
+            return date ? (new Date(date)).toLocaleString() : '';
         },
     },
 });
