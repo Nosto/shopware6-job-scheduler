@@ -2,7 +2,7 @@ import template from './nosto-grouped-view.html.twig';
 import JobHelper from '../../util/job.helper';
 import './nosto-grouped-view.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
@@ -14,7 +14,8 @@ Component.register('nosto-grouped-view', {
     ],
 
     mixins: [
-        'notification',
+        Mixin.getByName('notification'),
+        Mixin.getByName('nosto-scheduler-utils'),
     ],
 
     props: {
@@ -283,10 +284,6 @@ Component.register('nosto-grouped-view', {
         showJobMessages(job) {
             this.currentJobMessages = job.messages;
             this.showMessagesModal = true;
-        },
-
-        formatDate(date) {
-            return date ? (new Date(date)).toLocaleString() : '';
         },
     },
 });

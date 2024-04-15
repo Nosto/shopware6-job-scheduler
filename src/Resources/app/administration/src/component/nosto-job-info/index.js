@@ -1,6 +1,6 @@
 import template from './nosto-job-info.html.twig';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
@@ -13,7 +13,8 @@ Component.register('nosto-job-info', {
     ],
 
     mixins: [
-        'notification',
+        Mixin.getByName('notification'),
+        Mixin.getByName('nosto-scheduler-utils'),
     ],
 
     props: {
@@ -45,10 +46,6 @@ Component.register('nosto-job-info', {
             this.jobRepository.get(this.jobId, Shopware.Context.api, new Criteria()).then(jobItem => {
                 this.jobItem = jobItem;
             });
-        },
-
-        formatDate(date) {
-            return date ? (new Date(date)).toLocaleString() : '';
         },
     },
 });
