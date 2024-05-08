@@ -2,8 +2,8 @@
     "name": "nosto/shopware6-job-scheduler",
     "description": "System library for async job scheduling for Shopware 6",
     "type": "library",
-    "version": "2.0.7",
-    "license": "proprietary",
+    "version": "3.0.0",
+    "license": "OSL-3.0",
     "autoload": {
         "psr-4": {
             "Nosto\\Scheduler\\": "src/"
