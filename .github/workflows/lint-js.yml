@@ -20,10 +20,14 @@ jobs:
       - name: Setup PHP with Composer 2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: 8.2
           extensions: dom, gd, mbstring, pdo_mysql, zip
           coverage: xdebug
           tools: composer:v2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler

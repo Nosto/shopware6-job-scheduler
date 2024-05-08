@@ -8,7 +8,7 @@ use Nosto\Scheduler\Model\Exception\JobException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 
-class MessageManager
+readonly class MessageManager
 {
     public const TYPE_INFO = 'info-message';
 
@@ -16,34 +16,32 @@ class MessageManager
 
     public const TYPE_WARNING = 'warning-message';
 
-    private EntityRepository $jobMessageRepository;
-
-    public function __construct(EntityRepository $jobMessageRepository)
-    {
-        $this->jobMessageRepository = $jobMessageRepository;
+    public function __construct(
+        private EntityRepository $jobMessageRepository
+    ) {
     }
 
-    public function addInfoMessage(string $jobId, string $message)
+    public function addInfoMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_INFO);
     }
 
-    public function addWarningMessage(string $jobId, string $message)
+    public function addWarningMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_WARNING);
     }
 
-    public function addErrorMessage(string $jobId, string $message)
+    public function addErrorMessage(string $jobId, string $message): void
     {
         $this->addMessage($jobId, $message, self::TYPE_ERROR);
     }
 
-    public function addExceptionMessage(JobException $jobException)
+    public function addExceptionMessage(JobException $jobException): void
     {
         $this->addErrorMessage($jobException->getJobId(), $jobException->getMessage());
     }
 
-    public function addMessage(string $jobId, string $message, string $type)
+    public function addMessage(string $jobId, string $message, string $type): void
     {
         $this->jobMessageRepository->create([
             [

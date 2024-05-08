@@ -31,41 +31,42 @@
                         </template>
                         <template #column-startedAt="{ item }">
                             {% block nosto_job_list_grid_job_started_date %}
-                                {{ item.startedAt|date() }}
+                                {{ formatDate(item.startedAt) }}
                             {% endblock %}
                         </template>
                         <template #column-finishedAt="{ item }">
                             {% block nosto_job_list_grid_job_finished_date %}
-                                {{ item.finishedAt|date() }}
+                                {{ formatDate(item.finishedAt) }}
                             {% endblock %}
                         </template>
                         <template #column-createdAt="{ item }">
                             {% block nosto_job_list_grid_job_created_date %}
-                                {{ item.createdAt|date() }}
+                                {{ formatDate(item.createdAt) }}
                             {% endblock %}
                         </template>
                         <template class="sub-jobs-column" #column-subJobs="{ item }">
                             {% block nosto_job_list_grid_job_sub_jobs %}
                                 <div :class="item.subJobs.length > 0 ? 'has-subjobs' : ''"
-                                     class="sub-jobs-counters-container jobs-info-counter">
+                                     class="sub-jobs-counters-container jobs-info-counter"
+                                >
                                     <div class="count-container" v-if="item.subJobs">
-                            <span class="info-container">
-                                <span class="count" v-html="getChildrenCount(item, 'succeed')"></span>
-                            </span>
+                                        <span class="info-container">
+                                            <span class="count" v-html="getChildrenCount(item, 'succeed')"></span>
+                                        </span>
                                         <nosto-job-status-badge status="succeed"></nosto-job-status-badge>
                                     </div>
 
                                     <div class="count-container" v-if="item.subJobs">
-                            <span class="warning-container">
-                                <span class="count" v-html="getChildrenCount(item, 'pending')"></span>
-                            </span>
+                                        <span class="warning-container">
+                                            <span class="count" v-html="getChildrenCount(item, 'pending')"></span>
+                                        </span>
                                         <nosto-job-status-badge status="pending"></nosto-job-status-badge>
                                     </div>
 
                                     <div class="count-container" v-if="item.subJobs">
-                            <span class="error-counter">
-                                <span class="count" v-html="getChildrenCount(item, 'error')"></span>
-                            </span>
+                                        <span class="error-counter">
+                                            <span class="count" v-html="getChildrenCount(item, 'error')"></span>
+                                        </span>
                                         <nosto-job-status-badge status="error"></nosto-job-status-badge>
                                     </div>
                                 </div>
@@ -81,23 +82,23 @@
                                 <div :class="item.messages.length > 0 ? 'has-messages' : ''"
                                      class="message-counters-container jobs-info-counter">
                                     <div class="count-container" v-if="item.messages">
-                            <span class="info-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'info')"></span>
-                            </span>
+                                        <span class="info-counter">
+                                            <span class="count" v-html="getMessagesCount(item, 'info')"></span>
+                                        </span>
                                         <sw-icon :small="true" name="regular-info-circle" color="#3498db"></sw-icon>
                                     </div>
 
                                     <div class="count-container" v-if="item.messages">
-                            <span class="warning-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
-                            </span>
+                                        <span class="warning-counter">
+                                            <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
+                                        </span>
                                         <sw-icon :small="true" name="regular-exclamation-triangle" color="#f39c12"></sw-icon>
                                     </div>
 
                                     <div class="count-container" v-if="item.messages">
-                            <span class="error-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'error')"></span>
-                            </span>
+                                        <span class="error-counter">
+                                            <span class="count" v-html="getMessagesCount(item, 'error')"></span>
+                                        </span>
                                         <sw-icon :small="true" name="regular-times-hexagon" color="#c0392b"></sw-icon>
                                     </div>
                                 </div>
@@ -159,49 +160,34 @@
             <sw-modal class="nosto-job-messages-modal" v-if="showMessagesModal" :title="$tc('job-listing.page.listing.grouped-view.job-messages')"
                       @modal-close="showMessagesModal = false">
                 {% block job_messages_listing %}
-                    <sw-data-grid
-                            v-if="currentJobMessages"
-                            :items="currentJobMessages"
-                            :data-source="currentJobMessages"
-                            :showSelection="false"
-                            :allowColumnEdit="false"
-                            :allowDelete="false"
-                            :allowEdit="false"
-                            :showActions="false"
-                            :showHeader="false"
-                            class="nosto-job-messages-grid"
-                            :columns="jobMessagesColumns">
-                        <template #column-message="{ item }">
-                            {% block job_list_grid_job_messages %}
-                                <div class="job_list_grid_job_messages-information" style="width:100%;">
-                                    <sw-alert
-                                            v-if="item.type == 'info-message'"
-                                            variant="info"
-                                            appearance="default"
-                                            :showIcon="true"
-                                            :closable="false">
-                                        {{ item.message }}
-                                    </sw-alert>
-                                    <sw-alert
-                                            v-if="item.type == 'error-message'"
-                                            variant="error"
-                                            appearance="default"
-                                            :showIcon="true"
-                                            :closable="false">
-                                        {{ item.message }}
-                                    </sw-alert>
-                                    <sw-alert
-                                            v-if="item.type == 'warning-message'"
-                                            variant="warning"
-                                            appearance="default"
-                                            :showIcon="true"
-                                            :closable="false">
-                                        {{ item.message }}
-                                    </sw-alert>
-                                </div>
-                            {% endblock %}
-                        </template>
-                    </sw-data-grid>
+                    <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
+                        <div class="messages-content" v-for="item in currentJobMessages">
+                            <sw-alert class="nosto-alert"
+                                      v-if="item.type == 'info-message'"
+                                      variant="info"
+                                      appearance="default"
+                                      :showIcon="true"
+                                      :closable="false">
+                                {{ item.message }}
+                            </sw-alert>
+                            <sw-alert class="nosto-alert"
+                                      v-if="item.type == 'error-message'"
+                                      variant="error"
+                                      appearance="default"
+                                      :showIcon="true"
+                                      :closable="false">
+                                {{ item.message }}
+                            </sw-alert>
+                            <sw-alert class="nosto-alert"
+                                      v-if="item.type == 'warning-message'"
+                                      variant="warning"
+                                      appearance="default"
+                                      :showIcon="true"
+                                      :closable="false">
+                                {{ item.message }}
+                            </sw-alert>
+                        </div>
+                    </div>
                 {% endblock %}
                 <template #modal-footer>
                     <sw-button variant="primary"

@@ -11,10 +11,11 @@
                         {% block job_info_overview_name %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.name') }}</dt>
                             <dd>
-                                <sw-order-inline-field v-if="jobItem.name"
-                                                       :display-value="jobItem.name"
-                                                       :value="jobItem.name"
-                                                       :editable="false"
+                                <sw-order-inline-field
+                                    v-if="jobItem.name"
+                                    :display-value="jobItem.name"
+                                    :value="jobItem.name"
+                                    :editable="false"
                                 />
                             </dd>
                         {% endblock %}
@@ -31,10 +32,11 @@
                         {% block job_info_overview_startedAt %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.started-at') }}</dt>
                             <dd>
-                                <sw-order-inline-field v-if="jobItem.startedAt"
-                                                       :display-value="jobItem.startedAt|date()"
-                                                       :value="jobItem.startedAt|date()"
-                                                       :editable="false"
+                                <sw-order-inline-field
+                                    v-if="jobItem.startedAt"
+                                    :display-value="formatDate(jobItem.startedAt)"
+                                    :value="formatDate(jobItem.startedAt)"
+                                    :editable="false"
                                 />
                             </dd>
                         {% endblock %}
@@ -47,29 +49,34 @@
                         {% block job_detail_base_overview_type %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.type') }}</dt>
                             <dd>
-                                <sw-order-inline-field v-if="jobItem.type"
-                                                       :display-value="jobItem.type"
-                                                       :value="jobItem.type"
-                                                       :editable="false"
+                                <sw-order-inline-field
+                                    v-if="jobItem.type"
+                                    :display-value="jobItem.type"
+                                    :value="jobItem.type"
+                                    :editable="false"
                                 />
                             </dd>
                         {% endblock %}
                         {% block job_info_overview_createdAt %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.created-at') }}</dt>
                             <dd>
-                                <sw-order-inline-field v-if="jobItem.createdAt"
-                                                       :display-value="jobItem.createdAt|date()"
-                                                       :value="jobItem.startedAt|date()"
-                                                       :editable="false"/>
+                                <sw-order-inline-field
+                                    v-if="jobItem.createdAt"
+                                    :display-value="formatDate(jobItem.createdAt)"
+                                    :value="formatDate(jobItem.startedAt)"
+                                    :editable="false"
+                                />
                             </dd>
                         {% endblock %}
                         {% block job_info_overview_finishedAt %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.finished-at') }}</dt>
                             <dd>
-                                <sw-order-inline-field v-if="jobItem.finishedAt"
-                                                       :display-value="jobItem.finishedAt|date()"
-                                                       :value="jobItem.finishedAt|date()"
-                                                       :editable="false"/>
+                                <sw-order-inline-field
+                                    v-if="jobItem.finishedAt"
+                                    :display-value="formatDate(jobItem.finishedAt)"
+                                    :value="formatDate(jobItem.finishedAt)"
+                                    :editable="false"
+                                />
                             </dd>
                         {% endblock %}
                     </sw-description-list>

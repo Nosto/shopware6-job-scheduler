@@ -2,7 +2,7 @@ import template from './nosto-job-listing-index.html.twig';
 import JobHelper from '../../../../util/job.helper';
 import './nosto-job-listing-index.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
@@ -17,7 +17,8 @@ Component.register('nosto-job-listing-index', {
     ],
 
     mixins: [
-        'notification',
+        Mixin.getByName('notification'),
+        Mixin.getByName('nosto-scheduler-utils'),
     ],
 
     props: {

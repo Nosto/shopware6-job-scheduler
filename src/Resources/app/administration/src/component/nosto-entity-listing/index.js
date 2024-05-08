@@ -61,7 +61,7 @@ Component.extend('nosto-entity-listing', 'sw-entity-listing', {
         },
 
         selectAll(selected) {
-            this.$delete(this.selection);
+            this.selection = {};
             this.records.forEach(item => {
                 if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);
@@ -77,11 +77,12 @@ Component.extend('nosto-entity-listing', 'sw-entity-listing', {
             }
 
             const selection = this.selection;
+            const identifier = item[this.itemIdentifierProperty];
 
             if (selected) {
-                this.$set(this.selection, item[this.itemIdentifierProperty], item);
-            } else if (!selected && selection[item[this.itemIdentifierProperty]]) {
-                this.$delete(this.selection, item[this.itemIdentifierProperty]);
+                this.selection[identifier] = item;
+            } else if (!selected && selection[identifier]) {
+                delete this.selection[identifier];
             }
 
             this.$emit('select-item', this.selection, item, selected);

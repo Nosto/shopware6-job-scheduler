@@ -1,3 +1,4 @@
+import './mixins/nosto-scheduler-utils';
 import './component/nosto-entity-listing';
 import './component/nosto-job-status-badge';
 import './module/nosto-job';

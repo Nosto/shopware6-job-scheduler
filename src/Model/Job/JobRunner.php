@@ -9,27 +9,18 @@ use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\Exception\JobException;
 use Nosto\Scheduler\Model\MessageManager;
 
-class JobRunner
+readonly class JobRunner
 {
     public const NOT_FINISHED_STATUSES = [
         JobEntity::TYPE_PENDING,
         JobEntity::TYPE_RUNNING,
     ];
 
-    private MessageManager $messageManager;
-
-    private HandlerPool $handlerPool;
-
-    private JobHelper $jobHelper;
-
     public function __construct(
-        MessageManager $messageManager,
-        HandlerPool $handlerPool,
-        JobHelper $jobHelper
+        private MessageManager $messageManager,
+        private HandlerPool $handlerPool,
+        private JobHelper $jobHelper
     ) {
-        $this->messageManager = $messageManager;
-        $this->handlerPool = $handlerPool;
-        $this->jobHelper = $jobHelper;
     }
 
     public function execute(JobMessageInterface $message): JobResult
@@ -41,7 +32,7 @@ class JobRunner
             $this->jobHelper->markJob($message->getJobId(), JobEntity::TYPE_RUNNING);
             $result = $handler->execute($message);
         } catch (\Throwable $e) {
-            $result = $result !== null ? $result : new JobResult();
+            $result ??= new JobResult();
             $result->addError(new JobException($message->getJobId(), $e->getMessage()));
         }
 

@@ -192,29 +192,28 @@
             </slot>
         </template>
     </sw-modal>
-
-
 {% endblock %}
 
-  {% block sw_data_grid_select_item_checkbox %}
-      <sw-checkbox-field
-              v-if="canDelete(item)"
-              :disabled="!isRecordSelectable(item)"
-              :value="isSelected(item[itemIdentifierProperty])"
-              @change="selectItem($event, item)"
-      />
-  {% endblock %}
+{% block sw_data_grid_select_item_checkbox %}
+    <sw-checkbox-field
+        v-if="canDelete(item)"
+        :disabled="!isRecordSelectable(item)"
+        :value="isSelected(item[itemIdentifierProperty])"
+        @update:value="selectItem($event, item)"
+    />
+{% endblock %}
 
 
 {% block sw_data_grid_table %}
-    <table ref="table"
-            class="sw-data-grid__table"
+    <table
+        ref="table"
+        class="sw-data-grid__table"
     >
 
         {% block sw_data_grid_header %}
             <thead
-                    v-if="showHeader"
-                    class="sw-data-grid__header"
+                v-if="showHeader"
+                class="sw-data-grid__header"
             >
 
             {% block sw_data_grid_header_row %}
@@ -222,18 +221,18 @@
 
                     {% block sw_data_grid_header_cell_selection %}
                         <th
-                                v-if="showSelection"
-                                class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--selection"
+                            v-if="showSelection"
+                            class="sw-data-grid__cell sw-data-grid__cell--header sw-data-grid__cell--selection"
                         >
                             {% block sw_data_grid_header_cell_selection_content %}
                                 <div class="sw-data-grid__cell-content">
                                     {% block sw_data_grid_select_all_checkbox %}
                                         <sw-checkbox-field
-                                                v-if="records && records.length > 0"
-                                                :disabled="isSelectAllDisabled"
-                                                class="sw-data-grid__select-all"
-                                                :value="allSelectedChecked"
-                                                @change="selectAll"
+                                            v-if="records && records.length > 0"
+                                            :disabled="isSelectAllDisabled"
+                                            class="sw-data-grid__select-all"
+                                            :value="allSelectedChecked"
+                                            @update:value="selectAll"
                                         />
                                     {% endblock %}
                                 </div>
@@ -304,21 +303,21 @@
                                             name="sort-indicator"
                                             mode="out-in"
                                     >
-                                    {% block sw_data_grid_sort_indicator_icon_asc %}
-                                        <sw-icon
+                                        {% block sw_data_grid_sort_indicator_icon_asc %}
+                                            <sw-icon
                                                 v-if="currentSortDirection === 'ASC'"
                                                 key="ASC"
-                                                name="small-arrow-small-up"
-                                                size="16px"
-                                        />
-                                    {% endblock %}
+                                                name="solid-long-arrow-up"
+                                                size="20px"
+                                            />
+                                        {% endblock %}
 
                                         {% block sw_data_grid_sort_indicator_icon_desc %}
                                             <sw-icon
-                                                    v-else
-                                                    key="DESC"
-                                                    name="small-arrow-small-down"
-                                                    size="16px"
+                                                v-else
+                                                key="DESC"
+                                                name="solid-long-arrow-down"
+                                                size="20px"
                                             />
                                         {% endblock %}
                                 </transition>
@@ -419,10 +418,11 @@
                                 {% block sw_data_grid_body_cell_selection_content %}
                                     <div class="sw-data-grid__cell-content">
                                         {% block sw_data_grid_select_item_checkbox %}
-                                            <sw-checkbox-field v-if="canDelete(item)"
-                                                    :disabled="!isRecordSelectable(item)"
-                                                    :value="isSelected(item[itemIdentifierProperty])"
-                                                    @change="selectItem($event, item)"
+                                            <sw-checkbox-field
+                                                v-if="canDelete(item)"
+                                                :disabled="!isRecordSelectable(item)"
+                                                :value="isSelected(item[itemIdentifierProperty])"
+                                                @update:value="selectItem($event, item)"
                                             />
                                         {% endblock %}
                                     </div>
@@ -460,7 +460,7 @@
                                             <template v-if="column.inlineEdit === 'boolean'">
                                                 {% block sw_data_grid_columns_boolean %}
                                                     <sw-data-grid-column-boolean
-                                                            v-model="item[column.property]"
+                                                            v-model:value="item[column.property]"
                                                             :is-inline-edit="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')"
                                                     />
                                                 {% endblock %}
@@ -470,10 +470,10 @@
                                                     <template v-if="isInlineEdit(item) && column.hasOwnProperty('inlineEdit')">
                                                         {% block sw_data_grid_columns_render_inline_edit %}
                                                             <sw-data-grid-inline-edit
-                                                                    :column="column"
-                                                                    :compact="compact"
-                                                                    :value="item[column.property]"
-                                                                    @input="item[column.property] = $event"
+                                                                :column="column"
+                                                                :compact="compact"
+                                                                :value="item[column.property]"
+                                                                @update:value="item[column.property] = $event"
                                                             />
                                                         {% endblock %}
                                                     </template>
