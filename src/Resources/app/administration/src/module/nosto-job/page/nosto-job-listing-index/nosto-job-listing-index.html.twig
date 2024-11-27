@@ -107,17 +107,15 @@
                             </span>
                 <nosto-job-status-badge status="succeed"></nosto-job-status-badge>
               </div>
-
-              <div class="count-container" v-if="item.subJobs">
+              <div class="count-container">
                             <span class="warning-container">
-                                <span class="count" v-html="getChildrenCount(item, 'pending')"></span>
+                                <span class="count" v-html="getChildrenCount(item.id, 'pending')"></span>
                             </span>
                 <nosto-job-status-badge status="pending"></nosto-job-status-badge>
               </div>
-
-              <div class="count-container" v-if="item.subJobs">
+              <div class="count-container">
                             <span class="error-counter">
-                                <span class="count" v-html="getChildrenCount(item, 'error')"></span>
+                                <span class="count" v-html="getChildrenCount(item.id, 'error')"></span>
                             </span>
                 <nosto-job-status-badge status="error"></nosto-job-status-badge>
               </div>

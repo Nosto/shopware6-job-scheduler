@@ -4,6 +4,7 @@ import './nosto-job-listing-index.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const ApiService = Shopware.Classes.ApiService;
 
 /** @private */
 Component.register('nosto-job-listing-index', {
@@ -11,6 +12,7 @@ Component.register('nosto-job-listing-index', {
 
     inject: [
         'NostoRescheduleService',
+        'NostoSubJobsCountService',
         'repositoryFactory',
         'filterFactory',
         'feature',
@@ -56,6 +58,7 @@ Component.register('nosto-job-listing-index', {
             autoLoad: false,
             autoLoadIsActive: false,
             autoReloadInterval: 60000,
+            allJobs: null,
         };
     },
 
@@ -208,7 +211,6 @@ Component.register('nosto-job-listing-index', {
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
-            criteria.addAssociation('subJobs');
 
             if (filterCriteria) {
                 filterCriteria.forEach(filter => {
@@ -219,6 +221,10 @@ Component.register('nosto-job-listing-index', {
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
+
+            this.allJobs = this.NostoSubJobsCountService.getAllJobsByStatus().then((response) => {
+                return ApiService.handleResponse(response);
+            });
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
                 this.jobItems = JobHelper.sortMessages(jobItems);
@@ -231,10 +237,12 @@ Component.register('nosto-job-listing-index', {
             }).length;
         },
 
-        getChildrenCount(job, type) {
-            return job.subJobs.filter((item) => {
-                return item.status === type;
-            }).length;
+        getChildrenCount(jobId, status) {
+            return this.allJobs.then(result => {
+                const value = result[jobId]?.[status];
+
+                return value;
+            });
         },
 
         getList(filterCriteria) {
