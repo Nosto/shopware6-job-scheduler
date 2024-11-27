@@ -101,9 +101,9 @@
           {% block nosto_job_list_grid_job_sub_jobs %}
             <div :class="item.subJobs.length > 0 ? 'has-subjobs' : ''"
                  class="sub-jobs-counters-container jobs-info-counter">
-              <div class="count-container" v-if="item.subJobs">
+              <div class="count-container">
                             <span class="info-container">
-                                <span class="count" v-html="getChildrenCount(item, 'succeed')"></span>
+                                <span class="count" v-html="getChildrenCount(item.id, 'succeed')"></span>
                             </span>
                 <nosto-job-status-badge status="succeed"></nosto-job-status-badge>
               </div>
