@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\Scheduler\Controller\Administration;
 
 use Nosto\Scheduler\Entity\Job\JobCollection;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,13 +26,17 @@ use Shopware\Core\Framework\Context;
 class SubJobsCountController extends AbstractController
 {
     public function __construct(
-        private EntityRepository $jobRepository
+        private readonly EntityRepository $jobRepository
     ) {
     }
 
     #[Route(
         path: "/api/_action/nosto-job/all-jobs-by-status",
         name: "api.nosto.scheduler.nosto.job.all.jobs.by.status",
+        defaults: [
+            'auth_required' => false,
+            'routeScope' => ['api']
+        ],
         options: [
             "seo" => "false",
         ],
