@@ -54,6 +54,14 @@
             </call>
             <tag name="controller.service_arguments"/>
         </service>
+
+        <service id="Nosto\Scheduler\Controller\Administration\SubJobsCountController" public="true">
+            <argument key="$jobRepository" type="service" id="nosto_scheduler_job.repository" />
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="controller.service_arguments"/>
+        </service>
         <!-- Job Management Services -->
         <!-- Decorators -->
         <service id="Nosto\Scheduler\Decorator\MessageBusDecorator" decorates="messenger.bus.shopware">
