@@ -1,17 +1,19 @@
 {% block nosto_job_charts_base %}
 <div class="nosto-scheduler-charts">
     <div class="sw-dashboard-statistics__card-headline-select">
-        <sw-select-field
-                v-model:value="statisticDateRanges.value"
-                class="charts-date-range"
-                size="small">
-            <option
-                    v-for="(value, option) in statisticDateRanges.options"
-                    :key="option"
-                    :value="option">
-                {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
-            </option>
-        </sw-select-field>
+        <mt-select
+            v-if="jobDisplayType !== 'list'"
+            :label="$tc('job-listing.page.listing.index.display-mode')"
+            v-model="statisticDateRanges.value"
+            :options="Object.keys(statisticDateRanges.options).map(key => ({
+                value: key,
+                label: $tc(`sw-dashboard.monthStats.dateRanges.${key}`)
+            }))"
+            size="small"
+            class="charts-date-range"
+        />
+
+
     </div>
     <sw-chart
             type="area"

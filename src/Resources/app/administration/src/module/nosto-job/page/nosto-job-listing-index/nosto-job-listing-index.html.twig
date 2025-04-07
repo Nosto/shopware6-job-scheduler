@@ -3,33 +3,36 @@
     <div class="nosto-job-listing-actions-bar">
       <div class="action-item">
         {% block nosto_scheduler_job_view_mode %}
-          <sw-select-field v-model:value="jobDisplayType" :label="$tc('job-listing.page.listing.index.display-mode')">
-            <option v-for="option in jobDisplayMode" :value="option.value">{{ option.name }}</option>
-          </sw-select-field>
-
-          <sw-select-field v-if="jobDisplayType !== 'list'" v-model:value="sortType" :label="$tc('job-listing.page.listing.index.group-by')">
-              <option value="status">{{ $tc('job-listing.page.listing.index.status') }}</option>
-              <option value="type">{{ $tc('job-listing.page.listing.index.job-type') }}</option>
-          </sw-select-field>
-
-          <sw-datepicker
-            :label="$tc('job-listing.page.listing.index.date-from')"
-            v-if="jobDisplayType == 'grouped'"
-            v-model:value="groupCreationDate.fromDate"
+          <mt-select
+            :label="$tc('job-listing.page.listing.index.display-mode')"
+            v-model="jobDisplayType"
+            :options="jobDisplayMode"
+          />
+          <mt-select
+            v-if="jobDisplayType !== 'list'"
+            :label="$tc('job-listing.page.listing.index.group-by')"
+            v-model="sortType"
+            :options="jobGroupedBy"
           />
 
-          <sw-datepicker
+          <mt-datepicker
+            :label="$tc('job-listing.page.listing.index.date-from')"
+            v-if="jobDisplayType == 'grouped'"
+            v-model="groupCreationDate.fromDate"
+          />
+
+          <mt-datepicker
             :label="$tc('job-listing.page.listing.index.date-to')"
             v-if="jobDisplayType == 'grouped'"
-            v-model:value="groupCreationDate.toDate"
+            v-model="groupCreationDate.toDate"
           />
 
         {% endblock %}
       </div>
       <div class="cation-item">
         {% block nosto_scheduler_job_auto_load_switcher %}
-          <sw-switch-field
-            v-model:value="autoLoadIsActive"
+          <mt-switch
+            v-model="autoLoadIsActive"
             class="job-listing-auto-loading-switch"
             :label="$tc('job-listing.page.listing.index.auto-load')"
           />
@@ -123,15 +126,15 @@
               </div>
             </div>
           {% endblock %}
-          <sw-button v-if="item.subJobs.length > 0"
+          <mt-button v-if="item.subJobs.length > 0"
                      class="sub-job-show-modal"
                      size="small"
                      variant="primary"
                      :disabled="item.subJobs.length <= 0"
                      @click="showSubJobs(item.id)">
-            <sw-icon name="regular-cog" color="#fff" :small="true" :decorative="true"></sw-icon>
+            <mt-icon name="regular-cog" color="#fff" size="16px" :decorative="true"></mt-icon>
               {{ $tc('job-listing.page.listing.index.show-sub-jobs') }}
-          </sw-button>
+          </mt-button>
         </template>
         <template #column-messages="{ item }">
           {% block nosto_job_list_grid_job_messages %}
@@ -141,32 +144,32 @@
                             <span class="info-counter">
                                 <span class="count" v-html="getMessagesCount(item, 'info')"></span>
                             </span>
-                <sw-icon :small="true" name="regular-info-circle" color="#3498db"></sw-icon>
+                <mt-icon size="16px" name="regular-info-circle" color="#3498db" />
               </div>
 
               <div class="count-container" v-if="item.messages">
                             <span class="warning-counter">
                                 <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
                             </span>
-                <sw-icon :small="true" name="regular-exclamation-triangle" color="#f39c12"></sw-icon>
+                <mt-icon size="16px" name="regular-exclamation-triangle" color="#f39c12" />
               </div>
 
               <div class="count-container" v-if="item.messages">
                             <span class="error-counter">
                                 <span class="count" v-html="getMessagesCount(item, 'error')"></span>
                             </span>
-                <sw-icon :small="true" name="regular-times-hexagon" color="#c0392b"></sw-icon>
+                <mt-icon size="16px" name="regular-times-hexagon" color="#c0392b" />
               </div>
             </div>
-            <sw-button v-if="item.messages.length > 0"
+            <mt-button v-if="item.messages.length > 0"
                        class="job-messages-show-modal"
                        size="small"
                        variant="primary"
                        :disabled="item.messages.length <= 0"
                        @click="showJobMessages(item)">
-              <sw-icon name="regular-envelope" color="#fff" :small="true" :decorative="true"></sw-icon>
+              <mt-icon name="regular-envelope" color="#fff" size="16px" :decorative="true"></mt-icon>
                 {{ $tc('job-listing.page.listing.index.show-job-messages') }}
-            </sw-button>
+            </mt-button>
           {% endblock %}
         </template>
         <template #actions="{ item }">
@@ -190,10 +193,10 @@
 
         </nosto-job-sub-jobs>
         <template #modal-footer>
-          <sw-button variant="primary"
+          <mt-button variant="primary"
                      @click="showJobSubsModal = false">
               {{ $tc('job-listing.page.listing.index.close') }}
-          </sw-button>
+          </mt-button>
         </template>
       </sw-modal>
     {% endblock %}
@@ -205,38 +208,37 @@
         {% block job_messages_listing %}
           <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
             <div class="messages-content" v-for="item in currentJobMessages">
-              <sw-alert class="nosto-alert"
+              <mt-banner class="nosto-alert"
                         v-if="item.type == 'info-message'"
                         variant="info"
-                        appearance="default"
                         :showIcon="true"
                         :closable="false">
                 {{ item.message }}
-              </sw-alert>
-              <sw-alert class="nosto-alert"
+              </mt-banner>
+
+              <mt-banner class="nosto-alert"
                         v-if="item.type == 'error-message'"
-                        variant="error"
-                        appearance="default"
+                        variant="critical"
                         :showIcon="true"
                         :closable="false">
                 {{ item.message }}
-              </sw-alert>
-              <sw-alert class="nosto-alert"
+              </mt-banner>
+              
+              <mt-banner class="nosto-alert"
                         v-if="item.type == 'warning-message'"
-                        variant="warning"
-                        appearance="default"
+                        variant="attention"
                         :showIcon="true"
                         :closable="false">
                 {{ item.message }}
-              </sw-alert>
+              </mt-banner>
             </div>
           </div>
         {% endblock %}
         <template #modal-footer>
-          <sw-button variant="primary"
+          <mt-button variant="primary"
                      @click="showMessagesModal = false">
               {{ $tc('job-listing.page.listing.index.close') }}
-          </sw-button>
+          </mt-button >
         </template>
       </sw-modal>
     {% endblock %}
