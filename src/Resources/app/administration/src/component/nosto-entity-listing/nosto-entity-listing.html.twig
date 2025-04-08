@@ -64,26 +64,27 @@
 
             <template #modal-footer>
                 <slot name="bulk-modal-cancel">
-                    <sw-button
-                            size="small"
-                            @click="showBulkDeleteModal = false"
+                    <mt-button
+                        size="small"
+                        @click="showBulkDeleteModal = false"
+                        variant="secondary"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                 </slot>
 
                 <slot
                         name="bulk-modal-delete-items"
                         v-bind="{ isBulkLoading, deleteItems }"
                 >
-                    <sw-button
-                            variant="danger"
+                    <mt-button
+                            variant="critical"
                             size="small"
                             :is-loading="isBulkLoading"
                             @click="deleteItems"
                     >
                         {{ $tc('global.default.delete') }}
-                    </sw-button>
+                    </mt-button>
                 </slot>
             </template>
         </sw-modal>
@@ -169,25 +170,26 @@
                         name="delete-modal-cancel"
                         v-bind="{ item }"
                 >
-                    <sw-button
+                    <mt-button
                             size="small"
                             @click="closeModal"
+                            variant="secondary"
                     >
                         {{ $tc('global.default.cancel') }}
-                    </sw-button>
+                    </mt-button>
                 </slot>
 
                 <slot
                         name="delete-modal-delete-item"
                         v-bind="{ item }"
                 >
-                    <sw-button
-                            variant="danger"
+                    <mt-button
+                            variant="critical"
                             size="small"
                             @click="deleteItem(item.id)"
                     >
                         {{ $tc('global.default.delete') }}
-                    </sw-button>
+                    </mt-button>
                 </slot>
             </slot>
         </template>
@@ -195,11 +197,11 @@
 {% endblock %}
 
 {% block sw_data_grid_select_item_checkbox %}
-    <sw-checkbox-field
+    <mt-checkbox
         v-if="canDelete(item)"
         :disabled="!isRecordSelectable(item)"
-        :value="isSelected(item[itemIdentifierProperty])"
-        @update:value="selectItem($event, item)"
+        :checked="isSelected(item[itemIdentifierProperty])"
+        @update:checked="selectItem($event, item)"
     />
 {% endblock %}
 
@@ -227,12 +229,12 @@
                             {% block sw_data_grid_header_cell_selection_content %}
                                 <div class="sw-data-grid__cell-content">
                                     {% block sw_data_grid_select_all_checkbox %}
-                                        <sw-checkbox-field
+                                        <mt-checkbox
                                             v-if="records && records.length > 0"
                                             :disabled="isSelectAllDisabled"
                                             class="sw-data-grid__select-all"
-                                            :value="allSelectedChecked"
-                                            @update:value="selectAll"
+                                            :checked="allSelectedChecked"
+                                            @update:checked="selectAll"
                                         />
                                     {% endblock %}
                                 </div>
@@ -261,12 +263,12 @@
                                     >
 
                                         {% block sw_data_grid_header_columns_icon %}
-                                            <sw-icon
+                                            <mt-icon
                                                     v-if="column.iconLabel"
                                                     :name="column.iconLabel"
                                             >
                                                 {{ $te(column.label) ? $tc(column.label) : column.label }}
-                                            </sw-icon>
+                                            </mt-icon>
                                         {% endblock %}
 
                                         {% block sw_data_grid_header_columns_label %}
@@ -304,7 +306,7 @@
                                             mode="out-in"
                                     >
                                         {% block sw_data_grid_sort_indicator_icon_asc %}
-                                            <sw-icon
+                                            <mt-icon
                                                 v-if="currentSortDirection === 'ASC'"
                                                 key="ASC"
                                                 name="solid-long-arrow-up"
@@ -313,7 +315,7 @@
                                         {% endblock %}
 
                                         {% block sw_data_grid_sort_indicator_icon_desc %}
-                                            <sw-icon
+                                            <mt-icon
                                                 v-else
                                                 key="DESC"
                                                 name="solid-long-arrow-down"
@@ -418,11 +420,11 @@
                                 {% block sw_data_grid_body_cell_selection_content %}
                                     <div class="sw-data-grid__cell-content">
                                         {% block sw_data_grid_select_item_checkbox %}
-                                            <sw-checkbox-field
+                                            <mt-checkbox
                                                 v-if="canDelete(item)"
                                                 :disabled="!isRecordSelectable(item)"
-                                                :value="isSelected(item[itemIdentifierProperty])"
-                                                @update:value="selectItem($event, item)"
+                                                :checked="isSelected(item[itemIdentifierProperty])"
+                                                @update:checked="selectItem($event, item)"
                                             />
                                         {% endblock %}
                                     </div>
@@ -531,25 +533,26 @@
                                         <template v-if="isInlineEditActive && currentInlineEditId === item[itemIdentifierProperty]">
 
                                             {% block sw_data_grid_inline_edit_actions_cancel %}
-                                                <sw-button
+                                                <mt-button
                                                         class="sw-data-grid__inline-edit-cancel"
                                                         size="x-small"
                                                         :title="$tc('global.default.cancel')"
                                                         :aria-label="$tc('global.default.cancel')"
                                                         square
                                                         @click="onClickCancelInlineEdit(item)"
+                                                        variant="secondary"
                                                 >
                                                     {% block sw_data_grid_inline_edit_actions_cancel_icon %}
-                                                        <sw-icon
+                                                        <mt-icon
                                                                 name="small-default-x-line-small"
                                                                 size="14px"
                                                         />
                                                     {% endblock %}
-                                                </sw-button>
+                                                </mt-button>
                                             {% endblock %}
 
                                             {% block sw_data_grid_inline_edit_actions_save %}
-                                                <sw-button
+                                                <mt-button
                                                         class="sw-data-grid__inline-edit-save"
                                                         variant="primary"
                                                         size="x-small"
@@ -559,12 +562,12 @@
                                                         @click="onClickSaveInlineEdit(item)"
                                                 >
                                                     {% block sw_data_grid_inline_edit_actions_save_icon %}
-                                                        <sw-icon
+                                                        <mt-icon
                                                                 name="small-default-checkmark-line-small"
                                                                 size="14px"
                                                         />
                                                     {% endblock %}
-                                                </sw-button>
+                                                </mt-button>
                                             {% endblock %}
                                         </template>
                                     {% endblock %}

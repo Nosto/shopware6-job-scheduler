@@ -16,6 +16,8 @@ Component.register('nosto-job-listing-index', {
         'feature',
     ],
 
+    emits: ['job-display-type-changed', 'job-grouped-by-changed'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('nosto-scheduler-utils'),
@@ -123,16 +125,28 @@ Component.register('nosto-job-listing-index', {
         jobDisplayMode() {
             return [
                 {
-                    name: this.$tc('job-listing.page.listing.index.list'),
+                    label: this.$tc('job-listing.page.listing.index.list'),
                     value: 'list',
                 },
                 {
-                    name: this.$tc('job-listing.page.listing.index.grouped'),
+                    label: this.$tc('job-listing.page.listing.index.grouped'),
                     value: 'grouped',
                 },
                 {
-                    name: this.$tc('job-listing.page.listing.index.chart'),
+                    label: this.$tc('job-listing.page.listing.index.chart'),
                     value: 'chart',
+                },
+            ];
+        },
+        jobGroupedBy() {
+            return [
+                {
+                    label: this.$tc('job-listing.page.listing.index.status'),
+                    value: 'status',
+                },
+                {
+                    label: this.$tc('job-listing.page.listing.index.job-type'),
+                    value: 'type',
                 },
             ];
         },
@@ -146,6 +160,11 @@ Component.register('nosto-job-listing-index', {
         jobDisplayType() {
             this.stopAutoLoading();
             this.$emit('job-display-type-changed', this.jobDisplayType);
+        },
+
+        sortType() {
+            this.stopAutoLoading();
+            this.$emit('job-grouped-by-changed', this.sortType);
         },
 
         filterCriteria() {
