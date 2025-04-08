@@ -147,7 +147,7 @@ Component.register('nosto-job-listing-index', {
                 {
                     label: this.$tc('job-listing.page.listing.index.job-type'),
                     value: 'type',
-                }
+                },
             ];
         },
     },
