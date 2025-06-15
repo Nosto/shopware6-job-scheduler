@@ -35,6 +35,19 @@
                     <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
                     {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
                 </template>
+
+                <template #column-startedAt="{ item }">
+                    {{ formatDate(item.startedAt) }}
+                </template>
+
+                <template #column-finishedAt="{ item }">
+                    {{ formatDate(item.finishedAt) }}
+                </template>
+
+                <template #column-createdAt="{ item }">
+                    {{ formatDate(item.createdAt) }}
+                </template>
+
                 <template #column-messages="{ item }">
                     <div :class="item.messages.length > 0 ? 'has-messages' : ''"
                          class="message-counters-container jobs-info-counter">

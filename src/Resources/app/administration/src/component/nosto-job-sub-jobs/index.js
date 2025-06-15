@@ -160,6 +160,7 @@ Component.register('nosto-job-sub-jobs', {
             this.limit = limit;
             this.loadSubJobs();
         },
+
         rescheduleJob(jobId) {
             this.NostoRescheduleService.rescheduleJob(jobId).then(() => {
                 this.createNotificationSuccess({
