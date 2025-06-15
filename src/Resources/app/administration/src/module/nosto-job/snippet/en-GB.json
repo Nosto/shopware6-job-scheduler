@@ -18,6 +18,8 @@
                     "chart": "Chart",
                     "group-by": "Group by",
                     "status": "Status",
+                    "status-filter": "Filter by Status",
+                    "all-statuses": "All Statuses",
                     "job-type": "Job Type",
                     "date-from": "Date from",
                     "date-to": "Date to",

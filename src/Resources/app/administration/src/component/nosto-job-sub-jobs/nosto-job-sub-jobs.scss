@@ -1,7 +1,34 @@
 .sub-jobs-container {
-    
+    .sub-jobs-filter-bar {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #d1d9e0;
+        margin-bottom: 20px;
+
+        .sub-jobs-status-filter {
+            max-width: 250px;
+        }
+    }
     .sw-data-grid {
         position: relative;
+        .sw-data-grid__cell {
+            .sw-data-grid__cell-content {
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .message-counters-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            .count-container {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+        }
     }
     
     /* Sub jobs columns */
