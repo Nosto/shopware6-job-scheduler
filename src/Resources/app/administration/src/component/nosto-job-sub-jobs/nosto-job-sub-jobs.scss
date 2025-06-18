@@ -4,13 +4,19 @@
         background-color: #f9f9f9;
         border-bottom: 1px solid #d1d9e0;
         margin-bottom: 20px;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 24px;
+        flex-wrap: wrap;
 
         .sub-jobs-status-filter {
             max-width: 250px;
+            flex: 1 1 250px;
         }
         .sub-jobs-name-filter {
             max-width: 250px;
-            margin-left: 16px;
+            flex: 1 1 250px;
         }
     }
     .sw-data-grid {
