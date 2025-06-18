@@ -32,6 +32,7 @@ Component.register('nosto-job-sub-jobs', {
             showMessagesModal: false,
             currentJobMessages: null,
             statusFilter: 'all',
+            nameFilter: '',
             isLoading: true,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
@@ -45,6 +46,20 @@ Component.register('nosto-job-sub-jobs', {
         jobRepository() {
             return this.repositoryFactory.create('nosto_scheduler_job');
         },
+        nameOptions() {
+            if (!this.subJobs || !Array.isArray(this.subJobs)) {
+                return [];
+            }
+            const names = this.subJobs.map(job => job.name).filter(Boolean);
+            return [...new Set(names)];
+        },
+        statusOptions() {
+            if (!this.subJobs || !Array.isArray(this.subJobs)) {
+                return [];
+            }
+            const statuses = this.subJobs.map(job => job.status).filter(Boolean);
+            return [...new Set(statuses)];
+        },
         filteredSubJobs() {
             if (!this.subJobs || !Array.isArray(this.subJobs)) {
                 return [];
@@ -54,6 +69,10 @@ Component.register('nosto-job-sub-jobs', {
 
             if (this.statusFilter !== 'all') {
                 jobs = jobs.filter(job => job.status === this.statusFilter);
+            }
+
+            if (this.nameFilter && this.nameFilter.trim() !== '') {
+                jobs = jobs.filter(job => job.name === this.nameFilter);
             }
 
             return jobs;

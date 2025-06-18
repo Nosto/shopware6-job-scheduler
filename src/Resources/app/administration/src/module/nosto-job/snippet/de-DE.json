@@ -20,6 +20,8 @@
                     "status": "Status",
                     "status-filter": "Nach Status filtern",
                     "all-statuses": "Alle Status",
+                    "name-filter": "Nach Namen filtern",
+                    "all-names": "Alle Namen",
                     "job-type": "Job Typ",
                     "date-from": "Datum von",
                     "date-to": "Datum bis",

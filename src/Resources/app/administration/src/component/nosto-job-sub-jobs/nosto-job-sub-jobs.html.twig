@@ -8,10 +8,18 @@
                     @change="loadSubJobs"
             >
                 <option value="all">{{ $tc('job-listing.page.listing.index.all-statuses') }}</option>
-                <option value="succeed">{{ $tc('job-listing.page.listing.grid.job-status.succeed') }}</option>
-                <option value="pending">{{ $tc('job-listing.page.listing.grid.job-status.pending') }}</option>
-                <option value="error">{{ $tc('job-listing.page.listing.grid.job-status.error') }}</option>
-                <option value="running">{{ $tc('job-listing.page.listing.grid.job-status.running') }}</option>
+                <option v-for="status in statusOptions" :key="status" :value="status">
+                    {{ $tc('job-listing.page.listing.grid.job-status.' + status, status) }}
+                </option>
+            </sw-select-field>
+            <sw-select-field
+                v-model:value="nameFilter"
+                :label="$tc('job-listing.page.listing.index.name-filter', 'Filter by Name')"
+                class="sub-jobs-name-filter"
+                style="max-width: 250px; margin-left: 16px;"
+            >
+                <option value="">{{ $tc('job-listing.page.listing.index.all-names', 'All Names') }}</option>
+                <option v-for="name in nameOptions" :key="name" :value="name">{{ name }}</option>
             </sw-select-field>
         </div>
 
