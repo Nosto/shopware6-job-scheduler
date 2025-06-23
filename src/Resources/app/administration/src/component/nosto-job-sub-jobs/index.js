@@ -38,7 +38,7 @@ Component.register('nosto-job-sub-jobs', {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             page: 1,
-            limit: 25
+            limit: 25,
         };
     },
 
@@ -87,7 +87,7 @@ Component.register('nosto-job-sub-jobs', {
                     allowResize: true,
                     primary: true,
                     sortable: true,
-                    width: '250px'
+                    width: '250px',
                 },
                 {
                     property: 'status',
@@ -95,7 +95,7 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.status'),
                     allowResize: true,
                     sortable: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'startedAt',
@@ -103,21 +103,21 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
                     allowResize: true,
                     sortable: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'finishedAt',
                     dataIndex: 'finishedAt',
                     label: this.$tc('job-listing.page.listing.grid.column.finished-at'),
                     allowResize: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'createdAt',
                     dataIndex: 'createdAt',
                     label: this.$tc('job-listing.page.listing.grid.column.created-at'),
                     allowResize: true,
-                    width: '150px'
+                    width: '150px',
                 },
                 {
                     property: 'messages',
@@ -125,8 +125,8 @@ Component.register('nosto-job-sub-jobs', {
                     label: this.$tc('job-listing.page.listing.grid.column.messages'),
                     allowResize: true,
                     width: '250px',
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ];
         }
     },
