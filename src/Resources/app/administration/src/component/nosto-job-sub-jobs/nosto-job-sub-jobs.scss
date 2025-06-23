@@ -1,36 +1,81 @@
 .sub-jobs-container {
-    
+    .sub-jobs-filter-bar {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 24px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #d1d9e0;
+        margin-bottom: 20px;
+
+        .sub-jobs-status-filter,
+        .sub-jobs-name-filter {
+            max-width: 250px;
+            flex: 1;
+        }
+    }
+
     .sw-data-grid {
         position: relative;
-    }
-    
-    /* Sub jobs columns */
-    .sw-data-grid__cell--messages,
-    .sw-data-grid__cell--subJobs {
-        .sw-data-grid__cell-content {
-            position: relative;
-            overflow: hidden;
 
-            &:hover {
-                .has-messages,
-                .has-subjobs {
-                    display: none;
-                }
-                .job-messages-show-modal,
-                .sub-job-show-modal {
-                    display: flex;
-                    width: 100%;
-                    justify-content: center;
+        .message-counters-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+
+            .count-container {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .count {
+                    font-weight: 600;
                 }
             }
+        }
 
-            .job-messages-show-modal,
-            .sub-job-show-modal {
-                display: none;
-                margin: 0 auto;
-                .sw-icon {
-                    margin-right: 10px;
+        .sw-data-grid__cell--messages {
+            .sw-data-grid__cell-content {
+                position: relative;
+                overflow: hidden;
+
+                &:hover {
+                    .has-messages {
+                        display: none;
+                    }
+                    .job-messages-show-modal {
+                        display: flex;
+                        width: 100%;
+                        justify-content: center;
+                    }
                 }
+
+                .job-messages-show-modal {
+                    display: none;
+                    margin: 0 auto;
+                    .sw-icon {
+                        margin-right: 8px;
+                    }
+                }
+            }
+        }
+    }
+
+    .nosto-job-messages-modal {
+        .sw-modal__dialog {
+            max-width: 800px;
+        }
+
+        .messages-content {
+            margin-bottom: 16px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .nosto-alert {
+                margin: 0;
             }
         }
     }
