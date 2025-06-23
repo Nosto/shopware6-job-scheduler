@@ -128,7 +128,7 @@ Component.register('nosto-job-sub-jobs', {
                     sortable: false,
                 },
             ];
-        }
+        },
     },
 
     created() {
@@ -204,5 +204,5 @@ Component.register('nosto-job-sub-jobs', {
             this.currentJobMessages = item.messages;
             this.showMessagesModal = true;
         },
-    }
+    },
 });
