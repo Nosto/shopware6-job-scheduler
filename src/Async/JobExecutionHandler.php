@@ -6,6 +6,10 @@ namespace Nosto\Scheduler\Async;
 
 use Nosto\Scheduler\Model\Job\JobRunner;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class JobExecutionHandler implements MessageSubscriberInterface
@@ -14,12 +18,16 @@ class JobExecutionHandler implements MessageSubscriberInterface
 
     private JobRunner $jobRunner;
 
+    private EntityRepository $jobRepository;
+
     public function __construct(
         LoggerInterface $logger,
-        JobRunner $jobRunner
+        JobRunner $jobRunner,
+        EntityRepository $jobRepository,
     ) {
         $this->logger = $logger;
         $this->jobRunner = $jobRunner;
+        $this->jobRe = $jobRepository;
     }
 
     public function __invoke(JobMessageInterface $message)
@@ -32,6 +40,14 @@ class JobExecutionHandler implements MessageSubscriberInterface
         try {
             $this->jobRunner->execute($message);
         } catch (\Throwable $e) {
+            $criteria = new Criteria([Uuid::fromHexToBytes($message->getJobId())]);
+
+            $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
+
+            if ($job === null) {
+                return;
+            }
+
             // Should not trigger any exceptions to avoid message requeue
             $this->logger->error(
                 \sprintf('Failed to run job[id: %s] | ' . get_class($message) . ' |  message: %s', $message->getJobId(), $e->getMessage()),
