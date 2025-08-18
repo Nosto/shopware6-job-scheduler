@@ -31,6 +31,8 @@ Component.register('nosto-job-sub-jobs', {
             subJobs: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            page: 1,
+            limit: 25,
         };
     },
 
@@ -101,7 +103,7 @@ Component.register('nosto-job-sub-jobs', {
 
     methods: {
         initModalData() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', this.jobId));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');

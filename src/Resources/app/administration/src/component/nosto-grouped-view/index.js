@@ -44,6 +44,8 @@ Component.register('nosto-grouped-view', {
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            page: 1,
+            limit: 25,
         };
     },
 
@@ -187,7 +189,7 @@ Component.register('nosto-grouped-view', {
 
         getJobsByType(types) {
             types.forEach((type) => {
-                const criteria = new Criteria();
+                const criteria = new Criteria(this.page, this.limit);
                 criteria.addFilter(Criteria.equals('parentId', null));
                 criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
                 criteria.addAssociation('messages');
