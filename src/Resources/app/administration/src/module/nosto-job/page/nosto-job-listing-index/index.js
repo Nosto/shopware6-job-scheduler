@@ -58,6 +58,8 @@ Component.register('nosto-job-listing-index', {
             autoLoad: false,
             autoLoadIsActive: false,
             autoReloadInterval: 60000,
+            page: 1,
+            limit: 25,
         };
     },
 
@@ -223,7 +225,7 @@ Component.register('nosto-job-listing-index', {
         },
 
         updateList(filterCriteria) {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
