@@ -9,23 +9,17 @@ use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
+use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
-class MessageBusDecorator implements MessageBusInterface
+readonly class MessageBusDecorator implements MessageBusInterface
 {
-    private MessageBusInterface $innerBus;
-
-    private SerializerInterface $messageSerializer;
-
     private EntityRepository $jobRepository;
 
     public function __construct(
-        MessageBusInterface $innerBus,
-        SerializerInterface $messageSerializer
+        private MessageBusInterface $innerBus,
+        private SerializerInterface $messageSerializer
     ) {
-        $this->innerBus = $innerBus;
-        $this->messageSerializer = $messageSerializer;
     }
 
     public function dispatch($message, array $stamps = []): Envelope
@@ -34,15 +28,14 @@ class MessageBusDecorator implements MessageBusInterface
         if ($jobMessage instanceof JobMessageInterface) {
             try {
                 $this->scheduleMessage($jobMessage);
-            } catch (WriteTypeIntendException $e) {
-                null;
+            } catch (WriteTypeIntendException) {
             }
         }
 
         return $this->innerBus->dispatch($message, $stamps);
     }
 
-    private function scheduleMessage($jobMessage)
+    private function scheduleMessage($jobMessage): void
     {
         $serializedEnvelope = $this->messageSerializer->encode(Envelope::wrap($jobMessage));
         $jobData = [
@@ -60,7 +53,7 @@ class MessageBusDecorator implements MessageBusInterface
         $this->jobRepository->create([$jobData], Context::createDefaultContext());
     }
 
-    public function setJobRepository(EntityRepository $jobRepository)
+    public function setJobRepository(EntityRepository $jobRepository): void
     {
         $this->jobRepository = $jobRepository;
     }
