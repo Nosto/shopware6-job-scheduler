@@ -39,7 +39,10 @@ jobs:
         working-directory: shopware6-job-scheduler
         run: composer validate
 
-      - name: Run PHPUnit tests
+      - name: Install PHPUnit
         working-directory: shopware6-job-scheduler
+        run: composer require --dev phpunit/phpunit:^10.0
+
+      - name: Run PHPUnit tests
 #        run: composer test
         run: ./vendor/bin/phpunit
