@@ -9,8 +9,8 @@ use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
+use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 readonly class MessageBusDecorator implements MessageBusInterface
 {
