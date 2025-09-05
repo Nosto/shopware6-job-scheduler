@@ -33,7 +33,7 @@ jobs:
 
       - name: Update composer.lock (only in container)
         working-directory: shopware6-job-scheduler
-        run: composer update --lock
+        run: composer update --lock -W
 
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler
