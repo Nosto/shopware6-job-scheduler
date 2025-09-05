@@ -27,13 +27,13 @@ jobs:
           coverage: xdebug
           tools: composer:v2
 
-      - name: Validate dependencies
-        working-directory: shopware6-job-scheduler
-        run: composer validate
-
       - name: Install plugin dependencies
         working-directory: shopware6-job-scheduler
         run: composer install --no-interaction
+
+      - name: Validate dependencies
+        working-directory: shopware6-job-scheduler
+        run: composer validate
 
       - name: Run PHPUnit test suite
         working-directory: shopware6-job-scheduler
