@@ -27,10 +27,6 @@ jobs:
           coverage: xdebug
           tools: composer:v2
 
-      - name: Remove composer.lock to rebuild
-        working-directory: shopware6-job-scheduler
-        run: rm -f composer.lock
-
       - name: Install plugin dependencies
         working-directory: shopware6-job-scheduler
         run: composer install --no-interaction
@@ -38,14 +34,6 @@ jobs:
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler
         run: composer validate
-
-      - name: Install PHPUnit
-        working-directory: shopware6-job-scheduler
-        run: composer require --dev phpunit/phpunit:^10.0
-
-      - name: Ensure autoload & bin
-        working-directory: shopware6-job-scheduler
-        run: composer dump-autoload
 
       - name: Run PHPUnit tests
         working-directory: shopware6-job-scheduler
