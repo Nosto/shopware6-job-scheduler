@@ -39,6 +39,7 @@ jobs:
         working-directory: shopware6-job-scheduler
         run: composer validate
 
-      - name: Run PHPUnit test suite
+      - name: Run PHPUnit tests
         working-directory: shopware6-job-scheduler
-        run: composer test
+#        run: composer test
+        run: ./vendor/bin/phpunit
