@@ -31,13 +31,13 @@ jobs:
         working-directory: shopware6-job-scheduler
         run: composer install --no-interaction
 
-      - name: Update composer.lock (only in container)
-        working-directory: shopware6-job-scheduler
-        run: composer update --lock -W
-
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler
         run: composer validate
+
+      - name: Validate dependencies (warnings ignored)
+        working-directory: shopware6-job-scheduler
+        run: composer validate || true
 
       - name: Run PHPUnit test suite
         working-directory: shopware6-job-scheduler
