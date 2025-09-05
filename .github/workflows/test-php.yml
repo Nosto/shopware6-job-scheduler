@@ -37,7 +37,9 @@ jobs:
 
       - name: Validate dependencies (warnings ignored)
         working-directory: shopware6-job-scheduler
-        run: composer validate --no-check-publish || true
+        run: |
+          set +e
+          composer validate --no-check-publish
 
       - name: Run PHPUnit test suite
         working-directory: shopware6-job-scheduler
