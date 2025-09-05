@@ -31,6 +31,10 @@ jobs:
         working-directory: shopware6-job-scheduler
         run: composer install --no-interaction
 
+      - name: Update composer.lock (only in container)
+        working-directory: shopware6-job-scheduler
+        run: composer update --lock
+
       - name: Validate dependencies
         working-directory: shopware6-job-scheduler
         run: composer validate
