@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - v2
+      - v3
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: PHP 8.2 Job Scheduler Tests
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: shopware6-job-scheduler
+
+      - name: Setup PHP with Composer 2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          extensions: dom, gd, mbstring, pdo_mysql, zip
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Install plugin dependencies
+        working-directory: shopware6-job-scheduler
+        run: composer install --no-interaction
+
+      - name: Validate dependencies
+        working-directory: shopware6-job-scheduler
+        run: composer validate
+
+      - name: Run PHPUnit tests
+        working-directory: shopware6-job-scheduler
+        run: ./vendor/bin/phpunit
