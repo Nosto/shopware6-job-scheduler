@@ -39,12 +39,14 @@ jobs:
         working-directory: shopware6-job-scheduler
         run: composer validate
 
-      - name: Download PHPUnit
+      - name: Install PHPUnit
         working-directory: shopware6-job-scheduler
-        run: |
-          wget https://phar.phpunit.de/phpunit-10.phar -O phpunit.phar
-          chmod +x phpunit.phar
+        run: composer require --dev phpunit/phpunit:^10.0
+
+      - name: Ensure autoload & bin
+        working-directory: shopware6-job-scheduler
+        run: composer dump-autoload
 
       - name: Run PHPUnit tests
         working-directory: shopware6-job-scheduler
-        run: ./phpunit.phar
+        run: ./vendor/bin/phpunit
