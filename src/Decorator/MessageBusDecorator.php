@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendEx
 use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
-readonly class MessageBusDecorator implements MessageBusInterface
+class MessageBusDecorator implements MessageBusInterface
 {
     private EntityRepository $jobRepository;
 
