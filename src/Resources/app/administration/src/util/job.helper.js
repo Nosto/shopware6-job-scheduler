@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 /** @private */
 export default class JobHelper {
     static sortMessages(jobs) {

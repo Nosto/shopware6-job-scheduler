@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 import NostoRescheduleService from '../service/api/nosto-reschedule.service';
 
 const { Application } = Shopware;
