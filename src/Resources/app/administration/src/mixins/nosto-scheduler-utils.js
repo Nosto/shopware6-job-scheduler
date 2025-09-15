@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 const { Mixin, Utils } = Shopware;
 
 Mixin.register('nosto-scheduler-utils', {
