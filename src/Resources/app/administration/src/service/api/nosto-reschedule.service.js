@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /** @private */
