@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 import './mixins/nosto-scheduler-utils';
 import './component/nosto-entity-listing';
 import './component/nosto-job-status-badge';

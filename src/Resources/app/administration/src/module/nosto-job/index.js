@@ -1,3 +1,8 @@
+/**
+ * @sw-package innovation
+ */
+/* eslint-env es6 */
+
 import './page/nosto-job-listing-index';
 
 import enGB from './snippet/en-GB.json';

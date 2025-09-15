@@ -20,7 +20,7 @@ return function (ECSConfig $ecsConfig): void {
     ]);
 
     $ecsConfig->rulesWithConfiguration([
-        DeclareStrictTypesSniff::class => ['spacesCountAroundEqualsSign' => false],
+        DeclareStrictTypesSniff::class => ['spacesCountAroundEqualsSign' => 0],
     ]);
 
     $ecsConfig->rules([
