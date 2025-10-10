@@ -32,7 +32,7 @@ readonly class JobExecutionHandler
         try {
             $this->jobRunner->execute($message);
         } catch (\Throwable $e) {
-            $criteria = new Criteria([Uuid::fromHexToBytes($message->getJobId())]);
+            $criteria = new Criteria([$message->getJobId()]);
 
             $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
 
