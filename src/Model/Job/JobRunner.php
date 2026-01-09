@@ -71,12 +71,14 @@ class JobRunner
         JobHandlerInterface $handler,
         JobMessageInterface $message
     ): JobResult {
-        foreach ($result->getMessages() as $resultMessage) {
-            $this->messageManager->addMessage(
-                $message->getJobId(),
-                $resultMessage->getMessage(),
-                $resultMessage->getType()
-            );
+        if ($this->jobHelper->jobExists($message->getJobId())) {
+            foreach ($result->getMessages() as $resultMessage) {
+                $this->messageManager->addMessage(
+                    $message->getJobId(),
+                    $resultMessage->getMessage(),
+                    $resultMessage->getType()
+                );
+            }
         }
         $status = $result->hasErrors() ? JobEntity::TYPE_FAILED : JobEntity::TYPE_SUCCEED;
 
