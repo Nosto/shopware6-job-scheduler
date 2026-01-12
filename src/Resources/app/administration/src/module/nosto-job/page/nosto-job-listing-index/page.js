@@ -20,6 +20,8 @@ export default {
         'feature',
     ],
 
+    emits: ['job-display-type-changed'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('nosto-scheduler-utils'),
