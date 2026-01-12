@@ -4,6 +4,7 @@
 
 import template from './nosto-job-status-badge.html.twig';
 
+/** @private */
 export default {
     template,
 
