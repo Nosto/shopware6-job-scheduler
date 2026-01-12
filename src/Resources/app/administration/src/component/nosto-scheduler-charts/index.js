@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import template from './nosto-scheduler-charts.html.twig';
 import './nosto-scheduler-charts.scss';
 

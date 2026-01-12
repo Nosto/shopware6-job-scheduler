@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import template from './nosto-job-status-badge.html.twig';
 
 const { Component } = Shopware;

@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import template from './nosto-job-listing-index.html.twig';
 import JobHelper from '../../../../util/job.helper';
 import './nosto-job-listing-index.scss';
