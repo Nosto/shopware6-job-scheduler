@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import template from './nosto-entity-listing.html.twig';
 import './nosto-entity-listing.scss';
 

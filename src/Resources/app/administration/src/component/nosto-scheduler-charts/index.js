@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import template from './nosto-scheduler-charts.html.twig';
 import './nosto-scheduler-charts.scss';
 
@@ -199,65 +203,38 @@ Component.register('nosto-scheduler-charts', {
                     color: '#de294c',
                 },
                 {
-                    name: this.$tc('job-listing.page.listing.grid.job-status.pending'),
-                    data: this.getDataByItemStatus(items, 'pending'),
-                    color: '#d1d9e0',
+                    name: this.$tc('job-listing.page.listing.grid.job-status.running'),
+                    data: this.getDataByItemStatus(items, 'running'),
+                    color: '#f0c64a',
                 },
             ];
         },
 
         getDataByItemStatus(items, status) {
-            return items.filter(item => item.status === status)
-                .reduce((currentSeries, item) => {
-                    const date = this.parseDate(item.createdAt);
-                    const existingIndex = currentSeries.findIndex(e => e.x === date);
-
-                    if (existingIndex !== -1) {
-                        currentSeries[existingIndex].y += 1;
-                    } else {
-                        currentSeries.push({
-                            x: date,
-                            y: 1,
-                        });
-                    }
-
-                    return currentSeries;
-                }, []);
-        },
-
-        getRandomColor() {
-            const n = (Math.random() * 0xfffff * 1000000).toString(16);
-            return `#${n.slice(0, 6)}`;
-        },
-
-        statusCharts() {
-            return [
-                {
-                    name: this.$tc('job-listing.page.listing.grid.job-status.succeed'),
-                    data: [],
-                    color: '#37d046',
-                },
-                {
-                    name: this.$tc('job-listing.page.listing.grid.job-status.error'),
-                    data: [],
-                    color: '#de294c',
-                },
-                {
-                    name: this.$tc('job-listing.page.listing.grid.job-status.pending'),
-                    data: [],
-                    color: '#d1d9e0',
-                },
-            ];
+            return items.filter((item) => item.status === status).map((item) => {
+                return {
+                    x: this.parseDate(item.createdAt),
+                    y: 1,
+                };
+            });
         },
 
         parseDate(date) {
-            date = date.substring(0, date.lastIndexOf('T') + 1);
-            const parsedDate = new Date(date.replace(/-/g, '/').replace('T', ' '));
-            return parsedDate.valueOf();
+            const dateTime = new Date(date);
+            dateTime.setHours(0, 0, 0, 0);
+
+            if (this.getTimeUnitInterval === 'hour') {
+                dateTime.setMinutes(0, 0, 0);
+            }
+
+            return dateTime.getTime();
         },
 
-        onRefresh() {
-            this.initChartData();
+        getRandomColor(index) {
+            const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            this.colors[index] = color;
+
+            return color;
         },
     },
 });

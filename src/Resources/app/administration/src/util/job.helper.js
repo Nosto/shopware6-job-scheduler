@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 /** @private */
 export default class JobHelper {
     static sortMessages(jobs) {

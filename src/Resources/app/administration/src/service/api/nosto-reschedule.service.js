@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /** @private */

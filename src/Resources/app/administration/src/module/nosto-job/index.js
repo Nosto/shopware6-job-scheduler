@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import './page/nosto-job-listing-index';
 
 import enGB from './snippet/en-GB.json';

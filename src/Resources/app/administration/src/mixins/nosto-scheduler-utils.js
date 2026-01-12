@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 const { Mixin, Utils } = Shopware;
 
 Mixin.register('nosto-scheduler-utils', {

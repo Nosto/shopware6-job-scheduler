@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import template from './nosto-grouped-view.html.twig';
 import JobHelper from '../../util/job.helper';
 import './nosto-grouped-view.scss';

@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import NostoRescheduleService from '../service/api/nosto-reschedule.service';
 
 const { Application } = Shopware;

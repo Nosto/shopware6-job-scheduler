@@ -1,3 +1,7 @@
+/**
+ * @sw-package nosto-shopware6-job-scheduler
+ */
+
 import template from './nosto-job-info.html.twig';
 
 const { Component, Mixin } = Shopware;
