@@ -26,6 +26,7 @@
             <argument type="service" id="Nosto\Scheduler\Model\MessageManager"/>
             <argument type="service" id="Nosto\Scheduler\Model\Job\HandlerPool"/>
             <argument type="service" id="Nosto\Scheduler\Model\Job\JobHelper"/>
+            <argument type="service" id="monolog.logger.nosto_scheduler"/>
         </service>
 
         <service id="Nosto\Scheduler\Model\Job\HandlerPool">

@@ -8,6 +8,7 @@ use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Nosto\Scheduler\Model\Exception\JobException;
 use Nosto\Scheduler\Model\MessageManager;
+use Psr\Log\LoggerInterface;
 
 readonly class JobRunner
 {
@@ -19,13 +20,21 @@ readonly class JobRunner
     public function __construct(
         private MessageManager $messageManager,
         private HandlerPool $handlerPool,
-        private JobHelper $jobHelper
+        private JobHelper $jobHelper,
+        private LoggerInterface $logger
     ) {
     }
 
     public function execute(JobMessageInterface $message): JobResult
     {
         if (!$this->jobHelper->jobExists($message->getJobId())) {
+            $this->logger->info(
+                "Skipping sync for message; job doesn't exist anymore. Most likely it was deleted manually by the user.",
+                [
+                    'job_id' => $message->getJobId(),
+                    'handler_code' => $message->getHandlerCode(),
+                ]
+            );
             return new JobResult();
         }
         $result = null;
