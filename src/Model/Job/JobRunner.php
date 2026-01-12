@@ -25,6 +25,9 @@ readonly class JobRunner
 
     public function execute(JobMessageInterface $message): JobResult
     {
+        if (!$this->jobHelper->jobExists($message->getJobId())) {
+            return new JobResult();
+        }
         $result = null;
         $handler = $this->handlerPool->get($message->getHandlerCode());
 

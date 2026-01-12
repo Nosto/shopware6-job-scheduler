@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import './page/nosto-job-listing-index';
 
 import enGB from './snippet/en-GB.json';
