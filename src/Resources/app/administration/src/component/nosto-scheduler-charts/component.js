@@ -7,6 +7,7 @@ import './nosto-scheduler-charts.scss';
 
 const { Criteria } = Shopware.Data;
 
+/** @private */
 export default {
     template,
 

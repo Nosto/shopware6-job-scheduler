@@ -2,11 +2,11 @@
  * @sw-package innovation
  */
 
-import template from './nosto-job-listing-index.html.twig';
-import JobHelper from '../../../../util/job.helper';
-import './nosto-job-listing-index.scss';
+import template from './nosto-grouped-view.html.twig';
+import JobHelper from '../../util/job.helper';
+import './nosto-grouped-view.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
@@ -14,13 +14,8 @@ export default {
     template,
 
     inject: [
-        'NostoRescheduleService',
         'repositoryFactory',
-        'filterFactory',
-        'feature',
     ],
-
-    emits: ['job-display-type-changed', 'job-grouped-by-changed'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -28,40 +23,32 @@ export default {
     ],
 
     props: {
-        isGroupedView: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         jobTypes: {
             type: Array,
             required: false,
             default: () => [],
         },
-        filterCriteria: {
-            type: Array,
+        groupCreationDate: {
+            type: Object,
             required: false,
-            default: () => [],
+            default: () => {},
+        },
+        sortType: {
+            type: String,
+            required: true,
+            default: () => 'status',
         },
     },
 
     data() {
         return {
-            jobItems: null,
+            groupedItems: [],
             isLoading: false,
-            reloadInterval: null,
             showJobInfoModal: false,
             showJobSubsModal: false,
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
-            groupCreationDate: {
-            },
-            sortType: 'status',
-            jobDisplayType: null,
-            autoLoad: false,
-            autoLoadIsActive: false,
-            autoReloadInterval: 60000,
             page: 1,
             limit: 25,
         };
@@ -76,13 +63,26 @@ export default {
             return this.repositoryFactory.create('nosto_scheduler_job_message');
         },
 
+        jobMessagesColumns() {
+            return [
+                {
+                    property: 'message',
+                    dataIndex: 'message',
+                    label: this.$tc('job-listing.page.listing.grid.column.message'),
+                    allowResize: false,
+                    align: 'left',
+                    width: '90px',
+                },
+            ];
+        },
+
         columns() {
             return [
                 {
                     property: 'name',
                     label: this.$tc('job-listing.page.listing.grid.column.name'),
                     allowResize: true,
-                    width: '250px',
+                    width: '500px',
                 },
                 {
                     property: 'status',
@@ -95,7 +95,6 @@ export default {
                     label: this.$tc('job-listing.page.listing.grid.column.started-at'),
                     allowResize: true,
                     width: '170px',
-                    sortable: true,
                 },
                 {
                     property: 'finishedAt',
@@ -121,65 +120,30 @@ export default {
                     property: 'messages',
                     label: this.$tc('job-listing.page.listing.grid.column.messages'),
                     allowResize: true,
-                    width: '250px',
+                    width: '350px',
                     visible: true,
                     sortable: false,
-                },
-            ];
-        },
-
-        jobDisplayMode() {
-            return [
-                {
-                    label: this.$tc('job-listing.page.listing.index.list'),
-                    value: 'list',
-                },
-                {
-                    label: this.$tc('job-listing.page.listing.index.grouped'),
-                    value: 'grouped',
-                },
-                {
-                    label: this.$tc('job-listing.page.listing.index.chart'),
-                    value: 'chart',
-                },
-            ];
-        },
-        jobGroupedBy() {
-            return [
-                {
-                    label: this.$tc('job-listing.page.listing.index.status'),
-                    value: 'status',
-                },
-                {
-                    label: this.$tc('job-listing.page.listing.index.job-type'),
-                    value: 'type',
                 },
             ];
         },
     },
 
     watch: {
-        autoLoadIsActive() {
-            this._handleAutoReload(this.autoLoadIsActive);
-        },
-
-        jobDisplayType() {
-            this.stopAutoLoading();
-            this.$emit('job-display-type-changed', this.jobDisplayType);
-        },
-
         sortType() {
-            this.stopAutoLoading();
-            this.$emit('job-grouped-by-changed', this.sortType);
+            this.groupedItems = [];
+            this.initGroupedView();
         },
-
-        filterCriteria() {
-            this.filterCriteriaChanged(this.filterCriteria);
+        groupCreationDate: {
+            handler() {
+                this.groupedItems = [];
+                this.initGroupedView();
+            },
+            deep: true,
         },
     },
 
     created() {
-        this.createdComponent();
+        this.initGroupedView();
     },
 
     beforeDestroy() {
@@ -187,67 +151,91 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            this.jobDisplayType = 'list';
-            this.getList();
-        },
-
-        filterCriteriaChanged(criteria) {
-            this.getList(criteria);
-        },
-
-        _handleAutoReload(active) {
-            if (active && this.autoReloadInterval > 0) {
-                if (this.jobDisplayType === 'list') {
-                    this.reloadInterval = setInterval(() => {
-                        this.updateList();
-                    }, this.autoReloadInterval);
-                } else if (this.jobDisplayType === 'grouped') {
-                    this.reloadInterval = setInterval(() => {
-                        this.$refs.jobGroups.initGroupedView();
-                    }, this.autoReloadInterval);
-                } else if (this.jobDisplayType === 'chart') {
-                    this.reloadInterval = setInterval(() => {
-                        this.$refs.jobCharts.initChartData();
-                    }, this.autoReloadInterval);
-                }
-            } else {
-                clearInterval(this.reloadInterval);
-            }
-        },
-
-        pageChange() {
-            this.autoLoadIsActive = false;
-            clearInterval(this.reloadInterval);
-        },
-
-        getLinkParams(item) {
-            return {
-                id: item.id,
-                backPath: this.$route.name,
-            };
-        },
-
-        updateList(filterCriteria) {
-            const criteria = new Criteria(this.page, this.limit);
+        initGroupedView() {
+            this.isLoading = true;
+            const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
             criteria.addAssociation('subJobs');
-
-            if (filterCriteria) {
-                filterCriteria.forEach(filter => {
-                    criteria.addFilter(filter);
-                });
-            }
+            criteria.limit = null;
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
 
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = JobHelper.sortMessages(jobItems);
+            if (this.groupCreationDate.fromDate) {
+                criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
+            }
+
+            if (this.groupCreationDate.toDate) {
+                criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
+            }
+
+            return this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
+                this.sortJobs(items);
             });
+        },
+
+        sortJobs(items) {
+            this.groupedItemsTypes = [];
+            this.groupedItems = [];
+            items.forEach((item) => {
+                const index = this.groupedItemsTypes.findIndex(e => e.title === item[this.sortType]);
+                if (index === -1) {
+                    this.groupedItemsTypes.push({
+                        title: item[this.sortType],
+                    });
+                }
+            });
+
+            this.getJobsByType(this.groupedItemsTypes);
+        },
+
+        getJobsByType(types) {
+            types.forEach((type) => {
+                const criteria = new Criteria(this.page, this.limit);
+                criteria.addFilter(Criteria.equals('parentId', null));
+                criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+                criteria.addAssociation('messages');
+                criteria.addAssociation('subJobs');
+
+                if (this.groupCreationDate.fromDate) {
+                    criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));
+                }
+
+                if (this.groupCreationDate.toDate) {
+                    criteria.addFilter(Criteria.range('createdAt', { lte: this.groupCreationDate.toDate }));
+                }
+
+                if (this.jobTypes !== []) {
+                    criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
+                }
+
+                if (this.sortType === 'status') {
+                    criteria.addFilter(Criteria.equals('status', type.title));
+                }
+
+                if (this.sortType === 'type') {
+                    criteria.addFilter(Criteria.equals('type', type.title));
+                }
+
+                this.jobRepository.search(criteria, Shopware.Context.api).then(items => {
+                    const groupType = this.sortType === 'status' ? type.title.toUpperCase() : items[0].name;
+                    const groupTitle = this.sortType === 'status'
+                        ? this.$tc(`job-listing.page.listing.grid.job-status.${type.title}`)
+                        : items[0].name;
+                    this.groupedItems.push({
+                        title: groupTitle,
+                        type: groupType,
+                        items: JobHelper.sortMessages(items),
+                    });
+                });
+            });
+
+            this.isLoading = false;
+
+            return this.groupedItems;
         },
 
         getMessagesCount(job, type) {
@@ -262,20 +250,8 @@ export default {
             }).length;
         },
 
-        getList(filterCriteria) {
-            this.isLoading = true;
-            this.updateList(filterCriteria).then(() => {
-                this.isLoading = false;
-            });
-        },
-
-        onRefresh(criteria) {
-            if (this.jobDisplayType === 'grouped') {
-                return this.$refs.jobGroups.onRefresh();
-            } if (this.jobDisplayType === 'chart') {
-                return this.$refs.jobCharts.onRefresh();
-            }
-            return this.getList(criteria);
+        onRefresh() {
+            this.initGroupedView();
         },
 
         canDelete(item) {
@@ -301,6 +277,11 @@ export default {
             });
         },
 
+        showJobInfo(jobId) {
+            this.currentJobID = jobId;
+            this.showJobInfoModal = true;
+        },
+
         showSubJobs(jobId) {
             this.currentJobID = jobId;
             this.showJobSubsModal = true;
@@ -309,11 +290,6 @@ export default {
         showJobMessages(job) {
             this.currentJobMessages = job.messages;
             this.showMessagesModal = true;
-        },
-
-        stopAutoLoading() {
-            this.autoLoadIsActive = false;
-            clearInterval(this.reloadInterval);
         },
     },
 };

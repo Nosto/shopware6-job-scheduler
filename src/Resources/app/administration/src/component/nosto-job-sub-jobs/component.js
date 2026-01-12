@@ -9,6 +9,7 @@ import './nosto-job-sub-jobs.scss';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
+/** @private */
 export default {
     template,
 
