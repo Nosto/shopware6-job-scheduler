@@ -1,5 +1,5 @@
 /**
- * @sw-package nosto-shopware6-job-scheduler
+ * @sw-package innovation
  */
 
 import template from './nosto-entity-listing.html.twig';
@@ -9,6 +9,8 @@ const { Component } = Shopware;
 
 Component.extend('nosto-entity-listing', 'sw-entity-listing', {
     template,
+
+    emits: ['select-all-items', 'select-item'],
 
     props: {
         items: {

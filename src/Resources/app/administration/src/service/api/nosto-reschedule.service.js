@@ -1,5 +1,5 @@
 /**
- * @sw-package nosto-shopware6-job-scheduler
+ * @sw-package innovation
  */
 
 const ApiService = Shopware.Classes.ApiService;
