@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import NostoRescheduleService from '../service/api/nosto-reschedule.service';
 
 const { Application } = Shopware;

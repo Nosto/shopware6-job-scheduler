@@ -32,17 +32,36 @@ readonly class JobExecutionHandler
         try {
             $this->jobRunner->execute($message);
         } catch (\Throwable $e) {
-            $criteria = new Criteria([Uuid::fromHexToBytes($message->getJobId())]);
+            if ($message === null) {
+                $this->logger->warning('Job execution failed with null message.', [
+                    'exception' => $e,
+                ]);
+                return;
+            }
+            $id = $message->getJobId();
+            if ($id === null) {
+                $this->logger->warning('Job execution failed with null job id.', [
+                    'message_class' => $message::class,
+                    'exception' => $e,
+                ]);
+                return;
+            }
+            $criteria = new Criteria([Uuid::isValid($id) ? $id : Uuid::fromBytesToHex($id)]);
 
             $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
 
             if ($job === null) {
+                $this->logger->warning('Job execution failed: job not found in repository.', [
+                    'job_id' => $id,
+                    'message_class' => $message::class,
+                    'exception' => $e,
+                ]);
                 return;
             }
 
             // Should not trigger any exceptions to avoid message requeue
             $this->logger->error(
-                \sprintf('Failed to run job[id: %s] | ' . $message::class . ' |  message: %s', $message->getJobId(), $e->getMessage()),
+                \sprintf('Failed to run job[id: %s] | ' . $message::class . ' |  message: %s', $id, $e->getMessage()),
             );
         }
     }

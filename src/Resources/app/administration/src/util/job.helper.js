@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 /** @private */
 export default class JobHelper {
     static sortMessages(jobs) {

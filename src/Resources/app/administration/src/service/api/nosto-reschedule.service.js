@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 const ApiService = Shopware.Classes.ApiService;
 
 /** @private */
