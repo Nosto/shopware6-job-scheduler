@@ -27,7 +27,7 @@ class JobExecutionHandler implements MessageSubscriberInterface
     ) {
         $this->logger = $logger;
         $this->jobRunner = $jobRunner;
-        $this->jobRe = $jobRepository;
+        $this->jobRepository = $jobRepository;
     }
 
     public function __invoke(JobMessageInterface $message)
