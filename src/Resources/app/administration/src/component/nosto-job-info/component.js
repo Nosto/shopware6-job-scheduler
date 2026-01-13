@@ -4,7 +4,6 @@
 
 import template from './nosto-job-info.html.twig';
 
-const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */

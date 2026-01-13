@@ -3,14 +3,13 @@
 declare(strict_types=1);
 
 namespace Nosto\Scheduler\Decorator;
-
 use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Nosto\Scheduler\Entity\Job\JobEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
-use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\{Envelope, MessageBusInterface};
+use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 class MessageBusDecorator implements MessageBusInterface
 {

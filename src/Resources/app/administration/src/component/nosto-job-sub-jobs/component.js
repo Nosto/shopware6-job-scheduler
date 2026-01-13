@@ -6,7 +6,6 @@ import template from './nosto-job-sub-jobs.html.twig';
 import JobHelper from '../../util/job.helper';
 import './nosto-job-sub-jobs.scss';
 
-const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */

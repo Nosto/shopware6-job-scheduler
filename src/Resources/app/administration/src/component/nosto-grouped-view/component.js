@@ -6,7 +6,6 @@ import template from './nosto-grouped-view.html.twig';
 import JobHelper from '../../util/job.helper';
 import './nosto-grouped-view.scss';
 
-const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /** @private */
