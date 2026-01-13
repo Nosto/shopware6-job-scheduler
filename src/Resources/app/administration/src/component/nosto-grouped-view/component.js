@@ -18,8 +18,7 @@ export default {
     ],
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('nosto-scheduler-utils'),
+        'notification',
     ],
 
     props: {

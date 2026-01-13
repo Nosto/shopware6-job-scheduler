@@ -142,7 +142,7 @@ export default {
         initChartData() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('parentId', null));
-            criteria.setLimit(500);
+            criteria.setLimit(999999);
 
             if (this.jobTypes !== []) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
