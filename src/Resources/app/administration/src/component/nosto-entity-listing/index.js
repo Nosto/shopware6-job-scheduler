@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 import template from './nosto-entity-listing.html.twig';
 import './nosto-entity-listing.scss';
 
@@ -5,6 +9,8 @@ const { Component } = Shopware;
 
 Component.extend('nosto-entity-listing', 'sw-entity-listing', {
     template,
+
+    emits: ['select-all-items', 'select-item'],
 
     props: {
         items: {
