@@ -1,3 +1,7 @@
+/**
+ * @sw-package innovation
+ */
+
 const { Mixin, Utils } = Shopware;
 
 Mixin.register('nosto-scheduler-utils', {

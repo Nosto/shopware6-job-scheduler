@@ -29,8 +29,17 @@ readonly class JobHelper
         );
     }
 
+    public function jobExists(string $jobId): bool
+    {
+        $criteria = new Criteria([$jobId]);
+        return $this->jobRepository->searchIds($criteria, Context::createDefaultContext())->getTotal() > 0;
+    }
+
     public function markJob(string $jobId, string $status): void
     {
+        if (!$this->jobExists($jobId)) {
+            return;
+        }
         $jobData = [
             'id' => $jobId,
             'status' => $status,

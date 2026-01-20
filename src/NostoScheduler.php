@@ -9,7 +9,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\{DirectoryLoader, GlobFileLoader, XmlFileLoader, YamlFileLoader};
+use Symfony\Component\DependencyInjection\Loader\{DirectoryLoader, GlobFileLoader, YamlFileLoader};
 
 class NostoScheduler extends Bundle
 {
