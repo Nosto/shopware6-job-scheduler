@@ -1,0 +1,2 @@
+const t='<sw-color-badge rounded :variant="variant" :class="additionalClass" style="margin-right: 10px; margin-top: 3px;"> </sw-color-badge>',r={template:t,props:{status:{type:String,required:!0}},computed:{additionalClass(){return this.status==="running"?"--pulse":""},variant(){switch(this.status){case"error":return"error";case"succeed":case"running":return"success";default:return""}}}};export{r as default};
+//# sourceMappingURL=component-D8VQhwMH.js.map
