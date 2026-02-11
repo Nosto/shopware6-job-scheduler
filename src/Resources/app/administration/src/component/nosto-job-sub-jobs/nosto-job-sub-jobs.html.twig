@@ -20,10 +20,8 @@
                     </template>
                     <template #column-status="{ item }">
                         {% block job_list_grid_job_status_link %}
-                            <template>
-                                <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
-                                {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
-                            </template>
+                            <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
+                            {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
                         {% endblock %}
                     </template>
 
