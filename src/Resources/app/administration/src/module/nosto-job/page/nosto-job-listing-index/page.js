@@ -58,7 +58,7 @@ export default {
             groupCreationDate: {
             },
             sortType: 'status',
-            jobDisplayType: null,
+            jobDisplayType: 'list',
             autoLoad: false,
             autoLoadIsActive: false,
             autoReloadInterval: 60000,
@@ -188,7 +188,6 @@ export default {
 
     methods: {
         createdComponent() {
-            this.jobDisplayType = 'list';
             this.getList();
         },
 
