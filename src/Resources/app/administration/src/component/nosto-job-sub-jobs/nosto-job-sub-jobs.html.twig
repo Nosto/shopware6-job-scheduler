@@ -20,10 +20,11 @@
                     </template>
                     <template #column-status="{ item }">
                         {% block job_list_grid_job_status_link %}
-                            <template>
-                                <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
-                                {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
-                            </template>
+                            <span class="nosto-job-status-inline"
+                                  :class="[ `is-${getStatusTone(item.status)}`, { 'is-running': isRunningStatus(item.status) } ]">
+                                <span class="nosto-job-status-dot"></span>
+                                <span>{{ getStatusLabel(item.status) }}</span>
+                            </span>
                         {% endblock %}
                     </template>
 
@@ -44,34 +45,33 @@
                     </template>
                     <template #column-messages="{ item }">
                         {% block sub_job_show_messages_button %}
-                            <div :class="item.messages.length > 0 ? 'has-messages' : ''" class="message-counters-container jobs-info-counter">
-                                <div class="count-container" v-if="item.messages">
+                            <div :class="getMessagesTotalCount(item) > 0 ? 'has-messages' : ''" class="message-counters-container jobs-info-counter">
+                                <div class="count-container">
                             <span class="info-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'info')"></span>
+                                <span class="count">{{ getMessagesCount(item, 'info') }}</span>
                             </span>
                                     <mt-icon size="16px" name="regular-info-circle" color="#3498db"></mt-icon>
                                 </div>
 
-                                <div class="count-container" v-if="item.messages">
+                                <div class="count-container">
                             <span class="warning-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'warning')"></span>
+                                <span class="count">{{ getMessagesCount(item, 'warning') }}</span>
                             </span>
                                     <mt-icon size="16px" name="regular-exclamation-triangle" color="#f39c12"></mt-icon>
                                 </div>
 
-                                <div class="count-container" v-if="item.messages">
+                                <div class="count-container">
                             <span class="error-counter">
-                                <span class="count" v-html="getMessagesCount(item, 'error')"></span>
+                                <span class="count">{{ getMessagesCount(item, 'error') }}</span>
                             </span>
                                     <mt-icon size="16px" name="regular-times-hexagon" color="#c0392b"></mt-icon>
                                 </div>
                             </div>
-                            <mt-button v-if="item.messages.length > 0"
+                            <mt-button v-if="getMessagesTotalCount(item) > 0"
                                        class="job-messages-show-modal"
                                        size="small"
                                        variant="primary"
-                                       :disabled="item.messages.length <= 0"
-                                       @click="showMessageModal(item.messages)">
+                                       @click="showMessageModal(item)">
                                 <mt-icon name="regular-envelope" color="#fff" size="16px" :decorative="true"></mt-icon>
                                 {{ $tc('job-listing.actions.show-messages.button.label') }}
                             </mt-button>
@@ -82,9 +82,8 @@
                                               @click="rescheduleJob(item.id)">
                             {{ $tc('job-listing.actions.reschedule-job.button.label') }}
                         </sw-context-menu-item>
-                        <sw-context-menu-item v-if="item.messages"
-                                              :disabled="item.messages.length <= 0"
-                                              @click="showMessageModal(item.messages)">
+                        <sw-context-menu-item v-if="getMessagesTotalCount(item) > 0"
+                                              @click="showMessageModal(item)">
                             {{ $tc('job-listing.actions.show-messages.button.label') }}
                         </sw-context-menu-item>
                     </template>
@@ -100,26 +99,26 @@
                 <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
                     <div class="messages-content" v-for="item in currentJobMessages">
                         <mt-banner class="nosto-alert"
-                                v-if="item.type == 'info-message'"
-                                variant="info"
-                                :showIcon="true"
-                                :closable="false">
+                                   v-if="item.type == 'info-message'"
+                                   variant="info"
+                                   :showIcon="true"
+                                   :closable="false">
                             {{ item.message }}
                         </mt-banner>
 
                         <mt-banner class="nosto-alert"
-                                v-if="item.type == 'error-message'"
-                                variant="critical"
-                                :showIcon="true"
-                                :closable="false">
+                                   v-if="item.type == 'error-message'"
+                                   variant="critical"
+                                   :showIcon="true"
+                                   :closable="false">
                             {{ item.message }}
                         </mt-banner>
 
                         <mt-banner class="nosto-alert"
-                                v-if="item.type == 'warning-message'"
-                                variant="attention"
-                                :showIcon="true"
-                                :closable="false">
+                                   v-if="item.type == 'warning-message'"
+                                   variant="attention"
+                                   :showIcon="true"
+                                   :closable="false">
                             {{ item.message }}
                         </mt-banner>
                     </div>

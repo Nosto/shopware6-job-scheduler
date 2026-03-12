@@ -3,11 +3,42 @@
  */
 
 import template from './nosto-job-listing-index.html.twig';
-import JobHelper from '../../../../util/job.helper';
+import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../../../util/job-status.helper';
+import fetchJobMessages from '../../../../util/job-messages.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+
+const CHILD_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    SUCCESS: 'success',
+    PENDING: 'pending',
+    ERROR: 'error',
+});
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function normalizeMessageType(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO) {
+        return MESSAGE_COUNT_KEYS.INFO;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.WARNING) {
+        return MESSAGE_COUNT_KEYS.WARNING;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.ERROR) {
+        return MESSAGE_COUNT_KEYS.ERROR;
+    }
+
+    return MESSAGE_COUNT_KEYS.TOTAL;
+}
 
 /** @private */
 export default {
@@ -20,7 +51,7 @@ export default {
         'feature',
     ],
 
-    emits: ['job-display-type-changed', 'job-grouped-by-changed'],
+    emits: ['job-display-type-changed', 'job-grouped-by-changed', 'job-list-meta-loaded'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -64,6 +95,7 @@ export default {
             autoReloadInterval: 60000,
             page: 1,
             limit: 25,
+            jobCountsCache: {},
         };
     },
 
@@ -229,11 +261,11 @@ export default {
         },
 
         updateList(filterCriteria) {
+            this.jobCountsCache = {};
+
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-            criteria.addAssociation('messages');
-            criteria.addAssociation('subJobs');
 
             if (filterCriteria) {
                 filterCriteria.forEach(filter => {
@@ -246,20 +278,89 @@ export default {
             }
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = JobHelper.sortMessages(jobItems);
+                this.jobItems = jobItems;
+                this.$emit('job-list-meta-loaded', this.extractFilterMeta(jobItems));
             });
         },
 
-        getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+        extractFilterMeta(jobItems) {
+            const statuses = [...new Set(jobItems.map((item) => item.status).filter((status) => !!status))];
+            const types = [...new Set(jobItems.map((item) => item.name).filter((name) => !!name))];
+
+            return {
+                statuses,
+                types,
+            };
         },
 
-        getChildrenCount(job, type) {
-            return job.subJobs.filter((item) => {
-                return item.status === type;
-            }).length;
+        getJobCounts(job) {
+            const cacheKey = job?.id;
+            if (cacheKey && this.jobCountsCache[cacheKey]) {
+                return this.jobCountsCache[cacheKey];
+            }
+
+            const extensionCounts = job?.extensions?.jobCounts
+                ?? job?.jobCounts
+                ?? {};
+            const childJobs = extensionCounts.childJobs ?? {};
+            const messages = extensionCounts.messages ?? {};
+
+            const counts = {
+                childJobs: {
+                    [CHILD_COUNT_KEYS.TOTAL]: Number(childJobs[CHILD_COUNT_KEYS.TOTAL] ?? 0),
+                    [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? 0),
+                    [CHILD_COUNT_KEYS.PENDING]: Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0),
+                    [CHILD_COUNT_KEYS.ERROR]: Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0),
+                },
+                messages: {
+                    [MESSAGE_COUNT_KEYS.TOTAL]: Number(messages[MESSAGE_COUNT_KEYS.TOTAL] ?? 0),
+                    [MESSAGE_COUNT_KEYS.INFO]: Number(messages[MESSAGE_COUNT_KEYS.INFO] ?? 0),
+                    [MESSAGE_COUNT_KEYS.WARNING]: Number(messages[MESSAGE_COUNT_KEYS.WARNING] ?? 0),
+                    [MESSAGE_COUNT_KEYS.ERROR]: Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0),
+                },
+            };
+
+            if (cacheKey) {
+                this.jobCountsCache[cacheKey] = counts;
+            }
+
+            return counts;
+        },
+
+        getChildCountByType(job, type) {
+            const data = this.getJobCounts(job).childJobs;
+
+            return Number(data?.[type] ?? 0);
+        },
+
+        getChildrenCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.TOTAL);
+        },
+
+        getChildrenSuccessCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.SUCCESS);
+        },
+
+        getChildrenPendingCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.PENDING);
+        },
+
+        getChildrenErrorCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.ERROR);
+        },
+
+        getMessageCountByType(job, type) {
+            const normalizedType = normalizeMessageType(type);
+
+            return Number(this.getJobCounts(job).messages?.[normalizedType] ?? 0);
+        },
+
+        getMessagesCount(job, type) {
+            return this.getMessageCountByType(job, type);
+        },
+
+        getMessagesTotalCount(job) {
+            return this.getMessageCountByType(job, MESSAGE_COUNT_KEYS.TOTAL);
         },
 
         getList(filterCriteria) {
@@ -307,8 +408,36 @@ export default {
         },
 
         showJobMessages(job) {
-            this.currentJobMessages = job.messages;
+            if (!job?.id) {
+                return;
+            }
+
+            this.currentJobMessages = [];
             this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId: job.id,
+                expectedTotal,
+            }).then((messages) => {
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                this.currentJobMessages = [];
+            });
+        },
+
+        getStatusTone(status) {
+            return getJobStatusTone(status);
+        },
+
+        getStatusLabel(status) {
+            return getJobStatusLabel(status, (key) => this.$tc(key));
+        },
+
+        isRunningStatus(status) {
+            return isJobRunningStatus(status);
         },
 
         stopAutoLoading() {
