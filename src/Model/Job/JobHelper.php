@@ -73,4 +73,62 @@ readonly class JobHelper
 
         return $jobs;
     }
+
+    public function countChildJobs(string $parentJobId, array $statuses = []): int
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('parentId', $parentJobId));
+
+        if (!empty($statuses)) {
+            $criteria->addFilter(new EqualsAnyFilter('status', $statuses));
+        }
+
+        return $this->jobRepository->searchIds($criteria, Context::createDefaultContext())->getTotal();
+    }
+
+    public function markChildGenerationState(string $jobId, int $expectedChildCount, bool $completed): void
+    {
+        if (!$this->jobExists($jobId)) {
+            return;
+        }
+
+        $this->jobRepository->update(
+            [[
+                'id' => $jobId,
+                'expectedChildCount' => $expectedChildCount,
+                'childGenerationCompleted' => $completed,
+            ]],
+            Context::createDefaultContext()
+        );
+    }
+
+    public function getJob(string $jobId): ?JobEntity
+    {
+        $criteria = new Criteria([$jobId]);
+
+        /** @var JobEntity|null $job */
+        $job = $this->jobRepository->search($criteria, Context::createDefaultContext())->first();
+
+        return $job;
+    }
+
+    public function canFinalizeGeneratedJob(string $jobId, array $notFinishedStatuses): bool
+    {
+        $job = $this->getJob($jobId);
+
+        if ($job === null || !$job->isChildGenerationCompleted()) {
+            return false;
+        }
+
+        if ($this->countChildJobs($jobId) !== $job->getExpectedChildCount()) {
+            return false;
+        }
+
+        return $this->countChildJobs($jobId, $notFinishedStatuses) === 0;
+    }
+
+    public function hasFailedChildJobs(string $jobId): bool
+    {
+        return $this->countChildJobs($jobId, [JobEntity::TYPE_FAILED]) !== 0;
+    }
 }
