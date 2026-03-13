@@ -6,9 +6,11 @@ namespace Nosto\Scheduler\Entity\Job;
 
 use Nosto\Scheduler\Entity\JobMessage\JobMessageDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -58,6 +60,12 @@ class JobDefinition extends EntityDefinition
         $finishedAtField = new DateTimeField('finished_at', 'finishedAt');
         $finishedAtField->addFlags(new Flag\ApiAware());
 
+        $expectedChildCountField = new IntField('expected_child_count', 'expectedChildCount');
+        $expectedChildCountField->addFlags(new Flag\Required(), new Flag\ApiAware());
+
+        $childGenerationCompletedField = new BoolField('child_generation_completed', 'childGenerationCompleted');
+        $childGenerationCompletedField->addFlags(new Flag\Required(), new Flag\ApiAware());
+
         $messages = new OneToManyAssociationField('messages', JobMessageDefinition::class, 'job_id', 'id');
         $messages->addFlags(new Flag\ApiAware());
 
@@ -73,6 +81,8 @@ class JobDefinition extends EntityDefinition
             $messageField,
             $startedAtField,
             $finishedAtField,
+            $expectedChildCountField,
+            $childGenerationCompletedField,
             $messages,
             $subJobs,
         ]);
