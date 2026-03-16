@@ -34,6 +34,10 @@ class JobEntity extends Entity
 
     protected ?\DateTimeInterface $finishedAt = null;
 
+    protected int $expectedChildCount = 0;
+
+    protected bool $childGenerationCompleted = false;
+
     protected ?JobMessageCollection $messages = null;
 
     protected ?JobCollection $subJobs = null;
@@ -106,6 +110,26 @@ class JobEntity extends Entity
     public function setFinishedAt(?\DateTimeInterface $finishedAt): void
     {
         $this->finishedAt = $finishedAt;
+    }
+
+    public function getExpectedChildCount(): int
+    {
+        return $this->expectedChildCount;
+    }
+
+    public function setExpectedChildCount(int $expectedChildCount): void
+    {
+        $this->expectedChildCount = $expectedChildCount;
+    }
+
+    public function isChildGenerationCompleted(): bool
+    {
+        return $this->childGenerationCompleted;
+    }
+
+    public function setChildGenerationCompleted(bool $childGenerationCompleted): void
+    {
+        $this->childGenerationCompleted = $childGenerationCompleted;
     }
 
     public function getMessages(): ?JobMessageCollection
