@@ -40,11 +40,28 @@ function normalizeMessageType(type) {
     return MESSAGE_COUNT_KEYS.TOTAL;
 }
 
+function getRawJobCounts(job) {
+    const fieldCounts = job?.jobCounts ?? {};
+    const extensionCounts = job?.extensions?.jobCounts ?? {};
+
+    return {
+        childJobs: {
+            ...(extensionCounts.childJobs ?? {}),
+            ...(fieldCounts.childJobs ?? {}),
+        },
+        messages: {
+            ...(extensionCounts.messages ?? {}),
+            ...(fieldCounts.messages ?? {}),
+        },
+    };
+}
+
 function buildJobCounts(job) {
-    const extensionCounts = job?.extensions?.jobCounts ?? job?.jobCounts;
-    if (extensionCounts) {
-        const childJobs = extensionCounts.childJobs ?? {};
-        const messages = extensionCounts.messages ?? {};
+    const rawCounts = getRawJobCounts(job);
+    const childJobs = rawCounts.childJobs ?? {};
+    const messages = rawCounts.messages ?? {};
+
+    if (Object.keys(childJobs).length > 0 || Object.keys(messages).length > 0) {
         const successCount = Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? childJobs.succeed ?? 0);
         const pendingCount = Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0);
         const errorCount = Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0);
@@ -72,26 +89,26 @@ function buildJobCounts(job) {
         };
     }
 
-    const childJobs = job?.subJobs ?? [];
-    const messages = job?.messages ?? [];
-    const successCount = childJobs.filter((item) => {
+    const subJobs = job?.subJobs ?? [];
+    const jobMessages = job?.messages ?? [];
+    const successCount = subJobs.filter((item) => {
         return item.status === 'succeed' || item.status === CHILD_COUNT_KEYS.SUCCESS;
     }).length;
-    const pendingCount = childJobs.filter((item) => item.status === CHILD_COUNT_KEYS.PENDING).length;
-    const errorCount = childJobs.filter((item) => item.status === CHILD_COUNT_KEYS.ERROR || item.status === 'failed').length;
-    const infoCount = messages.filter((item) => item.type === 'info-message').length;
-    const warningCount = messages.filter((item) => item.type === 'warning-message').length;
-    const messageErrorCount = messages.filter((item) => item.type === 'error-message').length;
+    const pendingCount = subJobs.filter((item) => item.status === CHILD_COUNT_KEYS.PENDING).length;
+    const errorCount = subJobs.filter((item) => item.status === CHILD_COUNT_KEYS.ERROR || item.status === 'failed').length;
+    const infoCount = jobMessages.filter((item) => item.type === 'info-message').length;
+    const warningCount = jobMessages.filter((item) => item.type === 'warning-message').length;
+    const messageErrorCount = jobMessages.filter((item) => item.type === 'error-message').length;
 
     return {
         childJobs: {
-            [CHILD_COUNT_KEYS.TOTAL]: childJobs.length,
+            [CHILD_COUNT_KEYS.TOTAL]: subJobs.length,
             [CHILD_COUNT_KEYS.SUCCESS]: successCount,
             [CHILD_COUNT_KEYS.PENDING]: pendingCount,
             [CHILD_COUNT_KEYS.ERROR]: errorCount,
         },
         messages: {
-            [MESSAGE_COUNT_KEYS.TOTAL]: messages.length,
+            [MESSAGE_COUNT_KEYS.TOTAL]: jobMessages.length,
             [MESSAGE_COUNT_KEYS.INFO]: infoCount,
             [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
             [MESSAGE_COUNT_KEYS.ERROR]: messageErrorCount,

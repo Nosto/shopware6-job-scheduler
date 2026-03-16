@@ -17,6 +17,16 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     ERROR: 'error',
 });
 
+function getRawMessageCounts(job) {
+    const fieldCounts = job?.jobCounts?.messages ?? {};
+    const extensionCounts = job?.extensions?.jobCounts?.messages ?? {};
+
+    return {
+        ...extensionCounts,
+        ...fieldCounts,
+    };
+}
+
 function normalizeMessageCountKey(type) {
     if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
         return type;
@@ -26,8 +36,8 @@ function normalizeMessageCountKey(type) {
 }
 
 function buildMessageCounts(job) {
-    const jobCounts = job?.extensions?.jobCounts?.messages ?? job?.jobCounts?.messages;
-    if (jobCounts) {
+    const jobCounts = getRawMessageCounts(job);
+    if (Object.keys(jobCounts).length > 0) {
         const infoCount = Number(jobCounts[MESSAGE_COUNT_KEYS.INFO] ?? 0);
         const warningCount = Number(jobCounts[MESSAGE_COUNT_KEYS.WARNING] ?? 0);
         const errorCount = Number(jobCounts[MESSAGE_COUNT_KEYS.ERROR] ?? 0);
