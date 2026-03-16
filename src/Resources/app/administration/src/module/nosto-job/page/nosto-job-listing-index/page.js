@@ -3,8 +3,8 @@
  */
 
 import template from './nosto-job-listing-index.html.twig';
-import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../../../util/job-status.helper';
-import fetchJobMessages from '../../../../util/job-messages.helper';
+import {getJobStatusLabel, getJobStatusTone, isJobRunningStatus} from '../../../../util/job-status.helper';
+import {fetchJobMessages} from '../../../../util/job-messages.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;
@@ -38,6 +38,22 @@ function normalizeMessageType(type) {
     }
 
     return MESSAGE_COUNT_KEYS.TOTAL;
+}
+
+function getRawJobCounts(job) {
+    const fieldCounts = job?.jobCounts ?? {};
+    const extensionCounts = job?.extensions?.jobCounts ?? {};
+
+    return {
+        childJobs: {
+            ...(extensionCounts.childJobs ?? {}),
+            ...(fieldCounts.childJobs ?? {}),
+        },
+        messages: {
+            ...(extensionCounts.messages ?? {}),
+            ...(fieldCounts.messages ?? {}),
+        },
+    };
 }
 
 /** @private */
@@ -95,7 +111,6 @@ export default {
             autoReloadInterval: 60000,
             page: 1,
             limit: 25,
-            jobCountsCache: {},
         };
     },
 
@@ -261,8 +276,6 @@ export default {
         },
 
         updateList(filterCriteria) {
-            this.jobCountsCache = {};
-
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
@@ -294,18 +307,11 @@ export default {
         },
 
         getJobCounts(job) {
-            const cacheKey = job?.id;
-            if (cacheKey && this.jobCountsCache[cacheKey]) {
-                return this.jobCountsCache[cacheKey];
-            }
+            const rawCounts = getRawJobCounts(job);
+            const childJobs = rawCounts.childJobs ?? {};
+            const messages = rawCounts.messages ?? {};
 
-            const extensionCounts = job?.extensions?.jobCounts
-                ?? job?.jobCounts
-                ?? {};
-            const childJobs = extensionCounts.childJobs ?? {};
-            const messages = extensionCounts.messages ?? {};
-
-            const counts = {
+            return {
                 childJobs: {
                     [CHILD_COUNT_KEYS.TOTAL]: Number(childJobs[CHILD_COUNT_KEYS.TOTAL] ?? 0),
                     [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? 0),
@@ -319,12 +325,6 @@ export default {
                     [MESSAGE_COUNT_KEYS.ERROR]: Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0),
                 },
             };
-
-            if (cacheKey) {
-                this.jobCountsCache[cacheKey] = counts;
-            }
-
-            return counts;
         },
 
         getChildCountByType(job, type) {

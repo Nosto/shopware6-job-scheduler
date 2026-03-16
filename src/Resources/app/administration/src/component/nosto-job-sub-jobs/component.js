@@ -4,7 +4,7 @@
 
 import template from './nosto-job-sub-jobs.html.twig';
 import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../util/job-status.helper';
-import fetchJobMessages from '../../util/job-messages.helper';
+import { fetchJobMessages } from '../../util/job-messages.helper';
 import './nosto-job-sub-jobs.scss';
 
 const { Mixin } = Shopware;
@@ -16,14 +16,6 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     WARNING: 'warning',
     ERROR: 'error',
 });
-
-function normalizeMessageCountKey(type) {
-    if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
-        return type;
-    }
-
-    return MESSAGE_COUNT_KEYS.ERROR;
-}
 
 /** @private */
 export default {
@@ -150,14 +142,19 @@ export default {
         },
 
         getMessageCounts(job) {
-            return job?.extensions?.jobCounts?.messages
-                ?? job?.jobCounts?.messages
-                ?? {};
+            return {
+                ...(job?.extensions?.jobCounts?.messages ?? {}),
+                ...(job?.jobCounts?.messages ?? {}),
+            };
         },
 
         getMessagesCount(job, type) {
             const counts = this.getMessageCounts(job);
-            const key = normalizeMessageCountKey(type);
+            const key = type === MESSAGE_COUNT_KEYS.INFO
+                ? MESSAGE_COUNT_KEYS.INFO
+                : (type === MESSAGE_COUNT_KEYS.WARNING
+                    ? MESSAGE_COUNT_KEYS.WARNING
+                    : MESSAGE_COUNT_KEYS.ERROR);
 
             return Number(counts[key] ?? 0);
         },
