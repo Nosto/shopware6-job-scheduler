@@ -44,6 +44,8 @@ readonly class MessageBusDecorator implements MessageBusInterface
             'status' => JobEntity::TYPE_PENDING,
             'type' => $jobMessage->getHandlerCode(),
             'message' => $serializedEnvelope['body'] ?? null,
+            'expectedChildCount' => 0,
+            'childGenerationCompleted' => false,
         ];
 
         if ($jobMessage instanceof ParentAwareMessageInterface) {
