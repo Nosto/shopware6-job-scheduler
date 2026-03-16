@@ -93,7 +93,7 @@ readonly class JobRunner
                  * Nothing was scheduled by generating job handler - delete job.
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
-            } elseif ($this->jobHelper->canFinalizeGeneratedJob($message->getJobId(), self::NOT_FINISHED_STATUSES)) {
+            } elseif ($this->jobHelper->isGeneratedJobReadyToFinalize($message->getJobId(), self::NOT_FINISHED_STATUSES)) {
                 $this->jobHelper->markJob(
                     $message->getJobId(),
                     $this->jobHelper->hasFailedChildJobs($message->getJobId())
@@ -109,7 +109,7 @@ readonly class JobRunner
 
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
-            if ($this->jobHelper->canFinalizeGeneratedJob($parentJobId, self::NOT_FINISHED_STATUSES)) {
+            if ($this->jobHelper->isGeneratedJobReadyToFinalize($parentJobId, self::NOT_FINISHED_STATUSES)) {
                 $hasFailedChild = $this->jobHelper->hasFailedChildJobs($parentJobId);
                 /**
                  * All current job's siblings was executed - mark parent job with proper status

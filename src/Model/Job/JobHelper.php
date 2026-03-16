@@ -112,7 +112,7 @@ readonly class JobHelper
         return $job;
     }
 
-    public function canFinalizeGeneratedJob(string $jobId, array $notFinishedStatuses): bool
+    public function isGeneratedJobReadyToFinalize(string $jobId, array $notFinishedStatuses): bool
     {
         $job = $this->getJob($jobId);
 
