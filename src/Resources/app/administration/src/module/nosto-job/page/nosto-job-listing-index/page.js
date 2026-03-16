@@ -3,8 +3,8 @@
  */
 
 import template from './nosto-job-listing-index.html.twig';
-import {getJobStatusLabel, getJobStatusTone, isJobRunningStatus} from '../../../../util/job-status.helper';
-import {fetchJobMessages} from '../../../../util/job-messages.helper';
+import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../../../util/job-status.helper';
+import fetchJobMessages from '../../../../util/job-messages.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;
