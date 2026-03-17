@@ -4,9 +4,65 @@
 
 import template from './nosto-job-sub-jobs.html.twig';
 import JobHelper from '../../util/job.helper';
+import fetchJobMessages from '../../util/job-messages.helper';
 import './nosto-job-sub-jobs.scss';
 
 const { Criteria } = Shopware.Data;
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function getRawMessageCounts(job) {
+    const fieldCounts = job?.jobCounts?.messages ?? {};
+    const extensionCounts = job?.extensions?.jobCounts?.messages ?? {};
+
+    return {
+        ...extensionCounts,
+        ...fieldCounts,
+    };
+}
+
+function normalizeMessageCountKey(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
+        return type;
+    }
+
+    return MESSAGE_COUNT_KEYS.ERROR;
+}
+
+function buildMessageCounts(job) {
+    const jobCounts = getRawMessageCounts(job);
+    if (Object.keys(jobCounts).length > 0) {
+        const infoCount = Number(jobCounts[MESSAGE_COUNT_KEYS.INFO] ?? 0);
+        const warningCount = Number(jobCounts[MESSAGE_COUNT_KEYS.WARNING] ?? 0);
+        const errorCount = Number(jobCounts[MESSAGE_COUNT_KEYS.ERROR] ?? 0);
+
+        return {
+            [MESSAGE_COUNT_KEYS.TOTAL]: Number(
+                jobCounts[MESSAGE_COUNT_KEYS.TOTAL] ?? (infoCount + warningCount + errorCount),
+            ),
+            [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+            [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+            [MESSAGE_COUNT_KEYS.ERROR]: errorCount,
+        };
+    }
+
+    const messages = job?.messages ?? [];
+    const infoCount = messages.filter((item) => item.type === 'info-message').length;
+    const warningCount = messages.filter((item) => item.type === 'warning-message').length;
+    const errorCount = messages.filter((item) => item.type === 'error-message').length;
+
+    return {
+        [MESSAGE_COUNT_KEYS.TOTAL]: messages.length,
+        [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+        [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+        [MESSAGE_COUNT_KEYS.ERROR]: errorCount,
+    };
+}
 
 /** @private */
 export default {
@@ -42,6 +98,10 @@ export default {
     computed: {
         jobRepository() {
             return this.repositoryFactory.create('nosto_scheduler_job');
+        },
+
+        messageRepository() {
+            return this.repositoryFactory.create('nosto_scheduler_job_message');
         },
 
         jobChildrenColumns() {
@@ -120,7 +180,7 @@ export default {
                 this.createNotificationSuccess({
                     message: 'Job has been rescheduled successfully.',
                 });
-                this.initPageData();
+                this.initModalData();
             }).catch(() => {
                 this.createNotificationError({
                     message: 'Unable reschedule job.',
@@ -128,15 +188,42 @@ export default {
             });
         },
 
-        showMessageModal(messages) {
-            this.currentJobMessages = messages;
-            this.showMessagesModal = true;
+        getMessageCounts(job) {
+            return buildMessageCounts(job);
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+            const counts = this.getMessageCounts(job);
+            const key = normalizeMessageCountKey(type);
+
+            return Number(counts[key] ?? 0);
+        },
+
+        getMessagesTotalCount(job) {
+            const counts = this.getMessageCounts(job);
+
+            return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] ?? 0);
+        },
+
+        showMessageModal(job) {
+            const jobId = job?.id;
+            if (!jobId) {
+                return;
+            }
+
+            this.currentJobMessages = [];
+            this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId,
+                expectedTotal,
+            }).then((messages) => {
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                this.currentJobMessages = [];
+            });
         },
     },
 };

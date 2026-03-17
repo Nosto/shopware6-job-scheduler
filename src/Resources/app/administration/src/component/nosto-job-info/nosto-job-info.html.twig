@@ -21,11 +21,7 @@
                         {% block job_info_overview_status %}
                             <dt>{{ $tc('job-listing.page.listing.grid.column.status') }}</dt>
                             <dd>
-                                <template>
-                                    <nosto-job-status-badge :status="jobItem.status">
-                                    </nosto-job-status-badge>
-                                    {{ $tc('job-listing.page.listing.grid.job-status.' + jobItem.status) }}
-                                </template>
+                                <nosto-job-status-badge :status="jobItem.status" :show-label="true"></nosto-job-status-badge>
                             </dd>
                         {% endblock %}
                         {% block job_info_overview_startedAt %}

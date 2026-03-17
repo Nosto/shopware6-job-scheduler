@@ -4,9 +4,116 @@
 
 import template from './nosto-job-listing-index.html.twig';
 import JobHelper from '../../../../util/job.helper';
+import fetchJobMessages from '../../../../util/job-messages.helper';
 import './nosto-job-listing-index.scss';
 
 const { Criteria } = Shopware.Data;
+
+const CHILD_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    SUCCESS: 'success',
+    PENDING: 'pending',
+    ERROR: 'error',
+});
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function normalizeMessageType(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO) {
+        return MESSAGE_COUNT_KEYS.INFO;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.WARNING) {
+        return MESSAGE_COUNT_KEYS.WARNING;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.ERROR) {
+        return MESSAGE_COUNT_KEYS.ERROR;
+    }
+
+    return MESSAGE_COUNT_KEYS.TOTAL;
+}
+
+function getRawJobCounts(job) {
+    const fieldCounts = job?.jobCounts ?? {};
+    const extensionCounts = job?.extensions?.jobCounts ?? {};
+
+    return {
+        childJobs: {
+            ...(extensionCounts.childJobs ?? {}),
+            ...(fieldCounts.childJobs ?? {}),
+        },
+        messages: {
+            ...(extensionCounts.messages ?? {}),
+            ...(fieldCounts.messages ?? {}),
+        },
+    };
+}
+
+function buildJobCounts(job) {
+    const rawCounts = getRawJobCounts(job);
+    const childJobs = rawCounts.childJobs ?? {};
+    const messages = rawCounts.messages ?? {};
+
+    if (Object.keys(childJobs).length > 0 || Object.keys(messages).length > 0) {
+        const successCount = Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? childJobs.succeed ?? 0);
+        const pendingCount = Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0);
+        const errorCount = Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0);
+        const infoCount = Number(messages[MESSAGE_COUNT_KEYS.INFO] ?? 0);
+        const warningCount = Number(messages[MESSAGE_COUNT_KEYS.WARNING] ?? 0);
+        const messageErrorCount = Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0);
+
+        return {
+            childJobs: {
+                [CHILD_COUNT_KEYS.TOTAL]: Number(
+                    childJobs[CHILD_COUNT_KEYS.TOTAL] ?? (successCount + pendingCount + errorCount),
+                ),
+                [CHILD_COUNT_KEYS.SUCCESS]: successCount,
+                [CHILD_COUNT_KEYS.PENDING]: pendingCount,
+                [CHILD_COUNT_KEYS.ERROR]: errorCount,
+            },
+            messages: {
+                [MESSAGE_COUNT_KEYS.TOTAL]: Number(
+                    messages[MESSAGE_COUNT_KEYS.TOTAL] ?? (infoCount + warningCount + messageErrorCount),
+                ),
+                [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+                [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+                [MESSAGE_COUNT_KEYS.ERROR]: messageErrorCount,
+            },
+        };
+    }
+
+    const subJobs = job?.subJobs ?? [];
+    const jobMessages = job?.messages ?? [];
+    const successCount = subJobs.filter((item) => {
+        return item.status === 'succeed' || item.status === CHILD_COUNT_KEYS.SUCCESS;
+    }).length;
+    const pendingCount = subJobs.filter((item) => item.status === CHILD_COUNT_KEYS.PENDING).length;
+    const errorCount = subJobs.filter((item) => item.status === CHILD_COUNT_KEYS.ERROR || item.status === 'failed').length;
+    const infoCount = jobMessages.filter((item) => item.type === 'info-message').length;
+    const warningCount = jobMessages.filter((item) => item.type === 'warning-message').length;
+    const messageErrorCount = jobMessages.filter((item) => item.type === 'error-message').length;
+
+    return {
+        childJobs: {
+            [CHILD_COUNT_KEYS.TOTAL]: subJobs.length,
+            [CHILD_COUNT_KEYS.SUCCESS]: successCount,
+            [CHILD_COUNT_KEYS.PENDING]: pendingCount,
+            [CHILD_COUNT_KEYS.ERROR]: errorCount,
+        },
+        messages: {
+            [MESSAGE_COUNT_KEYS.TOTAL]: jobMessages.length,
+            [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+            [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+            [MESSAGE_COUNT_KEYS.ERROR]: messageErrorCount,
+        },
+    };
+}
 
 /** @private */
 export default {
@@ -62,6 +169,7 @@ export default {
             autoReloadInterval: 60000,
             page: 1,
             limit: 25,
+            jobCountsCache: {},
         };
     },
 
@@ -210,6 +318,8 @@ export default {
         },
 
         updateList(filterCriteria) {
+            this.jobCountsCache = {};
+
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
@@ -231,16 +341,55 @@ export default {
             });
         },
 
-        getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+        getJobCounts(job) {
+            const cacheKey = job?.id;
+            if (cacheKey && this.jobCountsCache[cacheKey]) {
+                return this.jobCountsCache[cacheKey];
+            }
+
+            const counts = buildJobCounts(job);
+
+            if (cacheKey) {
+                this.jobCountsCache[cacheKey] = counts;
+            }
+
+            return counts;
         },
 
-        getChildrenCount(job, type) {
-            return job.subJobs.filter((item) => {
-                return item.status === type;
-            }).length;
+        getChildCountByType(job, type) {
+            const data = this.getJobCounts(job).childJobs;
+
+            return Number(data?.[type] ?? 0);
+        },
+
+        getChildrenCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.TOTAL);
+        },
+
+        getChildrenSuccessCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.SUCCESS);
+        },
+
+        getChildrenPendingCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.PENDING);
+        },
+
+        getChildrenErrorCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.ERROR);
+        },
+
+        getMessageCountByType(job, type) {
+            const normalizedType = normalizeMessageType(type);
+
+            return Number(this.getJobCounts(job).messages?.[normalizedType] ?? 0);
+        },
+
+        getMessagesCount(job, type) {
+            return this.getMessageCountByType(job, type);
+        },
+
+        getMessagesTotalCount(job) {
+            return this.getMessageCountByType(job, MESSAGE_COUNT_KEYS.TOTAL);
         },
 
         getList(filterCriteria) {
@@ -288,8 +437,24 @@ export default {
         },
 
         showJobMessages(job) {
-            this.currentJobMessages = job.messages;
+            if (!job?.id) {
+                return;
+            }
+
+            this.currentJobMessages = [];
             this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId: job.id,
+                expectedTotal,
+            }).then((messages) => {
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                this.currentJobMessages = [];
+            });
         },
 
         stopAutoLoading() {
