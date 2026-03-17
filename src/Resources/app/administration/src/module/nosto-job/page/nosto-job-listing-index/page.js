@@ -3,7 +3,6 @@
  */
 
 import template from './nosto-job-listing-index.html.twig';
-import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../../../util/job-status.helper';
 import fetchJobMessages from '../../../../util/job-messages.helper';
 import './nosto-job-listing-index.scss';
 
@@ -455,18 +454,6 @@ export default {
             }).catch(() => {
                 this.currentJobMessages = [];
             });
-        },
-
-        getStatusTone(status) {
-            return getJobStatusTone(status);
-        },
-
-        getStatusLabel(status) {
-            return getJobStatusLabel(status, (key) => this.$tc(key));
-        },
-
-        isRunningStatus(status) {
-            return isJobRunningStatus(status);
         },
 
         stopAutoLoading() {

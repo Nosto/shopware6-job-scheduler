@@ -3,6 +3,8 @@
  */
 
 import template from './nosto-job-status-badge.html.twig';
+import { getJobStatusLabel, getJobStatusTone, isJobRunningStatus } from '../../util/job-status.helper';
+import './nosto-job-status-badge.scss';
 
 /** @private */
 export default {
@@ -13,23 +15,34 @@ export default {
             type: String,
             required: true,
         },
+        showLabel: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     computed: {
-        additionalClass() {
-            return this.status === 'running' ? '--pulse' : '';
+        tone() {
+            return getJobStatusTone(this.status);
         },
 
-        variant() {
-            switch (this.status) {
-                case 'error':
-                    return 'error';
-                case 'succeed':
-                case 'running':
-                    return 'success';
-                default:
-                    return '';
-            }
+        label() {
+            return getJobStatusLabel(this.status, (key) => this.$tc(key));
+        },
+
+        isRunning() {
+            return isJobRunningStatus(this.status);
+        },
+
+        classes() {
+            return [
+                `is-${this.tone}`,
+                {
+                    'has-label': this.showLabel,
+                    'is-running': this.isRunning,
+                },
+            ];
         },
     },
 };
