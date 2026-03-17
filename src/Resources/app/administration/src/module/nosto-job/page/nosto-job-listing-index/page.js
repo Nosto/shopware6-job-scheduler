@@ -40,38 +40,47 @@ function normalizeMessageType(type) {
 }
 
 function getRawJobCounts(job) {
-    const fieldCounts = job?.jobCounts ?? {};
-    const extensionCounts = job?.extensions?.jobCounts ?? {};
+    const fieldCounts = job && job.jobCounts ? job.jobCounts : {};
+    const extensionCounts = job && job.extensions && job.extensions.jobCounts ? job.extensions.jobCounts : {};
 
     return {
         childJobs: {
-            ...(extensionCounts.childJobs ?? {}),
-            ...(fieldCounts.childJobs ?? {}),
+            ...(extensionCounts.childJobs || {}),
+            ...(fieldCounts.childJobs || {}),
         },
         messages: {
-            ...(extensionCounts.messages ?? {}),
-            ...(fieldCounts.messages ?? {}),
+            ...(extensionCounts.messages || {}),
+            ...(fieldCounts.messages || {}),
         },
     };
 }
 
 function buildJobCounts(job) {
     const rawCounts = getRawJobCounts(job);
-    const childJobs = rawCounts.childJobs ?? {};
-    const messages = rawCounts.messages ?? {};
+    const childJobs = rawCounts.childJobs || {};
+    const messages = rawCounts.messages || {};
 
     if (Object.keys(childJobs).length > 0 || Object.keys(messages).length > 0) {
-        const successCount = Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? childJobs.succeed ?? 0);
-        const pendingCount = Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0);
-        const errorCount = Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0);
-        const infoCount = Number(messages[MESSAGE_COUNT_KEYS.INFO] ?? 0);
-        const warningCount = Number(messages[MESSAGE_COUNT_KEYS.WARNING] ?? 0);
-        const messageErrorCount = Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0);
+        const successValue = childJobs[CHILD_COUNT_KEYS.SUCCESS];
+        const legacySuccessValue = childJobs.succeed;
+        let normalizedSuccessValue = successValue;
+        if (normalizedSuccessValue == null) {
+            normalizedSuccessValue = legacySuccessValue;
+        }
+        const successCount = Number(normalizedSuccessValue == null ? 0 : normalizedSuccessValue);
+        const pendingCount = Number(childJobs[CHILD_COUNT_KEYS.PENDING] == null ? 0 : childJobs[CHILD_COUNT_KEYS.PENDING]);
+        const errorCount = Number(childJobs[CHILD_COUNT_KEYS.ERROR] == null ? 0 : childJobs[CHILD_COUNT_KEYS.ERROR]);
+        const infoCount = Number(messages[MESSAGE_COUNT_KEYS.INFO] == null ? 0 : messages[MESSAGE_COUNT_KEYS.INFO]);
+        const warningCount = Number(messages[MESSAGE_COUNT_KEYS.WARNING] == null ? 0 : messages[MESSAGE_COUNT_KEYS.WARNING]);
+        const messageErrorRawCount = messages[MESSAGE_COUNT_KEYS.ERROR];
+        const messageErrorCount = Number(messageErrorRawCount == null ? 0 : messageErrorRawCount);
 
         return {
             childJobs: {
                 [CHILD_COUNT_KEYS.TOTAL]: Number(
-                    childJobs[CHILD_COUNT_KEYS.TOTAL] ?? (successCount + pendingCount + errorCount),
+                    childJobs[CHILD_COUNT_KEYS.TOTAL] == null
+                        ? (successCount + pendingCount + errorCount)
+                        : childJobs[CHILD_COUNT_KEYS.TOTAL],
                 ),
                 [CHILD_COUNT_KEYS.SUCCESS]: successCount,
                 [CHILD_COUNT_KEYS.PENDING]: pendingCount,
@@ -79,7 +88,9 @@ function buildJobCounts(job) {
             },
             messages: {
                 [MESSAGE_COUNT_KEYS.TOTAL]: Number(
-                    messages[MESSAGE_COUNT_KEYS.TOTAL] ?? (infoCount + warningCount + messageErrorCount),
+                    messages[MESSAGE_COUNT_KEYS.TOTAL] == null
+                        ? (infoCount + warningCount + messageErrorCount)
+                        : messages[MESSAGE_COUNT_KEYS.TOTAL],
                 ),
                 [MESSAGE_COUNT_KEYS.INFO]: infoCount,
                 [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
@@ -88,8 +99,8 @@ function buildJobCounts(job) {
         };
     }
 
-    const subJobs = job?.subJobs ?? [];
-    const jobMessages = job?.messages ?? [];
+    const subJobs = job && job.subJobs ? job.subJobs : [];
+    const jobMessages = job && job.messages ? job.messages : [];
     const successCount = subJobs.filter((item) => {
         return item.status === 'succeed' || item.status === CHILD_COUNT_KEYS.SUCCESS;
     }).length;
@@ -342,7 +353,7 @@ export default {
         },
 
         getJobCounts(job) {
-            const cacheKey = job?.id;
+            const cacheKey = job && job.id ? job.id : null;
             if (cacheKey && this.jobCountsCache[cacheKey]) {
                 return this.jobCountsCache[cacheKey];
             }
@@ -359,7 +370,7 @@ export default {
         getChildCountByType(job, type) {
             const data = this.getJobCounts(job).childJobs;
 
-            return Number(data?.[type] ?? 0);
+            return Number(data && data[type] != null ? data[type] : 0);
         },
 
         getChildrenCount(job) {
@@ -380,8 +391,9 @@ export default {
 
         getMessageCountByType(job, type) {
             const normalizedType = normalizeMessageType(type);
+            const messages = this.getJobCounts(job).messages;
 
-            return Number(this.getJobCounts(job).messages?.[normalizedType] ?? 0);
+            return Number(messages && messages[normalizedType] != null ? messages[normalizedType] : 0);
         },
 
         getMessagesCount(job, type) {
@@ -437,7 +449,7 @@ export default {
         },
 
         showJobMessages(job) {
-            if (!job?.id) {
+            if (!job || !job.id) {
                 return;
             }
 

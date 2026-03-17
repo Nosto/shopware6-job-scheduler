@@ -15,12 +15,12 @@ const INFO_STATUSES = Object.freeze(['in_progress', 'processing']);
 
 /** @private */
 export function isJobRunningStatus(status) {
-    return (status ?? '').toLowerCase() === 'running';
+    return String(status == null ? '' : status).toLowerCase() === 'running';
 }
 
 /** @private */
 export function getJobStatusTone(status) {
-    const value = (status ?? '').toLowerCase();
+    const value = String(status == null ? '' : status).toLowerCase();
 
     if (ERROR_STATUSES.includes(value)) {
         return STATUS_TONES.DANGER;
@@ -39,7 +39,7 @@ export function getJobStatusTone(status) {
 
 /** @private */
 export function getJobStatusLabel(status, translate) {
-    const statusValue = String(status ?? '').trim();
+    const statusValue = String(status == null ? '' : status).trim();
     if (!statusValue) {
         return '';
     }

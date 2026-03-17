@@ -17,8 +17,10 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
 });
 
 function getRawMessageCounts(job) {
-    const fieldCounts = job?.jobCounts?.messages ?? {};
-    const extensionCounts = job?.extensions?.jobCounts?.messages ?? {};
+    const fieldCounts = job && job.jobCounts && job.jobCounts.messages ? job.jobCounts.messages : {};
+    const extensionCounts = job && job.extensions && job.extensions.jobCounts && job.extensions.jobCounts.messages
+        ? job.extensions.jobCounts.messages
+        : {};
 
     return {
         ...extensionCounts,
@@ -37,13 +39,16 @@ function normalizeMessageCountKey(type) {
 function buildMessageCounts(job) {
     const jobCounts = getRawMessageCounts(job);
     if (Object.keys(jobCounts).length > 0) {
-        const infoCount = Number(jobCounts[MESSAGE_COUNT_KEYS.INFO] ?? 0);
-        const warningCount = Number(jobCounts[MESSAGE_COUNT_KEYS.WARNING] ?? 0);
-        const errorCount = Number(jobCounts[MESSAGE_COUNT_KEYS.ERROR] ?? 0);
+        const infoCount = Number(jobCounts[MESSAGE_COUNT_KEYS.INFO] == null ? 0 : jobCounts[MESSAGE_COUNT_KEYS.INFO]);
+        const warningRawCount = jobCounts[MESSAGE_COUNT_KEYS.WARNING];
+        const warningCount = Number(warningRawCount == null ? 0 : warningRawCount);
+        const errorCount = Number(jobCounts[MESSAGE_COUNT_KEYS.ERROR] == null ? 0 : jobCounts[MESSAGE_COUNT_KEYS.ERROR]);
 
         return {
             [MESSAGE_COUNT_KEYS.TOTAL]: Number(
-                jobCounts[MESSAGE_COUNT_KEYS.TOTAL] ?? (infoCount + warningCount + errorCount),
+                jobCounts[MESSAGE_COUNT_KEYS.TOTAL] == null
+                    ? (infoCount + warningCount + errorCount)
+                    : jobCounts[MESSAGE_COUNT_KEYS.TOTAL],
             ),
             [MESSAGE_COUNT_KEYS.INFO]: infoCount,
             [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
@@ -51,7 +56,7 @@ function buildMessageCounts(job) {
         };
     }
 
-    const messages = job?.messages ?? [];
+    const messages = job && job.messages ? job.messages : [];
     const infoCount = messages.filter((item) => item.type === 'info-message').length;
     const warningCount = messages.filter((item) => item.type === 'warning-message').length;
     const errorCount = messages.filter((item) => item.type === 'error-message').length;
@@ -196,17 +201,17 @@ export default {
             const counts = this.getMessageCounts(job);
             const key = normalizeMessageCountKey(type);
 
-            return Number(counts[key] ?? 0);
+            return Number(counts[key] == null ? 0 : counts[key]);
         },
 
         getMessagesTotalCount(job) {
             const counts = this.getMessageCounts(job);
 
-            return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] ?? 0);
+            return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] == null ? 0 : counts[MESSAGE_COUNT_KEYS.TOTAL]);
         },
 
         showMessageModal(job) {
-            const jobId = job?.id;
+            const jobId = job && job.id ? job.id : null;
             if (!jobId) {
                 return;
             }
