@@ -23,22 +23,6 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     ERROR: 'error',
 });
 
-function normalizeMessageType(type) {
-    if (type === MESSAGE_COUNT_KEYS.INFO) {
-        return MESSAGE_COUNT_KEYS.INFO;
-    }
-
-    if (type === MESSAGE_COUNT_KEYS.WARNING) {
-        return MESSAGE_COUNT_KEYS.WARNING;
-    }
-
-    if (type === MESSAGE_COUNT_KEYS.ERROR) {
-        return MESSAGE_COUNT_KEYS.ERROR;
-    }
-
-    return MESSAGE_COUNT_KEYS.TOTAL;
-}
-
 function getRawJobCounts(job) {
     const fieldCounts = job?.jobCounts ?? {};
     const extensionCounts = job?.extensions?.jobCounts ?? {};
@@ -126,7 +110,7 @@ export default {
         'feature',
     ],
 
-    emits: ['job-display-type-changed'],
+    emits: ['job-display-type-changed', 'job-list-meta-loaded'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -318,25 +302,42 @@ export default {
             };
         },
 
-        updateList(filterCriteria) {
-            this.jobCountsCache = {};
-
+        getListCriteria() {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
 
-            if (filterCriteria) {
-                filterCriteria.forEach(filter => {
-                    criteria.addFilter(filter);
-                });
-            }
-
-            if (this.jobTypes !== []) {
+            if (Array.isArray(this.jobTypes) && this.jobTypes.length > 0) {
                 criteria.addFilter(Criteria.equalsAny('type', this.jobTypes));
             }
 
-            return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
+            criteria.addAggregation(Criteria.terms('statuses', 'status', null, null, null));
+            criteria.addAggregation(Criteria.terms('types', 'name', null, null, null));
+
+            return criteria;
+        },
+
+        updateList(filterCriteria) {
+            this.jobCountsCache = {};
+
+            const criteria = this.getListCriteria();
+
+            if (filterCriteria) {
+                filterCriteria.forEach((filter) => {
+                    criteria.addPostFilter(filter);
+                });
+            }
+
+            return this.jobRepository.search(criteria, Shopware.Context.api).then((jobItems) => {
                 this.jobItems = jobItems;
+                this.$emit('job-list-meta-loaded', {
+                    statuses: jobItems.aggregations?.statuses?.buckets
+                        ?.map(({ key }) => key)
+                        .filter((status) => !!status) ?? [],
+                    types: jobItems.aggregations?.types?.buckets
+                        ?.map(({ key }) => key)
+                        .filter((type) => !!type) ?? [],
+                });
             });
         },
 
@@ -378,9 +379,7 @@ export default {
         },
 
         getMessageCountByType(job, type) {
-            const normalizedType = normalizeMessageType(type);
-
-            return Number(this.getJobCounts(job).messages?.[normalizedType] ?? 0);
+            return Number(this.getJobCounts(job).messages?.[type] ?? 0);
         },
 
         getMessagesCount(job, type) {
