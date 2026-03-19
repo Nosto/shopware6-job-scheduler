@@ -16,12 +16,52 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     ERROR: 'error',
 });
 
+function toArray(collection) {
+    if (Array.isArray(collection)) {
+        return collection;
+    }
+
+    if (collection && typeof collection.forEach === 'function') {
+        const items = [];
+        collection.forEach((item) => items.push(item));
+
+        return items;
+    }
+
+    return [];
+}
+
 function normalizeMessageCountKey(type) {
     if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
         return type;
     }
 
     return MESSAGE_COUNT_KEYS.ERROR;
+}
+
+function getMessageCountsFromRelations(job) {
+    if (job?.messages === undefined) {
+        return null;
+    }
+
+    return toArray(job.messages).reduce((counts, message) => {
+        counts[MESSAGE_COUNT_KEYS.TOTAL] += 1;
+
+        if (message?.type === 'info-message') {
+            counts[MESSAGE_COUNT_KEYS.INFO] += 1;
+        } else if (message?.type === 'warning-message') {
+            counts[MESSAGE_COUNT_KEYS.WARNING] += 1;
+        } else if (message?.type === 'error-message') {
+            counts[MESSAGE_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [MESSAGE_COUNT_KEYS.TOTAL]: 0,
+        [MESSAGE_COUNT_KEYS.INFO]: 0,
+        [MESSAGE_COUNT_KEYS.WARNING]: 0,
+        [MESSAGE_COUNT_KEYS.ERROR]: 0,
+    });
 }
 
 /** @private */
@@ -130,6 +170,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', this.jobId));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+            criteria.addAssociation('messages');
             this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
                 this.subJobs = jobItems;
             });
@@ -149,6 +190,11 @@ export default {
         },
 
         getMessageCounts(job) {
+            const relationCounts = getMessageCountsFromRelations(job);
+            if (relationCounts) {
+                return relationCounts;
+            }
+
             return {
                 ...(job?.extensions?.jobCounts?.messages ?? {}),
                 ...(job?.jobCounts?.messages ?? {}),
