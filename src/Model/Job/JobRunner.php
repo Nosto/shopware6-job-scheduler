@@ -88,11 +88,18 @@ readonly class JobRunner
         if ($handler instanceof GeneratingHandlerInterface) {
             if ($status === JobEntity::TYPE_FAILED) {
                 $this->jobHelper->markJob($message->getJobId(), $status);
-            } elseif ($this->jobHelper->getChildJobs($message->getJobId())->count() === 0) {
+            } elseif ($this->jobHelper->countChildJobs($message->getJobId()) === 0) {
                 /**
                  * Nothing was scheduled by generating job handler - delete job.
                  */
                 $this->jobHelper->deleteJob($message->getJobId());
+            } elseif ($this->jobHelper->isGeneratedJobReadyToFinalize($message->getJobId(), self::NOT_FINISHED_STATUSES)) {
+                $this->jobHelper->markJob(
+                    $message->getJobId(),
+                    $this->jobHelper->hasFailedChildJobs($message->getJobId())
+                        ? JobEntity::TYPE_FAILED
+                        : JobEntity::TYPE_SUCCEED
+                );
             }
 
             return $result;
@@ -102,8 +109,8 @@ readonly class JobRunner
 
         if ($message instanceof ParentAwareMessageInterface) {
             $parentJobId = $message->getParentJobId();
-            if ($this->jobHelper->getChildJobs($parentJobId, self::NOT_FINISHED_STATUSES)->count() === 0) {
-                $hasFailedChild = $this->jobHelper->getChildJobs($parentJobId, [JobEntity::TYPE_FAILED])->count() !== 0;
+            if ($this->jobHelper->isGeneratedJobReadyToFinalize($parentJobId, self::NOT_FINISHED_STATUSES)) {
+                $hasFailedChild = $this->jobHelper->hasFailedChildJobs($parentJobId);
                 /**
                  * All current job's siblings was executed - mark parent job with proper status
                  * according to existence of failed child jobs.
