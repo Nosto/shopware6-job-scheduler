@@ -23,6 +23,21 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     ERROR: 'error',
 });
 
+function toArray(collection) {
+    if (Array.isArray(collection)) {
+        return collection;
+    }
+
+    if (collection && typeof collection.forEach === 'function') {
+        const items = [];
+        collection.forEach((item) => items.push(item));
+
+        return items;
+    }
+
+    return [];
+}
+
 function normalizeMessageType(type) {
     if (type === MESSAGE_COUNT_KEYS.INFO) {
         return MESSAGE_COUNT_KEYS.INFO;
@@ -53,6 +68,56 @@ function getRawJobCounts(job) {
             ...(fieldCounts.messages ?? {}),
         },
     };
+}
+
+function getChildJobCountsFromRelations(job) {
+    if (job?.subJobs === undefined) {
+        return null;
+    }
+
+    return toArray(job.subJobs).reduce((counts, childJob) => {
+        counts[CHILD_COUNT_KEYS.TOTAL] += 1;
+
+        if (childJob?.status === 'succeed' || childJob?.status === CHILD_COUNT_KEYS.SUCCESS) {
+            counts[CHILD_COUNT_KEYS.SUCCESS] += 1;
+        } else if (childJob?.status === CHILD_COUNT_KEYS.PENDING) {
+            counts[CHILD_COUNT_KEYS.PENDING] += 1;
+        } else if (childJob?.status === CHILD_COUNT_KEYS.ERROR) {
+            counts[CHILD_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [CHILD_COUNT_KEYS.TOTAL]: 0,
+        [CHILD_COUNT_KEYS.SUCCESS]: 0,
+        [CHILD_COUNT_KEYS.PENDING]: 0,
+        [CHILD_COUNT_KEYS.ERROR]: 0,
+    });
+}
+
+function getMessageCountsFromRelations(job) {
+    if (job?.messages === undefined) {
+        return null;
+    }
+
+    return toArray(job.messages).reduce((counts, message) => {
+        counts[MESSAGE_COUNT_KEYS.TOTAL] += 1;
+
+        if (message?.type === 'info-message') {
+            counts[MESSAGE_COUNT_KEYS.INFO] += 1;
+        } else if (message?.type === 'warning-message') {
+            counts[MESSAGE_COUNT_KEYS.WARNING] += 1;
+        } else if (message?.type === 'error-message') {
+            counts[MESSAGE_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [MESSAGE_COUNT_KEYS.TOTAL]: 0,
+        [MESSAGE_COUNT_KEYS.INFO]: 0,
+        [MESSAGE_COUNT_KEYS.WARNING]: 0,
+        [MESSAGE_COUNT_KEYS.ERROR]: 0,
+    });
 }
 
 /** @private */
@@ -278,6 +343,8 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
             criteria.addFilter(Criteria.equals('parentId', null));
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
+            criteria.addAssociation('messages');
+            criteria.addAssociation('subJobs');
 
             if (filterCriteria) {
                 filterCriteria.forEach(filter => {
@@ -307,13 +374,13 @@ export default {
 
         getJobCounts(job) {
             const rawCounts = getRawJobCounts(job);
-            const childJobs = rawCounts.childJobs ?? {};
-            const messages = rawCounts.messages ?? {};
+            const childJobs = getChildJobCountsFromRelations(job) ?? rawCounts.childJobs ?? {};
+            const messages = getMessageCountsFromRelations(job) ?? rawCounts.messages ?? {};
 
             return {
                 childJobs: {
                     [CHILD_COUNT_KEYS.TOTAL]: Number(childJobs[CHILD_COUNT_KEYS.TOTAL] ?? 0),
-                    [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? 0),
+                    [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? childJobs.succeed ?? 0),
                     [CHILD_COUNT_KEYS.PENDING]: Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0),
                     [CHILD_COUNT_KEYS.ERROR]: Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0),
                 },
