@@ -1,2 +1,0 @@
-const{Criteria:s}=Shopware.Data;function g(r){const t=[];return r.forEach(e=>t.push(e)),t}function p({messageRepository:r,jobId:t,expectedTotal:e=0,pageSize:a=250}){const c=(d,i)=>{const n=new s(d,a);return n.addFilter(s.equals("jobId",t)),n.addSorting(s.sort("createdAt","ASC",!1)),r.search(n,Shopware.Context.api).then(u=>{const h=g(u),o=[...i,...h],l=e>0&&o.length>=e,f=h.length===a;return!l&&f?c(d+1,o):o})};return c(1,[])}export{p as f};
-//# sourceMappingURL=job-messages.helper-Ddk2SiJO.js.map
