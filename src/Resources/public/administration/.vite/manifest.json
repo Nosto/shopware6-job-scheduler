@@ -1,39 +1,39 @@
 {
-  "_job.helper-CMeyfASf.js": {
-    "file": "assets/job.helper-CMeyfASf.js",
-    "name": "job.helper"
+  "_job-messages.helper-Ddk2SiJO.js": {
+    "file": "assets/job-messages.helper-Ddk2SiJO.js",
+    "name": "job-messages.helper"
   },
   "component/nosto-grouped-view/component.js": {
-    "file": "assets/component-BeynDEsa.js",
+    "file": "assets/component-B0AUjEsb.js",
     "name": "component",
     "src": "component/nosto-grouped-view/component.js",
     "isDynamicEntry": true,
-    "imports": [
-      "_job.helper-CMeyfASf.js"
-    ],
     "css": [
       "assets/component-CCme8xHV.css"
     ]
   },
   "component/nosto-job-info/component.js": {
-    "file": "assets/component-pEr6FqK3.js",
+    "file": "assets/component-yLg3H7rm.js",
     "name": "component",
     "src": "component/nosto-job-info/component.js",
     "isDynamicEntry": true
   },
   "component/nosto-job-status-badge/component.js": {
-    "file": "assets/component-D8VQhwMH.js",
+    "file": "assets/component-Dk0XSNJI.js",
     "name": "component",
     "src": "component/nosto-job-status-badge/component.js",
-    "isDynamicEntry": true
+    "isDynamicEntry": true,
+    "css": [
+      "assets/component-Dqjf7-0N.css"
+    ]
   },
   "component/nosto-job-sub-jobs/component.js": {
-    "file": "assets/component-CRpvQpyx.js",
+    "file": "assets/component-BNEGhNx8.js",
     "name": "component",
     "src": "component/nosto-job-sub-jobs/component.js",
     "isDynamicEntry": true,
     "imports": [
-      "_job.helper-CMeyfASf.js"
+      "_job-messages.helper-Ddk2SiJO.js"
     ],
     "css": [
       "assets/component-DFxRV3CU.css"
@@ -49,7 +49,7 @@
     ]
   },
   "main.js": {
-    "file": "assets/nosto-scheduler-z27geSo9.js",
+    "file": "assets/nosto-scheduler-CUzcn8A3.js",
     "name": "nosto-scheduler",
     "src": "main.js",
     "isEntry": true,
@@ -66,12 +66,12 @@
     ]
   },
   "module/nosto-job/page/nosto-job-listing-index/page.js": {
-    "file": "assets/page-MmZ9Rln9.js",
+    "file": "assets/page-Br4U7gsk.js",
     "name": "page",
     "src": "module/nosto-job/page/nosto-job-listing-index/page.js",
     "isDynamicEntry": true,
     "imports": [
-      "_job.helper-CMeyfASf.js"
+      "_job-messages.helper-Ddk2SiJO.js"
     ],
     "css": [
       "assets/page-DdqIQUXk.css"
