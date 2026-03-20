@@ -3,11 +3,108 @@
  */
 
 import template from './nosto-job-listing-index.html.twig';
-import JobHelper from '../../../../util/job.helper';
+import fetchJobMessages from '../../../../util/job-messages.helper';
+import toArray from '../../../../util/collection.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+
+const CHILD_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    SUCCESS: 'success',
+    PENDING: 'pending',
+    ERROR: 'error',
+});
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function normalizeMessageType(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO) {
+        return MESSAGE_COUNT_KEYS.INFO;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.WARNING) {
+        return MESSAGE_COUNT_KEYS.WARNING;
+    }
+
+    if (type === MESSAGE_COUNT_KEYS.ERROR) {
+        return MESSAGE_COUNT_KEYS.ERROR;
+    }
+
+    return MESSAGE_COUNT_KEYS.TOTAL;
+}
+
+function getRawJobCounts(job) {
+    const fieldCounts = job?.jobCounts ?? {};
+    const extensionCounts = job?.extensions?.jobCounts ?? {};
+
+    return {
+        childJobs: {
+            ...(extensionCounts.childJobs ?? {}),
+            ...(fieldCounts.childJobs ?? {}),
+        },
+        messages: {
+            ...(extensionCounts.messages ?? {}),
+            ...(fieldCounts.messages ?? {}),
+        },
+    };
+}
+
+function getChildJobCountsFromRelations(job) {
+    if (job?.subJobs === undefined) {
+        return null;
+    }
+
+    return toArray(job.subJobs).reduce((counts, childJob) => {
+        counts[CHILD_COUNT_KEYS.TOTAL] += 1;
+
+        if (childJob?.status === 'succeed' || childJob?.status === CHILD_COUNT_KEYS.SUCCESS) {
+            counts[CHILD_COUNT_KEYS.SUCCESS] += 1;
+        } else if (childJob?.status === CHILD_COUNT_KEYS.PENDING) {
+            counts[CHILD_COUNT_KEYS.PENDING] += 1;
+        } else if (childJob?.status === CHILD_COUNT_KEYS.ERROR) {
+            counts[CHILD_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [CHILD_COUNT_KEYS.TOTAL]: 0,
+        [CHILD_COUNT_KEYS.SUCCESS]: 0,
+        [CHILD_COUNT_KEYS.PENDING]: 0,
+        [CHILD_COUNT_KEYS.ERROR]: 0,
+    });
+}
+
+function getMessageCountsFromRelations(job) {
+    if (job?.messages === undefined || job?.messages === null) {
+        return null;
+    }
+
+    return toArray(job.messages).reduce((counts, message) => {
+        counts[MESSAGE_COUNT_KEYS.TOTAL] += 1;
+
+        if (message?.type === 'info-message') {
+            counts[MESSAGE_COUNT_KEYS.INFO] += 1;
+        } else if (message?.type === 'warning-message') {
+            counts[MESSAGE_COUNT_KEYS.WARNING] += 1;
+        } else if (message?.type === 'error-message') {
+            counts[MESSAGE_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [MESSAGE_COUNT_KEYS.TOTAL]: 0,
+        [MESSAGE_COUNT_KEYS.INFO]: 0,
+        [MESSAGE_COUNT_KEYS.WARNING]: 0,
+        [MESSAGE_COUNT_KEYS.ERROR]: 0,
+    });
+}
 
 /** @private */
 export default {
@@ -20,7 +117,7 @@ export default {
         'feature',
     ],
 
-    emits: ['job-display-type-changed', 'job-grouped-by-changed'],
+    emits: ['job-display-type-changed', 'job-grouped-by-changed', 'job-list-meta-loaded'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -55,6 +152,7 @@ export default {
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            currentMessageRequestToken: 0,
             groupCreationDate: {
             },
             sortType: 'status',
@@ -246,20 +344,76 @@ export default {
             }
 
             return this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.jobItems = JobHelper.sortMessages(jobItems);
+                this.jobItems = jobItems;
+                this.$emit('job-list-meta-loaded', this.extractFilterMeta(jobItems));
             });
         },
 
-        getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+        extractFilterMeta(jobItems) {
+            const statuses = [...new Set(jobItems.map((item) => item.status).filter((status) => !!status))];
+            const types = [...new Set(jobItems.map((item) => item.name).filter((name) => !!name))];
+
+            return {
+                statuses,
+                types,
+            };
         },
 
-        getChildrenCount(job, type) {
-            return job.subJobs.filter((item) => {
-                return item.status === type;
-            }).length;
+        getJobCounts(job) {
+            const rawCounts = getRawJobCounts(job);
+            const childJobs = getChildJobCountsFromRelations(job) ?? rawCounts.childJobs ?? {};
+            const messages = getMessageCountsFromRelations(job) ?? rawCounts.messages ?? {};
+
+            return {
+                childJobs: {
+                    [CHILD_COUNT_KEYS.TOTAL]: Number(childJobs[CHILD_COUNT_KEYS.TOTAL] ?? 0),
+                    [CHILD_COUNT_KEYS.SUCCESS]: Number(childJobs[CHILD_COUNT_KEYS.SUCCESS] ?? childJobs.succeed ?? 0),
+                    [CHILD_COUNT_KEYS.PENDING]: Number(childJobs[CHILD_COUNT_KEYS.PENDING] ?? 0),
+                    [CHILD_COUNT_KEYS.ERROR]: Number(childJobs[CHILD_COUNT_KEYS.ERROR] ?? 0),
+                },
+                messages: {
+                    [MESSAGE_COUNT_KEYS.TOTAL]: Number(messages[MESSAGE_COUNT_KEYS.TOTAL] ?? 0),
+                    [MESSAGE_COUNT_KEYS.INFO]: Number(messages[MESSAGE_COUNT_KEYS.INFO] ?? 0),
+                    [MESSAGE_COUNT_KEYS.WARNING]: Number(messages[MESSAGE_COUNT_KEYS.WARNING] ?? 0),
+                    [MESSAGE_COUNT_KEYS.ERROR]: Number(messages[MESSAGE_COUNT_KEYS.ERROR] ?? 0),
+                },
+            };
+        },
+
+        getChildCountByType(job, type) {
+            const data = this.getJobCounts(job).childJobs;
+
+            return Number(data?.[type] ?? 0);
+        },
+
+        getChildrenCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.TOTAL);
+        },
+
+        getChildrenSuccessCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.SUCCESS);
+        },
+
+        getChildrenPendingCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.PENDING);
+        },
+
+        getChildrenErrorCount(job) {
+            return this.getChildCountByType(job, CHILD_COUNT_KEYS.ERROR);
+        },
+
+        getMessageCountByType(job, type) {
+            const normalizedType = normalizeMessageType(type);
+
+            return Number(this.getJobCounts(job).messages?.[normalizedType] ?? 0);
+        },
+
+        getMessagesCount(job, type) {
+            return this.getMessageCountByType(job, type);
+        },
+
+        getMessagesTotalCount(job) {
+            return this.getMessageCountByType(job, MESSAGE_COUNT_KEYS.TOTAL);
         },
 
         getList(filterCriteria) {
@@ -306,9 +460,42 @@ export default {
             this.showJobSubsModal = true;
         },
 
+        closeMessagesModal() {
+            this.currentMessageRequestToken += 1;
+            this.showMessagesModal = false;
+            this.currentJobMessages = null;
+        },
+
         showJobMessages(job) {
-            this.currentJobMessages = job.messages;
+            const jobId = job?.id;
+            if (!jobId) {
+                return;
+            }
+
+            const requestToken = this.currentMessageRequestToken + 1;
+            this.currentMessageRequestToken = requestToken;
+            this.currentJobMessages = [];
             this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId,
+                expectedTotal,
+            }).then((messages) => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
+                this.currentJobMessages = [];
+            });
         },
 
         stopAutoLoading() {
