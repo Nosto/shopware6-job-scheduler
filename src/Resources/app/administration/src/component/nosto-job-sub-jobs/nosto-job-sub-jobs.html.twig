@@ -90,7 +90,7 @@
             {{ $tc('job-listing.page.listing.index.loading') }}
         </div>
         <sw-modal class="nosto-job-messages-modal" v-if="showMessagesModal" :title="$tc('job-listing.page.listing.grid.column.messages')"
-                  @modal-close="showMessagesModal = false">
+                  @modal-close="closeMessagesModal">
             {% block job_messages_listing %}
                 <div v-if="currentJobMessages" class="job_list_grid_job_messages-information" style="width:100%;">
                     <div class="messages-content" v-for="item in currentJobMessages">
@@ -122,7 +122,7 @@
             {% endblock %}
             <template #modal-footer>
                 <mt-button variant="primary"
-                           @click="showMessagesModal = false">
+                           @click="closeMessagesModal">
                     {{ $tc('job-listing.page.listing.index.close') }}
                 </mt-button>
             </template>

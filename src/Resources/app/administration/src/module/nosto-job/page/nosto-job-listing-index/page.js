@@ -4,6 +4,7 @@
 
 import template from './nosto-job-listing-index.html.twig';
 import fetchJobMessages from '../../../../util/job-messages.helper';
+import { toArray } from '../../../../util/collection.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;
@@ -22,21 +23,6 @@ const MESSAGE_COUNT_KEYS = Object.freeze({
     WARNING: 'warning',
     ERROR: 'error',
 });
-
-function toArray(collection) {
-    if (Array.isArray(collection)) {
-        return collection;
-    }
-
-    if (collection && typeof collection.forEach === 'function') {
-        const items = [];
-        collection.forEach((item) => items.push(item));
-
-        return items;
-    }
-
-    return [];
-}
 
 function normalizeMessageType(type) {
     if (type === MESSAGE_COUNT_KEYS.INFO) {
@@ -96,7 +82,7 @@ function getChildJobCountsFromRelations(job) {
 }
 
 function getMessageCountsFromRelations(job) {
-    if (job?.messages === undefined) {
+    if (job?.messages === undefined || job?.messages === null) {
         return null;
     }
 
@@ -166,6 +152,7 @@ export default {
             currentJobID: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            currentMessageRequestToken: 0,
             groupCreationDate: {
             },
             sortType: 'status',
@@ -473,11 +460,20 @@ export default {
             this.showJobSubsModal = true;
         },
 
+        closeMessagesModal() {
+            this.currentMessageRequestToken += 1;
+            this.showMessagesModal = false;
+            this.currentJobMessages = null;
+        },
+
         showJobMessages(job) {
-            if (!job?.id) {
+            const jobId = job?.id;
+            if (!jobId) {
                 return;
             }
 
+            const requestToken = this.currentMessageRequestToken + 1;
+            this.currentMessageRequestToken = requestToken;
             this.currentJobMessages = [];
             this.showMessagesModal = true;
 
@@ -485,11 +481,19 @@ export default {
 
             fetchJobMessages({
                 messageRepository: this.messageRepository,
-                jobId: job.id,
+                jobId,
                 expectedTotal,
             }).then((messages) => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
                 this.currentJobMessages = messages;
             }).catch(() => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
                 this.currentJobMessages = [];
             });
         },

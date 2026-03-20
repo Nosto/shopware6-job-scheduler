@@ -2,14 +2,9 @@
  * @sw-package innovation
  */
 
+import { toArray } from './collection.helper';
+
 const { Criteria } = Shopware.Data;
-
-function toArray(collection) {
-    const items = [];
-    collection.forEach((item) => items.push(item));
-
-    return items;
-}
 
 /** @private */
 export default function fetchJobMessages({ messageRepository, jobId, expectedTotal = 0, pageSize = 250 }) {
