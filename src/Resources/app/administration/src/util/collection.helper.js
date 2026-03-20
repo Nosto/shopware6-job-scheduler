@@ -3,7 +3,7 @@
  */
 
 /** @private */
-export function toArray(collection) {
+export default function toArray(collection) {
     if (Array.isArray(collection)) {
         return collection;
     }

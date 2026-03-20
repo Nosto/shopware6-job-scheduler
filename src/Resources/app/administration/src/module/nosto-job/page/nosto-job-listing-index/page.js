@@ -4,7 +4,7 @@
 
 import template from './nosto-job-listing-index.html.twig';
 import fetchJobMessages from '../../../../util/job-messages.helper';
-import { toArray } from '../../../../util/collection.helper';
+import toArray from '../../../../util/collection.helper';
 import './nosto-job-listing-index.scss';
 
 const { Mixin } = Shopware;

@@ -2,7 +2,7 @@
  * @sw-package innovation
  */
 
-import { toArray } from './collection.helper';
+import toArray from './collection.helper';
 
 const { Criteria } = Shopware.Data;
 
