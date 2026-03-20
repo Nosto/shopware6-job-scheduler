@@ -154,7 +154,6 @@ export default {
             autoReloadInterval: 60000,
             page: 1,
             limit: 25,
-            jobCountsCache: {},
         };
     },
 
@@ -318,8 +317,6 @@ export default {
         },
 
         updateList(filterCriteria) {
-            this.jobCountsCache = {};
-
             const criteria = this.getListCriteria();
 
             if (filterCriteria) {
@@ -342,18 +339,7 @@ export default {
         },
 
         getJobCounts(job) {
-            const cacheKey = job?.id;
-            if (cacheKey && this.jobCountsCache[cacheKey]) {
-                return this.jobCountsCache[cacheKey];
-            }
-
-            const counts = buildJobCounts(job);
-
-            if (cacheKey) {
-                this.jobCountsCache[cacheKey] = counts;
-            }
-
-            return counts;
+            return buildJobCounts(job);
         },
 
         getChildCountByType(job, type) {

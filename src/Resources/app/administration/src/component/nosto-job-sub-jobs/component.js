@@ -91,6 +91,7 @@ export default {
             subJobs: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            currentMessagesRequestId: 0,
             page: 1,
             limit: 25,
         };
@@ -205,6 +206,12 @@ export default {
             return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] ?? 0);
         },
 
+        closeMessagesModal() {
+            this.currentMessagesRequestId += 1;
+            this.showMessagesModal = false;
+            this.currentJobMessages = null;
+        },
+
         showMessageModal(job) {
             const jobId = job?.id;
             if (!jobId) {
@@ -215,13 +222,22 @@ export default {
             this.showMessagesModal = true;
 
             const expectedTotal = this.getMessagesTotalCount(job);
+            this.currentMessagesRequestId += 1;
+            const requestId = this.currentMessagesRequestId;
+
             fetchJobMessages({
                 messageRepository: this.messageRepository,
                 jobId,
                 expectedTotal,
             }).then((messages) => {
+                if (requestId !== this.currentMessagesRequestId) {
+                    return;
+                }
                 this.currentJobMessages = messages;
             }).catch(() => {
+                if (requestId !== this.currentMessagesRequestId) {
+                    return;
+                }
                 this.currentJobMessages = [];
             });
         },
