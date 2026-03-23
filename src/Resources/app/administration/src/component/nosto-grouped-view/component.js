@@ -195,8 +195,6 @@ export default {
                 const criteria = new Criteria(this.page, this.limit);
                 criteria.addFilter(Criteria.equals('parentId', null));
                 criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
-                criteria.addAssociation('messages');
-                criteria.addAssociation('subJobs');
 
                 if (this.groupCreationDate.fromDate) {
                     criteria.addFilter(Criteria.range('createdAt', { gte: this.groupCreationDate.fromDate }));

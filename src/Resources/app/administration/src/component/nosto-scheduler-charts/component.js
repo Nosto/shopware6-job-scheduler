@@ -81,7 +81,8 @@ export default {
         dateAgo() {
             const date = new Date();
             const selectedDateRange = this.statisticDateRanges.value;
-            const dateRange = this.statisticDateRanges.options[selectedDateRange] ?? 0;
+            const rangeValue = this.statisticDateRanges.options[selectedDateRange];
+            const dateRange = rangeValue == null ? 0 : rangeValue;
 
             if (selectedDateRange === '24Hours') {
                 date.setHours(date.getHours() - dateRange);

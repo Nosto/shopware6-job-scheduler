@@ -1,6 +1,5 @@
-<sw-color-badge rounded
-                :variant="variant"
-                :class="additionalClass"
-                style="margin-right: 10px; margin-top: 3px;">
-</sw-color-badge>
-
+<span class="nosto-job-status-badge"
+      :class="classes">
+    <span class="nosto-job-status-dot"></span>
+    <span v-if="showLabel">{{ label }}</span>
+</span>
