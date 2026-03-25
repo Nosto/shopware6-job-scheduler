@@ -4,9 +4,70 @@
 
 import template from './nosto-job-sub-jobs.html.twig';
 import JobHelper from '../../util/job.helper';
+import fetchJobMessages from '../../util/job-messages.helper';
 import './nosto-job-sub-jobs.scss';
 
 const { Criteria } = Shopware.Data;
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function getRawMessageCounts(job) {
+    const fieldCounts = job && job.jobCounts && job.jobCounts.messages ? job.jobCounts.messages : {};
+    const extensionCounts = job && job.extensions && job.extensions.jobCounts && job.extensions.jobCounts.messages
+        ? job.extensions.jobCounts.messages
+        : {};
+
+    return {
+        ...extensionCounts,
+        ...fieldCounts,
+    };
+}
+
+function normalizeMessageCountKey(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
+        return type;
+    }
+
+    return MESSAGE_COUNT_KEYS.ERROR;
+}
+
+function buildMessageCounts(job) {
+    const jobCounts = getRawMessageCounts(job);
+    if (Object.keys(jobCounts).length > 0) {
+        const infoCount = Number(jobCounts[MESSAGE_COUNT_KEYS.INFO] == null ? 0 : jobCounts[MESSAGE_COUNT_KEYS.INFO]);
+        const warningRawCount = jobCounts[MESSAGE_COUNT_KEYS.WARNING];
+        const warningCount = Number(warningRawCount == null ? 0 : warningRawCount);
+        const errorCount = Number(jobCounts[MESSAGE_COUNT_KEYS.ERROR] == null ? 0 : jobCounts[MESSAGE_COUNT_KEYS.ERROR]);
+
+        return {
+            [MESSAGE_COUNT_KEYS.TOTAL]: Number(
+                jobCounts[MESSAGE_COUNT_KEYS.TOTAL] == null
+                    ? (infoCount + warningCount + errorCount)
+                    : jobCounts[MESSAGE_COUNT_KEYS.TOTAL],
+            ),
+            [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+            [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+            [MESSAGE_COUNT_KEYS.ERROR]: errorCount,
+        };
+    }
+
+    const messages = job && job.messages ? job.messages : [];
+    const infoCount = messages.filter((item) => item.type === 'info-message').length;
+    const warningCount = messages.filter((item) => item.type === 'warning-message').length;
+    const errorCount = messages.filter((item) => item.type === 'error-message').length;
+
+    return {
+        [MESSAGE_COUNT_KEYS.TOTAL]: messages.length,
+        [MESSAGE_COUNT_KEYS.INFO]: infoCount,
+        [MESSAGE_COUNT_KEYS.WARNING]: warningCount,
+        [MESSAGE_COUNT_KEYS.ERROR]: errorCount,
+    };
+}
 
 /** @private */
 export default {
@@ -42,6 +103,10 @@ export default {
     computed: {
         jobRepository() {
             return this.repositoryFactory.create('nosto_scheduler_job');
+        },
+
+        messageRepository() {
+            return this.repositoryFactory.create('nosto_scheduler_job_message');
         },
 
         jobChildrenColumns() {
@@ -120,7 +185,7 @@ export default {
                 this.createNotificationSuccess({
                     message: 'Job has been rescheduled successfully.',
                 });
-                this.initPageData();
+                this.initModalData();
             }).catch(() => {
                 this.createNotificationError({
                     message: 'Unable reschedule job.',
@@ -128,15 +193,42 @@ export default {
             });
         },
 
-        showMessageModal(messages) {
-            this.currentJobMessages = messages;
-            this.showMessagesModal = true;
+        getMessageCounts(job) {
+            return buildMessageCounts(job);
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+            const counts = this.getMessageCounts(job);
+            const key = normalizeMessageCountKey(type);
+
+            return Number(counts[key] == null ? 0 : counts[key]);
+        },
+
+        getMessagesTotalCount(job) {
+            const counts = this.getMessageCounts(job);
+
+            return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] == null ? 0 : counts[MESSAGE_COUNT_KEYS.TOTAL]);
+        },
+
+        showMessageModal(job) {
+            const jobId = job && job.id ? job.id : null;
+            if (!jobId) {
+                return;
+            }
+
+            this.currentJobMessages = [];
+            this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId,
+                expectedTotal,
+            }).then((messages) => {
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                this.currentJobMessages = [];
+            });
         },
     },
 };
