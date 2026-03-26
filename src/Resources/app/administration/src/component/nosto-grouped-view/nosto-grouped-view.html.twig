@@ -18,10 +18,7 @@
                             :columns="columns">
                         <template #column-status="{ item }">
                             {% block nosto_job_list_grid_job_status_link %}
-                                <template>
-                                    <nosto-job-status-badge :status="item.status"></nosto-job-status-badge>
-                                    {{ $tc('job-listing.page.listing.grid.job-status.' + item.status) }}
-                                </template>
+                                <nosto-job-status-badge :status="item.status" :show-label="true"></nosto-job-status-badge>
                             {% endblock %}
                         </template>
                         <template #column-name="{ item }">

@@ -3,11 +3,52 @@
  */
 
 import template from './nosto-job-sub-jobs.html.twig';
-import JobHelper from '../../util/job.helper';
+import fetchJobMessages from '../../util/job-messages.helper';
+import toArray from '../../util/collection.helper';
 import './nosto-job-sub-jobs.scss';
 
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+
+const MESSAGE_COUNT_KEYS = Object.freeze({
+    TOTAL: 'total',
+    INFO: 'info',
+    WARNING: 'warning',
+    ERROR: 'error',
+});
+
+function normalizeMessageCountKey(type) {
+    if (type === MESSAGE_COUNT_KEYS.INFO || type === MESSAGE_COUNT_KEYS.WARNING) {
+        return type;
+    }
+
+    return MESSAGE_COUNT_KEYS.ERROR;
+}
+
+function getMessageCountsFromRelations(job) {
+    if (job?.messages === undefined || job?.messages === null) {
+        return null;
+    }
+
+    return toArray(job.messages).reduce((counts, message) => {
+        counts[MESSAGE_COUNT_KEYS.TOTAL] += 1;
+
+        if (message?.type === 'info-message') {
+            counts[MESSAGE_COUNT_KEYS.INFO] += 1;
+        } else if (message?.type === 'warning-message') {
+            counts[MESSAGE_COUNT_KEYS.WARNING] += 1;
+        } else if (message?.type === 'error-message') {
+            counts[MESSAGE_COUNT_KEYS.ERROR] += 1;
+        }
+
+        return counts;
+    }, {
+        [MESSAGE_COUNT_KEYS.TOTAL]: 0,
+        [MESSAGE_COUNT_KEYS.INFO]: 0,
+        [MESSAGE_COUNT_KEYS.WARNING]: 0,
+        [MESSAGE_COUNT_KEYS.ERROR]: 0,
+    });
+}
 
 /** @private */
 export default {
@@ -36,6 +77,7 @@ export default {
             subJobs: null,
             showMessagesModal: false,
             currentJobMessages: null,
+            currentMessageRequestToken: 0,
             page: 1,
             limit: 25,
         };
@@ -44,6 +86,10 @@ export default {
     computed: {
         jobRepository() {
             return this.repositoryFactory.create('nosto_scheduler_job');
+        },
+
+        messageRepository() {
+            return this.repositoryFactory.create('nosto_scheduler_job_message');
         },
 
         jobChildrenColumns() {
@@ -113,7 +159,7 @@ export default {
             criteria.addSorting(Criteria.sort('createdAt', 'DESC', false));
             criteria.addAssociation('messages');
             this.jobRepository.search(criteria, Shopware.Context.api).then(jobItems => {
-                this.subJobs = JobHelper.sortMessages(jobItems);
+                this.subJobs = jobItems;
             });
         },
 
@@ -122,7 +168,7 @@ export default {
                 this.createNotificationSuccess({
                     message: 'Job has been rescheduled successfully.',
                 });
-                this.initPageData();
+                this.initModalData();
             }).catch(() => {
                 this.createNotificationError({
                     message: 'Unable reschedule job.',
@@ -130,15 +176,66 @@ export default {
             });
         },
 
-        showMessageModal(messages) {
-            this.currentJobMessages = messages;
-            this.showMessagesModal = true;
+        getMessageCounts(job) {
+            const relationCounts = getMessageCountsFromRelations(job);
+            if (relationCounts) {
+                return relationCounts;
+            }
+
+            return {
+                ...(job?.extensions?.jobCounts?.messages ?? {}),
+                ...(job?.jobCounts?.messages ?? {}),
+            };
         },
 
         getMessagesCount(job, type) {
-            return job.messages.filter((item) => {
-                return item.type === `${type}-message`;
-            }).length;
+            const counts = this.getMessageCounts(job);
+            const key = normalizeMessageCountKey(type);
+
+            return Number(counts[key] ?? 0);
+        },
+
+        getMessagesTotalCount(job) {
+            const counts = this.getMessageCounts(job);
+
+            return Number(counts[MESSAGE_COUNT_KEYS.TOTAL] ?? 0);
+        },
+
+        closeMessagesModal() {
+            this.currentMessageRequestToken += 1;
+            this.showMessagesModal = false;
+            this.currentJobMessages = null;
+        },
+
+        showMessageModal(job) {
+            const jobId = job?.id;
+            if (!jobId) {
+                return;
+            }
+
+            const requestToken = this.currentMessageRequestToken + 1;
+            this.currentMessageRequestToken = requestToken;
+            this.currentJobMessages = [];
+            this.showMessagesModal = true;
+
+            const expectedTotal = this.getMessagesTotalCount(job);
+            fetchJobMessages({
+                messageRepository: this.messageRepository,
+                jobId,
+                expectedTotal,
+            }).then((messages) => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
+                this.currentJobMessages = messages;
+            }).catch(() => {
+                if (requestToken !== this.currentMessageRequestToken) {
+                    return;
+                }
+
+                this.currentJobMessages = [];
+            });
         },
     },
 };
