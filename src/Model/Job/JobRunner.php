@@ -88,18 +88,26 @@ readonly class JobRunner
         if ($handler instanceof GeneratingHandlerInterface) {
             if ($status === JobEntity::TYPE_FAILED) {
                 $this->jobHelper->markJob($message->getJobId(), $status);
-            } elseif ($this->jobHelper->countChildJobs($message->getJobId()) === 0) {
-                /**
-                 * Nothing was scheduled by generating job handler - delete job.
-                 */
-                $this->jobHelper->deleteJob($message->getJobId());
-            } elseif ($this->jobHelper->isGeneratedJobReadyToFinalize($message->getJobId(), self::NOT_FINISHED_STATUSES)) {
-                $this->jobHelper->markJob(
-                    $message->getJobId(),
-                    $this->jobHelper->hasFailedChildJobs($message->getJobId())
-                        ? JobEntity::TYPE_FAILED
-                        : JobEntity::TYPE_SUCCEED
-                );
+            } else {
+                $childCount = $this->jobHelper->countChildJobs($message->getJobId());
+
+                if ($childCount === 0) {
+                    /**
+                     * Nothing was scheduled by generating job handler - delete job.
+                     */
+                    $this->jobHelper->deleteJob($message->getJobId());
+                } else {
+                    $this->jobHelper->markChildGenerationState($message->getJobId(), $childCount, true);
+
+                    if ($this->jobHelper->isGeneratedJobReadyToFinalize($message->getJobId(), self::NOT_FINISHED_STATUSES)) {
+                        $this->jobHelper->markJob(
+                            $message->getJobId(),
+                            $this->jobHelper->hasFailedChildJobs($message->getJobId())
+                                ? JobEntity::TYPE_FAILED
+                                : JobEntity::TYPE_SUCCEED
+                        );
+                    }
+                }
             }
 
             return $result;
