@@ -6,8 +6,8 @@ namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Shopware\Core\Framework\Migration\MigrationStep;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1697197869UpdateNaming extends MigrationStep
 {
