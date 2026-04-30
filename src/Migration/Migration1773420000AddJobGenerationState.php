@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1773420000AddJobGenerationState extends MigrationStep
@@ -14,13 +16,19 @@ class Migration1773420000AddJobGenerationState extends MigrationStep
         return 1773420000;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(
-            'ALTER TABLE `nosto_scheduler_job`
-                ADD COLUMN `expected_child_count` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `finished_at`,
-                ADD COLUMN `child_generation_completed` TINYINT(1) NOT NULL DEFAULT 0 AFTER `expected_child_count`'
-        );
+        try {
+            $connection->createSchemaManager()->introspectTableByUnquotedName('nosto_scheduler_job');
+        } catch (TableDoesNotExist) {
+            return;
+        }
+
+        $this->addColumn($connection, 'nosto_scheduler_job', 'expected_child_count', 'INT UNSIGNED', false, '0');
+        $this->addColumn($connection, 'nosto_scheduler_job', 'child_generation_completed', 'TINYINT(1)', false, '0');
     }
 
     public function updateDestructive(Connection $connection): void

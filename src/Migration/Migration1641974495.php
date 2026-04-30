@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1641974495 extends MigrationStep
@@ -14,6 +15,9 @@ class Migration1641974495 extends MigrationStep
         return 1641974495;
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(Connection $connection): void
     {
         $sql = <<<SQL
