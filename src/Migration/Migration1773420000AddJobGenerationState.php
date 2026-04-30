@@ -14,13 +14,17 @@ class Migration1773420000AddJobGenerationState extends MigrationStep
         return 1773420000;
     }
 
+    /**
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function update(Connection $connection): void
     {
-        $connection->executeStatement(
-            'ALTER TABLE `nosto_scheduler_job`
-                ADD COLUMN `expected_child_count` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `finished_at`,
-                ADD COLUMN `child_generation_completed` TINYINT(1) NOT NULL DEFAULT 0 AFTER `expected_child_count`'
-        );
+        if (!$connection->createSchemaManager()->tableExists('nosto_scheduler_job')) {
+            return;
+        }
+
+        $this->addColumn($connection, 'nosto_scheduler_job', 'expected_child_count', 'INT UNSIGNED', false, '0');
+        $this->addColumn($connection, 'nosto_scheduler_job', 'child_generation_completed', 'TINYINT(1)', false, '0');
     }
 
     public function updateDestructive(Connection $connection): void
