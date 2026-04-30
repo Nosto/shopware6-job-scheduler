@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -17,7 +16,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function update(Connection $connection): void
     {
@@ -27,7 +26,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function renameTables(Connection $connection): void
     {
@@ -36,7 +35,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function renameTableIfNeeded(Connection $connection, string $oldTable, string $newTable): void
     {
@@ -53,7 +52,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function renameIndexes(Connection $connection): void
     {
@@ -67,7 +66,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     /**
      * @param list<string> $columns
      *
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function ensureIndex(
         Connection $connection,
@@ -106,7 +105,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function renameForeignKeys(Connection $connection): void
     {
@@ -133,7 +132,7 @@ class Migration1697197869UpdateNaming extends MigrationStep
     /**
      * @param list<string> $referencedColumns
      *
-     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     private function ensureForeignKey(
         Connection $connection,
