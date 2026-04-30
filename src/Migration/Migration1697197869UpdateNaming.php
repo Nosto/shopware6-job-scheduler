@@ -46,8 +46,6 @@ class Migration1697197869UpdateNaming extends MigrationStep
         }
 
         if ($schemaManager->tableExists($newTable)) {
-            $connection->executeStatement(\sprintf('DROP TABLE IF EXISTS `%s`', $oldTable));
-
             return;
         }
 
