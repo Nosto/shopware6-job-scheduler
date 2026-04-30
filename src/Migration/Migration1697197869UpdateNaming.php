@@ -6,8 +6,8 @@ namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 
 class Migration1697197869UpdateNaming extends MigrationStep
 {
@@ -40,11 +40,12 @@ class Migration1697197869UpdateNaming extends MigrationStep
      */
     private function renameTableIfNeeded(Connection $connection, string $oldTable, string $newTable): void
     {
-        if (!$this->tableExists($connection, $oldTable)) {
+        $schemaManager = $connection->createSchemaManager();
+        if (!$schemaManager->tableExists($oldTable)) {
             return;
         }
 
-        if ($this->tableExists($connection, $newTable)) {
+        if ($schemaManager->tableExists($newTable)) {
             $connection->executeStatement(\sprintf('DROP TABLE IF EXISTS `%s`', $oldTable));
 
             return;
@@ -58,41 +59,11 @@ class Migration1697197869UpdateNaming extends MigrationStep
      */
     private function renameIndexes(Connection $connection): void
     {
-        $this->ensureIndex(
-            $connection,
-            'nosto_scheduler_job',
-            'osj_parent_id_idx',
-            'nosto_job_parent_id_idx',
-            ['parent_id'],
-        );
-        $this->ensureIndex(
-            $connection,
-            'nosto_scheduler_job',
-            'osj_parent_status_idx',
-            'nosto_job_parent_status_idx',
-            ['status'],
-        );
-        $this->ensureIndex(
-            $connection,
-            'nosto_scheduler_job',
-            'osj_parent_type_idx',
-            'nosto_job_parent_type_idx',
-            ['type'],
-        );
-        $this->ensureIndex(
-            $connection,
-            'nosto_scheduler_job_message',
-            'osjm_job_id_type_idx',
-            'nosto_jm_job_id_type_idx',
-            ['job_id', 'type'],
-        );
-        $this->ensureIndex(
-            $connection,
-            'nosto_scheduler_job_message',
-            'osjm_created_at_idx',
-            'nosto_jm_created_at_idx',
-            ['created_at'],
-        );
+        $this->ensureIndex($connection, 'nosto_scheduler_job', 'osj_parent_id_idx', 'nosto_job_parent_id_idx', ['parent_id']);
+        $this->ensureIndex($connection, 'nosto_scheduler_job', 'osj_parent_status_idx', 'nosto_job_parent_status_idx', ['status']);
+        $this->ensureIndex($connection, 'nosto_scheduler_job', 'osj_parent_type_idx', 'nosto_job_parent_type_idx', ['type']);
+        $this->ensureIndex($connection, 'nosto_scheduler_job_message', 'osjm_job_id_type_idx', 'nosto_jm_job_id_type_idx', ['job_id', 'type']);
+        $this->ensureIndex($connection, 'nosto_scheduler_job_message', 'osjm_created_at_idx', 'nosto_jm_created_at_idx', ['created_at']);
     }
 
     /**
@@ -107,16 +78,17 @@ class Migration1697197869UpdateNaming extends MigrationStep
         string $newIndex,
         array $columns,
     ): void {
-        if (!$this->tableExists($connection, $table)) {
+        $schemaManager = $connection->createSchemaManager();
+        if (!$schemaManager->tableExists($table)) {
             return;
         }
 
-        $oldExists = $this->indexExists($connection, $table, $oldIndex);
-        $newExists = $this->indexExists($connection, $table, $newIndex);
+        $indexes = $schemaManager->listTableIndexes($table);
+        $oldExists = array_key_exists($oldIndex, $indexes);
+        $newExists = array_key_exists($newIndex, $indexes);
 
         if ($oldExists) {
             $sql = \sprintf('ALTER TABLE `%s` DROP INDEX `%s`', $table, $oldIndex);
-
             if (!$newExists) {
                 $sql .= \sprintf(', ADD INDEX `%s` (%s)', $newIndex, $this->formatColumns($columns));
             }
@@ -174,16 +146,17 @@ class Migration1697197869UpdateNaming extends MigrationStep
         string $referencedTable,
         array $referencedColumns,
     ): void {
-        if (!$this->tableExists($connection, $table)) {
+        $schemaManager = $connection->createSchemaManager();
+        if (!$schemaManager->tableExists($table)) {
             return;
         }
 
-        $oldExists = $this->foreignKeyExists($connection, $table, $oldForeignKey);
-        $newExists = $this->foreignKeyExists($connection, $table, $newForeignKey);
+        $foreignKeys = $schemaManager->listTableForeignKeys($table);
+        $oldExists = $this->hasNamedForeignKey($foreignKeys, $oldForeignKey);
+        $newExists = $this->hasNamedForeignKey($foreignKeys, $newForeignKey);
 
         if ($oldExists) {
             $sql = \sprintf('ALTER TABLE `%s` DROP FOREIGN KEY `%s`', $table, $oldForeignKey);
-
             if (!$newExists) {
                 $sql .= \sprintf(
                     ', ADD CONSTRAINT `%s` FOREIGN KEY (`%s`) REFERENCES `%s` (%s) ON DELETE CASCADE',
@@ -216,45 +189,17 @@ class Migration1697197869UpdateNaming extends MigrationStep
     }
 
     /**
-     * @throws Exception
+     * @param list<ForeignKeyConstraint> $foreignKeys
      */
-    private function tableExists(Connection $connection, string $table): bool
+    private function hasNamedForeignKey(array $foreignKeys, string $name): bool
     {
-        try {
-            $connection->createSchemaManager()->introspectTableByUnquotedName($table);
-
-            return true;
-        } catch (TableDoesNotExist) {
-            return false;
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function indexExists(Connection $connection, string $table, string $index): bool
-    {
-        if (!$this->tableExists($connection, $table)) {
-            return false;
+        foreach ($foreignKeys as $foreignKey) {
+            if ($foreignKey->getName() === $name) {
+                return true;
+            }
         }
 
-        return $connection->createSchemaManager()
-            ->introspectTableByUnquotedName($table)
-            ->hasIndex($index);
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function foreignKeyExists(Connection $connection, string $table, string $foreignKey): bool
-    {
-        if (!$this->tableExists($connection, $table)) {
-            return false;
-        }
-
-        return $connection->createSchemaManager()
-            ->introspectTableByUnquotedName($table)
-            ->hasForeignKey($foreignKey);
+        return false;
     }
 
     /**

@@ -6,7 +6,6 @@ namespace Nosto\Scheduler\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Schema\Exception\TableDoesNotExist;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1773420000AddJobGenerationState extends MigrationStep
@@ -21,9 +20,7 @@ class Migration1773420000AddJobGenerationState extends MigrationStep
      */
     public function update(Connection $connection): void
     {
-        try {
-            $connection->createSchemaManager()->introspectTableByUnquotedName('nosto_scheduler_job');
-        } catch (TableDoesNotExist) {
+        if (!$connection->createSchemaManager()->tableExists('nosto_scheduler_job')) {
             return;
         }
 
