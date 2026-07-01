@@ -6,6 +6,7 @@ namespace Nosto\Scheduler\Decorator;
 
 use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Nosto\Scheduler\Entity\Job\JobEntity;
+use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
@@ -14,11 +15,10 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 readonly class MessageBusDecorator implements MessageBusInterface
 {
-    private EntityRepository $jobRepository;
-
     public function __construct(
         private MessageBusInterface $innerBus,
-        private SerializerInterface $messageSerializer
+        private SerializerInterface $messageSerializer,
+        private ContainerInterface $jobRepositoryLocator
     ) {
     }
 
@@ -52,11 +52,11 @@ readonly class MessageBusDecorator implements MessageBusInterface
             $jobData['parentId'] = $jobMessage->getParentJobId();
         }
 
-        $this->jobRepository->create([$jobData], Context::createDefaultContext());
+        $this->getJobRepository()->create([$jobData], Context::createDefaultContext());
     }
 
-    public function setJobRepository(EntityRepository $jobRepository): void
+    private function getJobRepository(): EntityRepository
     {
-        $this->jobRepository = $jobRepository;
+        return $this->jobRepositoryLocator->get('jobRepository');
     }
 }

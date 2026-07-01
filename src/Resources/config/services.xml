@@ -61,9 +61,9 @@
         <service id="Nosto\Scheduler\Decorator\MessageBusDecorator" decorates="messenger.default_bus">
             <argument type="service" id="Nosto\Scheduler\Decorator\MessageBusDecorator.inner"/>
             <argument type="service" id="messenger.transport.native_php_serializer"/>
-            <call method="setJobRepository">
-                <argument type="service" id="nosto_scheduler_job.repository"/>
-            </call>
+            <argument type="service_locator">
+                <argument key="jobRepository" type="service" id="nosto_scheduler_job.repository"/>
+            </argument>
         </service>
         <!-- /Decorators -->
         <service id="Nosto\Scheduler\Model\Job\JobTreeProvider">
