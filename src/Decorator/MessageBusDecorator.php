@@ -14,11 +14,10 @@ use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 
 readonly class MessageBusDecorator implements MessageBusInterface
 {
-    private EntityRepository $jobRepository;
-
     public function __construct(
         private MessageBusInterface $innerBus,
-        private SerializerInterface $messageSerializer
+        private SerializerInterface $messageSerializer,
+        private \Closure $jobRepositoryFactory
     ) {
     }
 
@@ -52,11 +51,11 @@ readonly class MessageBusDecorator implements MessageBusInterface
             $jobData['parentId'] = $jobMessage->getParentJobId();
         }
 
-        $this->jobRepository->create([$jobData], Context::createDefaultContext());
+        $this->getJobRepository()->create([$jobData], Context::createDefaultContext());
     }
 
-    public function setJobRepository(EntityRepository $jobRepository): void
+    private function getJobRepository(): EntityRepository
     {
-        $this->jobRepository = $jobRepository;
+        return ($this->jobRepositoryFactory)();
     }
 }
