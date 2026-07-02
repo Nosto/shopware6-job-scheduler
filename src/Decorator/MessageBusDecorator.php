@@ -6,7 +6,6 @@ namespace Nosto\Scheduler\Decorator;
 
 use Nosto\Scheduler\Async\{JobMessageInterface, ParentAwareMessageInterface};
 use Nosto\Scheduler\Entity\Job\JobEntity;
-use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendException;
@@ -18,7 +17,7 @@ readonly class MessageBusDecorator implements MessageBusInterface
     public function __construct(
         private MessageBusInterface $innerBus,
         private SerializerInterface $messageSerializer,
-        private ContainerInterface $jobRepositoryLocator
+        private \Closure $jobRepositoryFactory
     ) {
     }
 
@@ -57,6 +56,6 @@ readonly class MessageBusDecorator implements MessageBusInterface
 
     private function getJobRepository(): EntityRepository
     {
-        return $this->jobRepositoryLocator->get('jobRepository');
+        return ($this->jobRepositoryFactory)();
     }
 }
