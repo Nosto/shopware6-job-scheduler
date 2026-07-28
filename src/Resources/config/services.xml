@@ -57,13 +57,18 @@
             <tag name="controller.service_arguments"/>
         </service>
         <!-- Job Management Services -->
-        <!-- Decorators -->
-        <service id="Nosto\Scheduler\Decorator\MessageBusDecorator" decorates="messenger.default_bus">
-            <argument type="service" id="Nosto\Scheduler\Decorator\MessageBusDecorator.inner"/>
+        <!-- Messenger middleware: persists a pending job row for every dispatched
+             JobMessageInterface. Registered on the default bus by
+             RegisterJobSchedulingMiddlewarePass (a compiler pass), NOT via
+             framework.messenger config, whose middleware node uses performNoDeepMerging()
+             and would drop Shopware's own bus middleware (e.g. QueuedTimeMiddleware on 6.7).
+             The repository is a service_closure so it is resolved only when a job is
+             persisted, never while the messenger service graph is being built. -->
+        <service id="Nosto\Scheduler\Middleware\JobSchedulingMiddleware">
             <argument type="service" id="messenger.transport.native_php_serializer"/>
             <argument type="service_closure" id="nosto_scheduler_job.repository"/>
         </service>
-        <!-- /Decorators -->
+        <!-- /Messenger middleware -->
         <service id="Nosto\Scheduler\Model\Job\JobTreeProvider">
             <argument type="service" id="nosto_scheduler_job.repository"/>
         </service>
