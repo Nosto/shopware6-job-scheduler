@@ -54,7 +54,9 @@ final class RegisterJobSchedulingMiddlewarePass implements CompilerPassInterface
             }
         }
 
-        $entry = ['id' => JobSchedulingMiddleware::class];
+        $entry = [
+            'id' => JobSchedulingMiddleware::class,
+        ];
 
         $sendIndex = null;
         foreach ($middleware as $index => $item) {
