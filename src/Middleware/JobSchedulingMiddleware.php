@@ -47,6 +47,7 @@ readonly class JobSchedulingMiddleware implements MiddlewareInterface
             try {
                 $this->scheduleMessage($message);
             } catch (WriteTypeIntendException) {
+                // Intentionally ignore persistence failures so dispatching the message is not blocked.
             }
         }
 
