@@ -18,7 +18,7 @@ readonly class JobFailureHandler
     public function fail(string $jobId, string $reason): void
     {
         $job = $this->jobHelper->getJob($jobId);
-        if ($job === null) {
+        if ($job === null || in_array($job->getStatus(), [JobEntity::TYPE_FAILED, JobEntity::TYPE_SUCCEED], true)) {
             return;
         }
 

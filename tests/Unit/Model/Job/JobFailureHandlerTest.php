@@ -9,6 +9,7 @@ use Nosto\Scheduler\Model\Job\JobFailureHandler;
 use Nosto\Scheduler\Model\Job\JobHelper;
 use Nosto\Scheduler\Model\Job\JobRunner;
 use Nosto\Scheduler\Model\MessageManager;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class JobFailureHandlerTest extends TestCase
@@ -36,6 +37,31 @@ final class JobFailureHandlerTest extends TestCase
         $messageManager->expects($this->never())->method('addErrorMessage');
 
         (new JobFailureHandler($jobHelper, $messageManager))->fail('missing', 'Lost message');
+    }
+
+    #[DataProvider('finishedStatuses')]
+    public function testFailIgnoresJobsThatAreAlreadyFinished(string $status): void
+    {
+        $jobHelper = $this->createMock(JobHelper::class);
+        $messageManager = $this->createMock(MessageManager::class);
+        $jobHelper->method('getJob')->willReturn($this->createJob('child', 'parent', $status));
+
+        $jobHelper->expects($this->never())->method('markJob');
+        $jobHelper->expects($this->never())->method('isGeneratedJobReadyToFinalize');
+        $messageManager->expects($this->never())->method('addErrorMessage');
+
+        (new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message');
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function finishedStatuses(): array
+    {
+        return [
+            'failed' => [JobEntity::TYPE_FAILED],
+            'succeeded' => [JobEntity::TYPE_SUCCEED],
+        ];
     }
 
     public function testFailFinalizesTheParentWhenItWasTheLastUnfinishedChild(): void
@@ -89,11 +115,12 @@ final class JobFailureHandlerTest extends TestCase
         (new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message');
     }
 
-    private function createJob(string $id, ?string $parentId = null): JobEntity
+    private function createJob(string $id, ?string $parentId = null, string $status = JobEntity::TYPE_PENDING): JobEntity
     {
         $job = new JobEntity();
         $job->setId($id);
         $job->setParentId($parentId);
+        $job->setStatus($status);
 
         return $job;
     }
