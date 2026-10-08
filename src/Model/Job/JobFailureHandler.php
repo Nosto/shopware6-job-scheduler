@@ -15,24 +15,24 @@ readonly class JobFailureHandler
     ) {
     }
 
-    public function fail(string $jobId, string $reason): void
+    public function fail(string $jobId, string $reason): bool
     {
         $job = $this->jobHelper->getJob($jobId);
         if ($job === null || in_array($job->getStatus(), [JobEntity::TYPE_FAILED, JobEntity::TYPE_SUCCEED], true)) {
-            return;
+            return false;
         }
 
         $this->jobHelper->markJob($jobId, JobEntity::TYPE_FAILED);
         $this->messageManager->addErrorMessage($jobId, $reason);
 
         $parentJobId = $job->getParentId();
-        if ($parentJobId === null
-            || !$this->jobHelper->isGeneratedJobReadyToFinalize($parentJobId, JobRunner::NOT_FINISHED_STATUSES)
+        if ($parentJobId !== null
+            && $this->jobHelper->isGeneratedJobReadyToFinalize($parentJobId, JobRunner::NOT_FINISHED_STATUSES)
         ) {
-            return;
+            $this->jobHelper->markJob($parentJobId, JobEntity::TYPE_FAILED);
+            $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs have failed to process.');
         }
 
-        $this->jobHelper->markJob($parentJobId, JobEntity::TYPE_FAILED);
-        $this->messageManager->addErrorMessage($parentJobId, 'Some child jobs have failed to process.');
+        return true;
     }
 }
