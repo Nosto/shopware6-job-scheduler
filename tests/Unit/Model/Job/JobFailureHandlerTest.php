@@ -24,7 +24,7 @@ final class JobFailureHandlerTest extends TestCase
         $messageManager->expects($this->once())->method('addErrorMessage')->with('job-1', 'Lost message');
         $jobHelper->expects($this->never())->method('isGeneratedJobReadyToFinalize');
 
-        (new JobFailureHandler($jobHelper, $messageManager))->fail('job-1', 'Lost message');
+        self::assertTrue((new JobFailureHandler($jobHelper, $messageManager))->fail('job-1', 'Lost message'));
     }
 
     public function testFailIgnoresJobsThatNoLongerExist(): void
@@ -36,7 +36,7 @@ final class JobFailureHandlerTest extends TestCase
         $jobHelper->expects($this->never())->method('markJob');
         $messageManager->expects($this->never())->method('addErrorMessage');
 
-        (new JobFailureHandler($jobHelper, $messageManager))->fail('missing', 'Lost message');
+        self::assertFalse((new JobFailureHandler($jobHelper, $messageManager))->fail('missing', 'Lost message'));
     }
 
     #[DataProvider('finishedStatuses')]
@@ -50,7 +50,7 @@ final class JobFailureHandlerTest extends TestCase
         $jobHelper->expects($this->never())->method('isGeneratedJobReadyToFinalize');
         $messageManager->expects($this->never())->method('addErrorMessage');
 
-        (new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message');
+        self::assertFalse((new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message'));
     }
 
     /**
@@ -87,7 +87,7 @@ final class JobFailureHandlerTest extends TestCase
             }
         );
 
-        (new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message');
+        self::assertTrue((new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message'));
 
         self::assertSame([
             'child' => JobEntity::TYPE_FAILED,
@@ -112,7 +112,7 @@ final class JobFailureHandlerTest extends TestCase
         $jobHelper->expects($this->once())->method('markJob')->with('child', JobEntity::TYPE_FAILED);
         $messageManager->expects($this->once())->method('addErrorMessage')->with('child', 'Lost message');
 
-        (new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message');
+        self::assertTrue((new JobFailureHandler($jobHelper, $messageManager))->fail('child', 'Lost message'));
     }
 
     private function createJob(string $id, ?string $parentId = null, string $status = JobEntity::TYPE_PENDING): JobEntity
