@@ -1,0 +1,32 @@
+{
+  "base": "/bundles/nostoscheduler/administration/",
+  "entryPoints": {
+    "nosto-scheduler": {
+      "css": [
+        "/bundles/nostoscheduler/administration/assets/nosto-scheduler-FPA6N_7d.css"
+      ],
+      "dynamic": [
+        "/bundles/nostoscheduler/administration/assets/component-Dk0XSNJI.js",
+        "/bundles/nostoscheduler/administration/assets/page-CFzH3kkX.js",
+        "/bundles/nostoscheduler/administration/assets/component-yLg3H7rm.js",
+        "/bundles/nostoscheduler/administration/assets/component-DWOMBTDy.js",
+        "/bundles/nostoscheduler/administration/assets/component-BAesRY_-.js",
+        "/bundles/nostoscheduler/administration/assets/component-DReOYIhw.js"
+      ],
+      "js": [
+        "/bundles/nostoscheduler/administration/assets/nosto-scheduler-CrA3ljHr.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}
