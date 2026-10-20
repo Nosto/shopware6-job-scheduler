@@ -45,8 +45,8 @@ class Migration1792368000SeparateLegacySchedulerTables extends MigrationStep
     {
         $schemaManager = $connection->createSchemaManager();
         if (
-            $schemaManager->tableExists('od_scheduler_job')
-            || $schemaManager->tableExists('od_scheduler_job_message')
+            $schemaManager->tablesExist(['od_scheduler_job'])
+            || $schemaManager->tablesExist(['od_scheduler_job_message'])
         ) {
             return true;
         }
@@ -67,7 +67,7 @@ class Migration1792368000SeparateLegacySchedulerTables extends MigrationStep
      */
     private function legacySchedulerMigrationWasExecuted(Connection $connection): bool
     {
-        if (!$connection->createSchemaManager()->tableExists('migration')) {
+        if (!$connection->createSchemaManager()->tablesExist(['migration'])) {
             return false;
         }
 
@@ -85,7 +85,7 @@ class Migration1792368000SeparateLegacySchedulerTables extends MigrationStep
      */
     private function getNostoRenameExecutionTime(Connection $connection): ?string
     {
-        if (!$connection->createSchemaManager()->tableExists('migration')) {
+        if (!$connection->createSchemaManager()->tablesExist(['migration'])) {
             return null;
         }
 
