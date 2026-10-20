@@ -29,6 +29,11 @@
             <argument type="service" id="monolog.logger.nosto_scheduler"/>
         </service>
 
+        <service id="Nosto\Scheduler\Model\Job\JobFailureHandler">
+            <argument type="service" id="Nosto\Scheduler\Model\Job\JobHelper"/>
+            <argument type="service" id="Nosto\Scheduler\Model\MessageManager"/>
+        </service>
+
         <service id="Nosto\Scheduler\Model\Job\HandlerPool">
             <argument type="tagged_iterator" tag="nosto.job_handler" index-by="code" />
         </service>
